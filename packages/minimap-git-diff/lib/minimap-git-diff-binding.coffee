@@ -1,96 +1,67 @@
 {$} = require 'atom'
-{Subscriber, Emitter} = require 'emissary'
+{CompositeDisposable} = require 'event-kit'
 
 module.exports =
 class MinimapGitDiffBinding
-  Subscriber.includeInto(this)
-  Emitter.includeInto(this)
 
   active: false
 
-  constructor: (@editorView, @gitDiffPackage, @minimapView) ->
-    {@editor} = @editorView
-    @gitDiff = require(@gitDiffPackage.path)
+  constructor: (@gitDiff, @minimap) ->
+    @editor = @minimap.getTextEditor()
+    @decorations = {}
+    @markers = null
+    @subscriptions = new CompositeDisposable
 
-  activate: ->
-    @subscribe @editorView, 'editor:path-changed', @subscribeToBuffer
-    @subscribe @editorView, 'editor:contents-modified', @renderDiffs
-    @subscribe atom.project.getRepo(), 'statuses-changed', =>
-      @scheduleUpdate()
-    @subscribe atom.project.getRepo(), 'status-changed', (path) =>
-      @scheduleUpdate()
+    @subscriptions.add @editor.onDidChange @updateDiffs
+    @subscriptions.add @editor.getBuffer().onDidStopChanging @updateDiffs
 
-    @subscribeToBuffer()
+    repository = @getRepo()
 
-    @updateDiffs()
+    @subscriptions.add repository.onDidChangeStatuses @scheduleUpdate
+    @subscriptions.add repository.onDidChangeStatus @scheduleUpdate
 
-  deactivate: ->
-    @removeDiffs()
-    @unsubscribe()
+    @scheduleUpdate()
 
-  scheduleUpdate: ->
-    setImmediate(@updateDiffs)
+  scheduleUpdate: => setImmediate(@updateDiffs)
 
   updateDiffs: =>
-    return unless @buffer?
+    @removeDecorations()
+    if @getPath() and @diffs = @getDiffs()
+      @addDecorations(@diffs)
 
-    @renderDiffs()
-
-  renderDiffs: =>
-    @removeDiffs()
-
-    diffs = @getDiffs()
-    displayBuffer = @editor.displayBuffer
-    return unless diffs?
-
-    for {newLines, oldLines, newStart, oldStart} in diffs
+  addDecorations: (diffs) ->
+    for {oldStart, newStart, oldLines, newLines} in diffs
+      startRow = newStart - 1
+      endRow = newStart + newLines - 2
       if oldLines is 0 and newLines > 0
-        for row in [newStart...newStart + newLines]
-          start = displayBuffer.screenRowForBufferRow(row)
-          end = displayBuffer.lastScreenRowForBufferRow(row)
-          @decorateLines(start, end, 'added')
-
+        @markRange(startRow, endRow, '.minimap .git-line-added')
       else if newLines is 0 and oldLines > 0
-        start = displayBuffer.screenRowForBufferRow(newStart)
-        end = displayBuffer.lastScreenRowForBufferRow(newStart)
-
-        # start from fist line
-        if start is 0 and start is end
-          start = end = 1
-
-        @decorateLines(start, end, 'removed')
-
+        @markRange(startRow, startRow, '.minimap .git-line-removed')
       else
-        for row in [newStart...newStart + newLines]
-          start = displayBuffer.screenRowForBufferRow(row)
-          end = displayBuffer.lastScreenRowForBufferRow(row)
-          @decorateLines(start, end, 'modified')
+        @markRange(startRow, endRow, '.minimap .git-line-modified')
 
-  decorateLines: (start, end, status) ->
+  removeDecorations: ->
+    return unless @markers?
+    marker.destroy() for marker in @markers
+    @markers = null
 
-    for row in [start..end]
-      @minimapView.addLineClass(row, "git-line-#{status}")
-
-  removeDiffs: ->
-    @minimapView?.removeAllLineClasses('git-line-added', 'git-line-removed', 'git-line-modified')
+  markRange: (startRow, endRow, scope) ->
+    return if @editor.displayBuffer.isDestroyed()
+    marker = @editor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'never')
+    @minimap.decorateMarker(marker, type: 'line', scope: scope)
+    @markers ?= []
+    @markers.push(marker)
 
   destroy: ->
-    @deactivate()
+    @removeDecorations()
+    @subscriptions.dispose()
+    @diffs = null
 
-  getPath: -> @buffer.getPath()
+  getPath: -> @editor.getBuffer()?.getPath()
 
-  getRepo: -> atom.project.getRepo()
+  getRepositories: -> atom.project?.getRepositories()
+
+  getRepo: -> @getRepositories()?[0]
 
   getDiffs: ->
-    @getRepo()?.getLineDiffs(@getPath(), @editorView.getText())
-
-  unsubscribeFromBuffer: ->
-    if @buffer?
-      @removeDiffs()
-      @buffer = null
-
-  subscribeToBuffer: =>
-    @unsubscribeFromBuffer()
-
-    if @buffer = @editor.getBuffer()
-      @buffer.on 'contents-modified', @updateDiffs
+    @getRepo()?.getLineDiffs(@getPath(), @editor.getBuffer().getText())

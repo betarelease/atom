@@ -1,6 +1,6 @@
 {
   "name": "inline-autocomplete",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "main": "./lib/inline-autocomplete",
   "description": "Inserts possible completions in the editor with `escape`, Textmate style.",
   "repository": {
@@ -19,10 +19,62 @@
     "url": "https://github.com/alexchee/atom-inline-autocomplete/issues"
   },
   "homepage": "https://github.com/alexchee/atom-inline-autocomplete",
-  "_id": "inline-autocomplete@0.3.2",
+  "_id": "inline-autocomplete@0.3.3",
   "dist": {
-    "shasum": "c39e1aad75cdf004c3074e1ecdcd1ada75882f69"
+    "shasum": "1d617365ae9852f2d0e9432a0e41d72ed34cab09"
   },
-  "_resolved": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114625-91413-olgi39/package.tgz",
-  "_from": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114625-91413-olgi39/package.tgz"
+  "_resolved": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-1141118-59668-c51koh/package.tgz",
+  "_from": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-1141118-59668-c51koh/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [
+      {
+        "name": "underscore-plus",
+        "version": "1.6.6",
+        "path": "node_modules/underscore-plus/lib/underscore-plus.js"
+      },
+      {
+        "name": "underscore",
+        "version": "1.6.0",
+        "path": "node_modules/underscore-plus/node_modules/underscore/underscore.js"
+      }
+    ],
+    "extensions": {
+      ".coffee": [
+        "lib/inline-autocomplete.coffee"
+      ],
+      ".js": [
+        "node_modules/underscore-plus/lib/underscore-plus.js",
+        "node_modules/underscore-plus/node_modules/underscore/underscore-min.js",
+        "node_modules/underscore-plus/node_modules/underscore/underscore.js"
+      ],
+      ".json": [
+        "node_modules/underscore-plus/node_modules/underscore/package.json",
+        "node_modules/underscore-plus/package.json",
+        "package.json"
+      ]
+    },
+    "folders": [
+      {
+        "paths": [
+          "lib",
+          "",
+          "spec",
+          "spec/fixtures"
+        ],
+        "dependencies": {
+          "underscore-plus": "1.x"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/underscore-plus/lib",
+          "node_modules/underscore-plus"
+        ],
+        "dependencies": {
+          "underscore": "~1.6.0"
+        }
+      }
+    ]
+  }
 }

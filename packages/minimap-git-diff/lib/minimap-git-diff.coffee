@@ -1,63 +1,72 @@
-{Subscriber} = require 'emissary'
-MinimapGitDiffBinding = require './minimap-git-diff-binding'
+{CompositeDisposable, Disposable} = require 'event-kit'
+{requirePackages} = require 'atom-utils'
+
+MinimapGitDiffBinding = null
 
 class MinimapGitDiff
-  Subscriber.includeInto(this)
 
   bindings: {}
   pluginActive: false
+  constructor: ->
+    @subscriptions = new CompositeDisposable
+
   isActive: -> @pluginActive
   activate: (state) ->
-    @gitDiff = atom.packages.getLoadedPackage('git-diff')
-    @minimap = atom.packages.getLoadedPackage('minimap')
-
-    return @deactivate() unless @gitDiff? and @minimap?
-    return @deactivate() unless atom.project.getRepo()?
-
-    @minimapModule = require @minimap.path
-
-    return @deactivate() unless @minimapModule.versionMatch('1.x')
-    @minimapModule.registerPlugin 'git-diff', this
+    requirePackages('minimap', 'git-diff').then ([@minimap, @gitDiff]) =>
+      return @deactivate() unless @minimap.versionMatch('>= 3.5.0')
+      @minimap.registerPlugin 'git-diff', this
 
   deactivate: ->
     binding.destroy() for id,binding of @bindings
     @bindings = {}
     @gitDiff = null
     @minimap = null
-    @minimapModule = null
 
   activatePlugin: ->
     return if @pluginActive
 
-    @createBindings()
+    try
+      @activateBinding()
+      @pluginActive = true
 
-    @pluginActive = true
-
-    @subscribe @minimapModule, 'activated', @createBindings
-    @subscribe @minimapModule, 'deactivated', @destroyBindings
+      @subscriptions.add @minimap.onDidActivate @activateBinding
+      @subscriptions.add @minimap.onDidDeactivate @destroyBindings
+    catch e
+      console.log e
 
   deactivatePlugin: ->
     return unless @pluginActive
 
     @pluginActive = false
-    @unsubscribe()
+    @subscriptions.dispose()
     @destroyBindings()
 
+  activateBinding: =>
+    @createBindings() if atom.project.getRepositories().length > 0
+
+    @subscriptions.add atom.project.onDidChangePaths =>
+      if atom.project.getRepositories().length > 0
+        @createBindings()
+      else
+        @destroyBindings()
+
   createBindings: =>
-    @minimapModule.eachMinimapView ({view}) =>
-      editorView = view.editorView
-      editor = view.editor
+    MinimapGitDiffBinding ||= require './minimap-git-diff-binding'
+
+    @subscriptions.add @minimap.observeMinimaps (o) =>
+      minimap = o.view ? o
+      editor = minimap.getTextEditor()
 
       return unless editor?
 
       id = editor.id
-      binding = new MinimapGitDiffBinding editorView, @gitDiff, view
+      binding = new MinimapGitDiffBinding @gitDiff, minimap
       @bindings[id] = binding
-
-      binding.activate()
 
   destroyBindings: =>
     binding.destroy() for id,binding of @bindings
     @bindings = {}
+
+  asDisposable: (subscription) -> new Disposable -> subscription.off()
 
 module.exports = new MinimapGitDiff

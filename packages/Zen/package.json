@@ -1,7 +1,7 @@
 {
   "name": "Zen",
   "main": "./lib/zen",
-  "version": "0.8.0",
+  "version": "0.10.0",
   "private": true,
   "description": "Distraction free writing.",
   "activationEvents": [
@@ -16,16 +16,29 @@
     "atom": ">0.50.0"
   },
   "dependencies": {},
-  "readme": "# Zen\n\nDistraction free writing for Atom.\n\nToggle with `cmd-ctrl-z` on OS X or by adding `shift` to your platform's\nfullscreen command:\n- `cmd-ctrl-shift-F` on OSX\n- `shift-F11` on Windows and Linux.\n\n## Before:\n\n![](https://f.cloud.github.com/assets/2/2290454/c7304340-a01d-11e3-8b89-018775a8612b.png)\n\n## After:\n\n![](https://f.cloud.github.com/assets/2/2290455/ce99e97e-a01d-11e3-8808-ebec40e959b4.png)\n",
+  "readme": "# Zen\n\nDistraction free writing for Atom.\n\nToggle with `cmd-ctrl-z` on OS X or by adding `shift` to your platform's\nfullscreen command:\n- `cmd-ctrl-shift-F` on OSX\n- `shift-F11` on Windows and Linux.\n\nChange the width and other options in Settings under Zen.\n\n## Before:\n\n![](https://f.cloud.github.com/assets/2/2290454/c7304340-a01d-11e3-8b89-018775a8612b.png)\n\n## After:\n\n![](https://f.cloud.github.com/assets/2/2290455/ce99e97e-a01d-11e3-8808-ebec40e959b4.png)\n",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/defunkt/zen/issues"
   },
   "homepage": "https://github.com/defunkt/zen",
-  "_id": "Zen@0.8.0",
+  "_id": "Zen@0.10.0",
   "dist": {
-    "shasum": "ca92793dde7d88d58183c76381c182532aff6242"
+    "shasum": "57f508d1a941b87f14330e2f4dbd082f6d8d4c42"
   },
-  "_resolved": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114911-55014-17k5zrt/package.tgz",
-  "_from": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114911-55014-17k5zrt/package.tgz"
+  "_resolved": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114112-56480-1jcrsar/package.tgz",
+  "_from": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114112-56480-1jcrsar/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".coffee": [
+        "lib/zen.coffee"
+      ],
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
 }

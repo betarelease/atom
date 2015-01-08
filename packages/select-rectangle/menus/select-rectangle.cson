@@ -1,0 +1,16 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  '.overlayer':
+      'Enable select-rectangle': 'select-rectangle:select'
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Select Rectangle'
+      'submenu': [
+        { 'label': 'Select', 'command': 'select-rectangle:select' },
+      ]
+    ]
+  }
+]

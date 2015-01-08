@@ -1,22 +1,22 @@
 fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
-{Model} = require 'theorist'
 
 git = require '../git'
 StatusView = require '../views/status-view'
 
 module.exports =
-class GitCommit extends Model
+class GitCommit
+  subscriptions: []
 
-  # Public: Helper method to set the what commentchar to be used in the commit message
+  # Public: Helper method to set the commentchar to be used in
+  #   the commit message
   setCommentChar: (char) ->
-    if char is ''
-      char = '#'
+    if char is '' then char = '#'
     @commentchar = char
 
-  # Public: Helper method to return the name of the file we should write our
-  #         commit message to.
+  # Public: Helper method returning the name of the file we should
+  #   write our commit message to.
   #
   # Returns: The filename as {String}.
   file: ->
@@ -28,7 +28,7 @@ class GitCommit extends Model
 
   # Public: Helper method to return the current working directory.
   #
-  # Returns: The cwd as {String}.
+  # Returns: The cwd as a String.
   dir: ->
     # path is different for submodules
     if @submodule ?= git.getSubmodule()
@@ -44,16 +44,10 @@ class GitCommit extends Model
   currentPane: atom.workspace.getActivePane()
 
   constructor: (@amend='') ->
-    super
-
-    # This prevents atom from creating more than one Editor to edit the commit
-    # message.
-    return if @assignId() isnt 1
-
-    # This sets @isAmending to check if we are amending right now.
+    # Check if we are amending right now.
     @isAmending = @amend.length > 0
 
-    # load the commentchar from git config, defaults to '#'
+    # Load the commentchar from git config, defaults to '#'
     git.cmd
       args: ['config', '--get', 'core.commentchar'],
       stdout: (data) =>
@@ -91,12 +85,12 @@ class GitCommit extends Model
   showFile: ->
     split = if atom.config.get('git-plus.openInPane') then atom.config.get('git-plus.splitPane')
     atom.workspace
-      .open(@filePath(), split: split, activatePane: true, searchAllPanes: true)
-      .done ({buffer}) =>
-        @subscribe buffer, 'saved', =>
-          @commit()
-        @subscribe buffer, 'destroyed', =>
-          if @isAmending then @undoAmend() else @cleanup()
+      .open(@filePath(), split: split, searchAllPanes: true)
+      .done (textBuffer) =>
+        if textBuffer?
+          @subscriptions.push textBuffer.onDidSave => @commit()
+          @subscriptions.push textBuffer.onDidDestroy =>
+            if @isAmending then @undoAmend() else @cleanup()
 
   # Public: When the user is done editing the commit message an saves the file
   #         this method gets invoked and commits the changes.
@@ -116,7 +110,7 @@ class GitCommit extends Model
         # diff gutter.
         atom.project.getRepo()?.refreshStatus()
         # Activate the former active pane.
-        @currentPane.activate()
+        @currentPane.activate() if @currentPane.alive
         # Refresh git index to prevent bugs on our methods.
         git.refresh()
 
@@ -150,7 +144,6 @@ class GitCommit extends Model
 
   # Public: Cleans up after the EditorView gets destroyed.
   cleanup: ->
-    Model.resetNextInstanceId()
-    @destroy()
-    @currentPane.activate()
+    @currentPane.activate() if @currentPane.alive
+    s.dispose() for s in @subscriptions
     try fs.unlinkSync @filePath()

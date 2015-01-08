@@ -8,11 +8,11 @@
 #
 # An example CoffeeScript snippet to expand log to console.log:
 #
-# '.source.coffee':
-#   'Console log':
-#     'prefix': 'log'
-#     'body': 'console.log $1'
-#
+'.source.js':
+  'Console log':
+    'prefix': 'log'
+    'body': 'console.log($1);'
+
 '.source.ruby':
   'puts with DEBUG':
     'prefix': 'put'
