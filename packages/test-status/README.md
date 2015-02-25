@@ -2,6 +2,10 @@
 
 View the status of your projects test suite in the status bar of Atom.
 
+**Please note:** I am no longer using Atom, this means I won't be actively
+maintaining this project. I will still accept pull requests for bug fixes and
+such.
+
 ## Installation
 
   * Install `test-status` in the **Packages** section in the preferences

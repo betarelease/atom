@@ -1,8 +1,8 @@
 {
   "name": "open-last-project",
-  "main": "lib/open-last-project",
-  "version": "0.1.1",
-  "description": "An Atom.io package that automatically reopens the last project and files you were working on.",
+  "main": "lib/main",
+  "version": "0.3.4",
+  "description": "An Atom package that automatically reopens the last project and files you were working on.",
   "license": "MIT",
   "private": true,
   "repository": {
@@ -16,21 +16,7 @@
   "engines": {
     "atom": ">0.50.0"
   },
-  "scripts": {
-    "test": "grunt"
-  },
   "dependencies": {},
-  "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-apm": "0.0.1",
-    "grunt-contrib-jshint": "~0.8.0",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-lesslint": "~1.0.0",
-    "grunt-verb": "^0.2.4",
-    "verb": "~0.2.6",
-    "chai": "~1.9.1",
-    "mocha": "*"
-  },
   "author": {
     "name": "Daniel Mahon",
     "url": "https://github.com/danielmahon"
@@ -50,12 +36,24 @@
     "templates",
     "verb"
   ],
-  "readme": "# open-last-project\n\n> An Atom.io package that automatically reopens the last project and files you were working on.\n\n## Install\nYou can install **open-last-project** using the Preferences pane.\n\n## Todo\n+ Remove that pesky untitled file upon new window\n\n## Packages\nTry these awesome packages:\n+ [project-switcher](https://atom.io/packages/project-switcher)\n\n## Author\n\n**Daniel Mahon**\n \n+ [github/danielmahon](https://github.com/danielmahon)\n+ [twitter/danielmahon](http://twitter.com/danielmahon) \n\n## License\nCopyright (c) 2014 Daniel Mahon, contributors.  \nReleased under the MIT license\n\n***\n",
+  "readme": "# open-last-project\n\n> An Atom.io package that automatically reopens the last project and files you were working on.\n\n## Install\nYou can install **open-last-project** using the Preferences pane.\n\nThe Atom.io team is hopefully building a version of this into core for 1.0!\nhttps://github.com/atom/atom/issues/1603\n\n## Todo\n+ Support split panes\n+ ~~Convert to CoffeeScript~~\n+ ~~Fix deprecated API calls~~\n+ ~~Remove that pesky untitled file upon new window~~\n\n## Packages I Like\nMake your life easier:\n+ [project-switcher](https://atom.io/packages/project-switcher)\n\n## Author\n\n**Daniel Mahon**\n\n+ [github/danielmahon](https://github.com/danielmahon)\n+ [twitter/danielmahon](http://twitter.com/danielmahon)\n\n## Contributors\n\nSpecial thanks to [steelbrain](https://github.com/steelbrain) for the CoffeeScript rewrite!\n\n\n## License\nCopyright (c) 2014 Daniel Mahon, contributors.  \nReleased under the MIT license\n\n***\n",
   "readmeFilename": "README.md",
-  "_id": "open-last-project@0.1.1",
-  "dist": {
-    "shasum": "f59bebc71e7b59a25883046dc51da3d3df755715"
-  },
-  "_resolved": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114625-91542-4hewt1/package.tgz",
-  "_from": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114625-91542-4hewt1/package.tgz"
+  "_id": "open-last-project@0.3.4",
+  "_shasum": "a324b30e12099a69d106a20c7e2d32ed8784eb3c",
+  "_resolved": "file:../d-115124-66450-10iz4i2/package.tgz",
+  "_from": "../d-115124-66450-10iz4i2/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".coffee": [
+        "lib/main.coffee",
+        "lib/open-last-project.coffee"
+      ],
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
 }

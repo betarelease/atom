@@ -1,7 +1,7 @@
 {
   "name": "squint-test",
   "main": "./lib/squint-test",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Run a squint test on your code!",
   "activationEvents": [
@@ -13,19 +13,30 @@
   },
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">= 0.177.0"
   },
   "dependencies": {},
-  "readme": "# Squint Test for Atom.app\n\nThe Squint Test is a test you can perform visually against your code. It's simple: you take a step back from your display, squint your eyes, and look at your code. Look specifically for changes in chape and changes in color. Changes in shape mean you may have a lot of nested conditionals, while changes in color mean your code may not have the same level of abstraction.\n\nHowever, we're programmers. Our eyes are precious. Why use your eyes to squint when you can use your editor?\n\n![squint-test](https://i.cloudup.com/YIBJxeIWNb-3000x3000.png)\n\nTo perform a squint test on your code in Atom, simply bring up the command palette (⌘⇧P) and use the \"Squint Test: Toggle\" command. Alternatively, use the provided keyboard shortcut (^⌥s).\n\nThis package was inspired by a talk given by [Sandi Metz](http://www.sandimetz.com) at [Ruby on Ales 2014](https://ruby.onales.com) titled \"All the Little Things\". Thank you, Sandi!\n",
+  "readme": "# Squint Test for Atom.app\n\nThe Squint Test is a test you can perform visually against your code. It's simple: you take a step back from your display, squint your eyes, and look at your code. Look specifically for changes in shape and changes in color. Changes in shape mean you may have a lot of nested conditionals, while changes in color mean your code may not have the same level of abstraction.\n\nHowever, we're programmers. Our eyes are precious. Why use your eyes to squint when you can use your editor?\n\n![squint-test](https://i.cloudup.com/YIBJxeIWNb-3000x3000.png)\n\nTo perform a squint test on your code in Atom, simply bring up the command palette (⌘⇧P) and use the \"Squint Test: Toggle\" command. Alternatively, use the provided keyboard shortcut (^⌥s).\n\nThis package was inspired by a talk given by [Sandi Metz](http://www.sandimetz.com) at [Ruby on Ales 2014](https://ruby.onales.com) titled \"All the Little Things\". Thank you, Sandi!\n",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/davidcelis/squint-test/issues"
   },
   "homepage": "https://github.com/davidcelis/squint-test",
-  "_id": "squint-test@1.0.0",
-  "dist": {
-    "shasum": "823bb20dee26c7537263c72f1685557fa41bc250"
-  },
-  "_resolved": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114517-46848-coedhc/package.tgz",
-  "_from": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114517-46848-coedhc/package.tgz"
+  "_id": "squint-test@1.0.1",
+  "_shasum": "780f34ee01f6c3fb200f983296599c1a2f37190c",
+  "_resolved": "file:../d-115123-40993-vbd31l/package.tgz",
+  "_from": "../d-115123-40993-vbd31l/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".coffee": [
+        "lib/squint-test.coffee"
+      ],
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
 }

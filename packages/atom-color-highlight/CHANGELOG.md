@@ -1,3 +1,38 @@
+<a name="v3.0.8"></a>
+# v3.0.8 (2015-02-10)
+
+## :arrow_up: Dependencies Update
+
+- Update pigments to version 3.2.0 ([99697994](https://github.com/abe33/atom-color-highlight/commit/99697994d62123e4cdaf66edfce85d6b17f869c9), [#75](https://github.com/abe33/atom-color-highlight/issues/75))
+
+<a name="v3.0.7"></a>
+# v3.0.7 (2015-02-09)
+
+## :bug: Bug Fixes
+
+- Fix calling method on undefined marker ([d58c511b](https://github.com/abe33/atom-color-highlight/commit/d58c511b89525a5d147a66f386e2cbc8c6fe3708), [#64](https://github.com/abe33/atom-color-highlight/issues/64))
+
+<a name="v3.0.6"></a>
+# v3.0.6 (2015-02-03)
+
+- Upgrade pigments version. Includes fixes for [#74](https://github.com/abe33/atom-color-highlight/issues/74))
+
+<a name="v3.0.5"></a>
+# v3.0.5 (2015-01-16)
+
+## :bug: Bug Fixes
+
+- Fix deprecations on editor methods ([8386e01e](https://github.com/abe33/atom-color-highlight/commit/8386e01e72cee23be975d61984dcd23f3ec4b484))
+
+<a name="v3.0.4"></a>
+# v3.0.4 (2015-01-14)
+
+## :bug: Bug Fixes
+
+- Fix missing color search for restored text editors ([f189b73d](https://github.com/abe33/atom-color-highlight/commit/f189b73dc2a316e9754909ca1b9fd679146d90bb))
+- Prevent errors in markers update when res is null ([cfe9dbfa](https://github.com/abe33/atom-color-highlight/commit/cfe9dbfa93e3760c28b313959b93e46ba724426e))
+- Fix remaining deprecations ([36179390](https://github.com/abe33/atom-color-highlight/commit/36179390fe1e20d3118532cd2e93107f3a8c9c99))
+
 <a name="v3.0.3"></a>
 # v3.0.3 (2015-01-07)
 

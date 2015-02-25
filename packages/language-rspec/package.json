@@ -1,7 +1,7 @@
 {
   "name": "language-rspec",
   "main": "./lib/language-rspec",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "RSpec language package for Atom",
   "repository": {
     "type": "git",
@@ -18,10 +18,21 @@
     "url": "https://github.com/paveldruzyak/language-rspec/issues"
   },
   "homepage": "https://github.com/paveldruzyak/language-rspec",
-  "_id": "language-rspec@0.2.1",
-  "dist": {
-    "shasum": "748028cc8d7a3ac505a4e699ac48cfc7727a2ab6"
-  },
-  "_resolved": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114823-26130-105zisy/package.tgz",
-  "_from": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114823-26130-105zisy/package.tgz"
+  "_id": "language-rspec@0.3.0",
+  "_shasum": "c0f64217b054df535c28b175b5f73bfabce26ade",
+  "_resolved": "file:../d-115123-40993-1b1kzln/package.tgz",
+  "_from": "../d-115123-40993-1b1kzln/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".coffee": [
+        "lib/language-rspec.coffee"
+      ],
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
 }

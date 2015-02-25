@@ -1,5 +1,24 @@
 # Change Log
 
+## Version 0.9.5
+
+* Upgrade to Atom API 1.0 (#39)
+* Fix save-all without open file (#33)
+* Fix atom engine semver (#42)
+
+## Version 0.9.4
+
+* Upgrade from deprecated style API (#36)
+* Fix failed spec (#35)
+
+## Version 0.9.3
+
+* Cucumber color output
+
+## Version 0.9.2
+
+* Linux key bindings
+
 ## Version 0.9.1
 
 * Fix switching shells

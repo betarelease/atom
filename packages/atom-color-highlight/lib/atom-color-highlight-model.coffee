@@ -31,7 +31,8 @@ class AtomColorHighlightModel
 
   subscribeToBuffer: ->
     @subscriptions.add @editor.onDidChange => @dirty = true
-    @subscriptions.add @editor.onDidStopChanging @update
+    @subscriptions.add @editor.onDidStopChanging => @update()
+    @subscriptions.add @editor.displayBuffer.onDidTokenize => @update()
     @subscriptions.add @editor.onDidDestroy => @destroy()
 
   unsubscribeFromBuffer: ->
@@ -71,6 +72,8 @@ class AtomColorHighlightModel
         results = [] unless results?
 
         for res in results
+          continue unless res?
+
           {bufferRange: range, match, color} = res
 
           continue if color.isInvalid

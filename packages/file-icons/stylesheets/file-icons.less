@@ -33,13 +33,24 @@
   // Checklist icon
   &[data-name$="TODO"]:before { .checklist-icon; .medium-yellow; }
 
+  //Makefile icon
+  &[data-name$="Makefile"]:before { .checklist-icon; .medium-yellow; }
+  &[data-name$="makefile"]:before { .checklist-icon; .medium-yellow; }
+  &[data-name$=".mk"]:before { .checklist-icon; .medium-yellow; }
+  &[data-name$=".mak"]:before { .checklist-icon; .medium-yellow; }
   // Clojure
   &[data-name$=".clj"]:before,
   &[data-name$=".cljs"]:before { .clojure-icon; .medium-blue; }
 
   // Code icon
   &[data-name$=".xml"]:before { .code-icon; .medium-blue;   }
+  ///app.exe.config and manifest format is xml.
+  &[data-name$=".config"]:before { .code-icon; .medium-blue;   }
+  &[data-name$=".manifest"]:before { .code-icon; .medium-blue;   }
   &[data-name$=".jl"]:before { .code-icon; .medium-purple;   }
+  &[data-name$=".cfc"]:before { .code-icon; .light-cyan; }
+  &[data-name$=".cfm"]:before { .code-icon; .medium-cyan; }
+  &[data-name$=".cfml"]:before { .code-icon; .medium-cyan; }
 
   // CSS3 icon
   &[data-name$=".less"]:before { .css3-icon; .dark-blue; }
@@ -68,12 +79,12 @@
 
   // HTML5 icon
   &[data-name$=".html"]:before { .html5-icon; .medium-orange; }
-  &[data-name$=".shtml"]:before { .html5-icon; .medium-cyan; }
-  &[data-name$=".haml"]:before { .html5-icon; .light-red;     }
+  &[data-name$=".shtml"]:before { .html5-icon; .medium-cyan;  }
+  &[data-name$=".haml"]:before { .haml-icon; .medium-yellow;  }
   &[data-name$=".jade"]:before { .html5-icon; .medium-green;  }
   &[data-name$=".jsp"]:before  { .html5-icon; .medium-purple; }
   &[data-name$=".ctp"]:before  { .html5-icon; .medium-blue;   }
-  &[data-name$=".ejs"]:before  { .html5-icon; .medium-green; }
+  &[data-name$=".ejs"]:before  { .html5-icon; .medium-green;  }
 
   // Mustache icon
   &[data-name$=".hbs"]:before,
@@ -93,9 +104,14 @@
   &[data-name=".mailmap"]:before        { .gear-icon;                 }
   &[data-name$=".editorconfig"]:before  { .gear-icon; .medium-orange; }
   &[data-name$=".jshintrc"]:before      { .gear-icon; .medium-yellow; }
+  &[data-name$=".jshintignore"]:before  { .gear-icon;                 }
   &[data-name$=".jscsrc"]:before        { .gear-icon; .medium-yellow; }
   &[data-name$=".module"]:before        { .gear-icon; .medium-blue;   }
   &[data-name$=".htaccess"]:before      { .gear-icon; .medium-red;    }
+
+  // Nodemon icon
+  &[data-name="nodemon.json"]:before,
+  &[data-name=".nodemonignore"]:before  { .gear-icon; .medium-green;  }
 
   // Npm icon
   &[data-name=".npmrc"]:before           { .node-icon; }
@@ -134,6 +150,8 @@
   &[data-name$=".erb"]:before,
   &[data-name$=".opal"]:before   { .ruby-icon; .medium-red; }
 
+  &[data-name$="_spec.rb"]:before   { .ruby-icon; .light-green; }
+
   &[data-name="rails"]:before { .rails-icon; .medium-red; }
 
   &[data-name$=".pp"]:before { .puppet-icon; .medium-purple }
@@ -148,6 +166,7 @@
 
   // Coffee icon
   &[data-name$=".coffee"]:before    { .coffee-icon; .medium-maroon; }
+  &[data-name$=".cjsx"]:before      { .coffee-icon; .dark-maroon; }
   &[data-name$=".litcoffee"]:before { .coffee-icon; .light-maroon;  }
 
 
@@ -186,6 +205,10 @@
   // Haskell
   &[data-name$=".hs"]:before { .haskell-icon; .medium-purple; }
 
+  // Rust
+  &[data-name$=".rs"]:before   { .rust-icon; .medium-maroon; }
+  &[data-name$=".rlib"]:before { .rust-icon; .light-maroon; }
+
   // Objective-C, C++, C
   &[data-name$=".c"]:before       { .c-icon; .medium-blue; }
   &[data-name$=".h"]:before       { .c-icon; .medium-purple; }
@@ -198,6 +221,10 @@
   &[data-name$=".m"]:before       { .objc-icon; .medium-blue; }
   &[data-name$=".mm"]:before      { .objc-icon; .medium-blue; }
   &[data-name$=".swift"]:before   { .swift-icon; .medium-green; }
+
+  ///D lang icon
+  &[data-name$=".d"]:before     { .cpp-icon; .medium-blue; }
+  &[data-name$=".di"]:before     { .cpp-icon; .medium-blue; }
 
   &[data-name$=".cs"]:before   { .csharp-icon; .medium-blue; }
   &[data-name$=".vb"]:before   { .code-icon; .medium-blue;   }
@@ -220,6 +247,12 @@
 
   // txt
   &[data-name$=".txt"]:before { .medium-cyan;   }
+  
+  // Assembly and binary
+  &[data-name$=".o"]:before,
+  &[data-name$=".out"]:before,
+  &[data-name$=".s"]:before,
+  &[data-name$=".asm"]:before { .binary-icon; .medium-red; }
 
   // shell
   &[data-name$=".sh"]:before,
@@ -249,6 +282,9 @@
   &[data-name="Gulpfile.coffee"]:before,
   &[data-name="gulpfile.coffee"]:before { .gulp-icon; .medium-maroon; }
 
+  // Ionic icon
+  &[data-name="ionic.project"]:before { .ionic-icon; .medium-blue; }
+
   // Travis icon
   &[data-name^=".travis"]:before { .travis-icon; .medium-red; }
 
@@ -263,6 +299,9 @@
 
   // PowerShell icon
   &[data-name$=".ps1"]:before { .terminal-icon; .medium-blue; }
+  &[data-name$=".psd1"]:before { .terminal-icon; .medium-blue; }
+  &[data-name$=".ps1m"]:before { .terminal-icon; .medium-blue; }
+  &[data-name$=".ps1xml"]:before { .terminal-icon; .medium-blue; }
 
   // Readme
   &[data-name="README.md"]:before,
@@ -273,10 +312,15 @@
   &[data-name$=".png"]:before { .image-icon; .medium-orange; }
   &[data-name$=".gif"]:before { .image-icon; .medium-yellow; }
   &[data-name$=".jpg"]:before { .image-icon; .medium-green;  }
+  
+  // Config files
+  &[data-name$=".ini"]:before { .config-icon; .medium-yellow; }
+  &[data-name$=".properties"]:before { .config-icon; .medium-purple; }
+  &[data-name$=".toml"]:before { .config-icon; .dark-maroon; }
 }
 
 body.file-icons-colourless {
-  .icon-file-text, .icon-file-directory, .icon-file-media, .icon-book, .pane ul.tab-bar li.tab .title {
+  .icon-file-text, .icon-file-directory, .icon-file-media, .icon-book, atom-pane ul.tab-bar li.tab .title {
     &:before { color: inherit !important; }
   }
 }

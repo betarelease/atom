@@ -1,63 +1,69 @@
-'global':
-  'editor':
-    'fontSize': 15
-    'softWrap': true
-    'showIndentGuide': true
-    'showInvisibles': true
-    'normalizeIndentOnPaste': false
-    'invisibles': {}
-  'core':
-    'audioBeep': false
-    'disabledPackages': [
-      'autocomplete-plus'
-      'markdown-format'
-      'term'
-      'git-show'
-      'deprecation-cop'
-      'exception-reporting'
-      'feedback'
-      'autocomplete-paths'
-      'vim-mode'
-      'indent-guide-ext'
-      'indentation-indicator'
-      'atomtools'
-      'execute-as-ruby'
+"*":
+  editor:
+    fontSize: 15
+    softWrap: true
+    showIndentGuide: true
+    showInvisibles: true
+    normalizeIndentOnPaste: false
+    invisibles: {}
+  core:
+    audioBeep: false
+    disabledPackages: [
+      "autocomplete-plus"
+      "markdown-format"
+      "term"
+      "git-show"
+      "deprecation-cop"
+      "exception-reporting"
+      "feedback"
+      "autocomplete-paths"
+      "vim-mode"
+      "indent-guide-ext"
+      "indentation-indicator"
+      "atomtools"
+      "execute-as-ruby"
     ]
-    'themes': [
-      'flatland-dark-ui'
-      'ir-black-syntax'
+    themes: [
+      "flatland-dark-ui"
+      "ir-black-syntax"
     ]
-    'ignoredNames': [
-      '.git'
-      '*.log'
-      '*.scssc'
-      '_site/'
+    ignoredNames: [
+      ".git"
+      "*.log"
+      "*.scssc"
+      "_site/"
     ]
-  'exception-reporting':
-    'userId': '269a4d18-9704-90cc-4545-df739b838308'
-  'welcome':
-    'showOnStartup': false
-  'metrics':
-    'userId': 'ef6ff791d0475579aa49d06b66838c195996b556'
-  'find-and-replace':
-    'focusEditorAfterSearch': true
-  'fuzzy-finder':
-    'ignoredNames': [
-      '*.log'
-      '*.scssc'
+  "exception-reporting":
+    userId: "269a4d18-9704-90cc-4545-df739b838308"
+  welcome:
+    showOnStartup: false
+  metrics:
+    userId: "ef6ff791d0475579aa49d06b66838c195996b556"
+  "find-and-replace":
+    focusEditorAfterSearch: true
+  "fuzzy-finder":
+    ignoredNames: [
+      "*.log"
+      "*.scssc"
     ]
-  'tree-view':
-    'showOnRightSide': true
-  'test-status':
-    'autorun': false
-  'autocomplete-plus':
-    'enableAutoActivation': false
-    'includeCompletionsFromAllBuffers': true
-  'highlight-line':
-    'enableSelectionBorder': true
-  'autosave':
-    'enabled': true
-  'tabs-to-spaces':
-    'onSave': 'untabify'
-  'autoclose-html': {}
-  'linter': {}
+  "tree-view":
+    showOnRightSide: true
+  "test-status":
+    autorun: false
+  "autocomplete-plus":
+    enableAutoActivation: false
+    includeCompletionsFromAllBuffers: true
+  "highlight-line":
+    enableSelectionBorder: true
+  autosave:
+    enabled: true
+  "tabs-to-spaces":
+    onSave: "untabify"
+  "autoclose-html": {}
+  linter: {}
+  "atom-rspec":
+    command: "bundle exec rspec"
+  "ruby-test":
+    rspecFileCommand: "bundle exec rspec {relative_path}"
+    rspecSingleCommand: "bundle exec rspec {relative_path}:{line_number}"
+  rspec: {}

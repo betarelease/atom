@@ -1,23 +1,32 @@
+{CompositeDisposable} = require 'atom'
 {CoveringView} = require './covering-view'
 
 module.exports =
 class NavigationView extends CoveringView
-  @content: (navigator, editorView) ->
+
+  @content: (navigator, editor) ->
     @div class: 'controls navigation', =>
       @text ' '
       @span class: 'pull-right', =>
         @button class: 'btn btn-xs', click: 'up', outlet: 'prevBtn', 'prev'
         @button class: 'btn btn-xs', click: 'down', outlet: 'nextBtn', 'next'
 
-  initialize: (@navigator, editorView) ->
-    super editorView
+  initialize: (@navigator, editor) ->
+    @subs = new CompositeDisposable
+
+    super editor
 
     @prependKeystroke 'merge-conflicts:previous-unresolved', @prevBtn
     @prependKeystroke 'merge-conflicts:next-unresolved', @nextBtn
 
-    @navigator.conflict.on 'conflict:resolved', =>
+    @subs.add @navigator.conflict.onDidResolveConflict =>
       @deleteMarker @cover()
-      @hide()
+      @remove()
+      @cleanup()
+
+  cleanup: ->
+    super
+    @subs.dispose()
 
   cover: -> @navigator.separatorMarker
 

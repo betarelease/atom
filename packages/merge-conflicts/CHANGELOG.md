@@ -1,3 +1,20 @@
+## 1.2.10
+
+- Don't decorate destroyed markers. [#124](https://github.com/smashwilson/merge-conflicts/pull/124)
+- Missed a fat arrow. [#125](https://github.com/smashwilson/merge-conflicts/pull/125)
+- Control subscription cleanup in CoveringViews. [#123](https://github.com/smashwilson/merge-conflicts/pull/123)
+
+## 1.2.9
+
+- It actually works again :wink:
+- Use a package-global Emitter instead of `atom.on` [#112](https://github.com/smashwilson/merge-conflicts/pull/112)
+- Search additional paths for `git` on Windows [#109](https://github.com/smashwilson/merge-conflicts/pull/109), [#110](https://github.com/smashwilson/merge-conflicts/pull/110)
+- Use the `TextEditor` model exclusively, rather than hacking around with a `TextEditorView`. [#108](https://github.com/smashwilson/merge-conflicts/pull/108)
+- Require space-pen rather than getting `View` and `$` from Atom itself. [#105](https://github.com/smashwilson/merge-conflicts/pull/105), [#103](https://github.com/smashwilson/merge-conflicts/pull/103)
+- Use new-style event subscriptions with an `Emitter` rather than using Emissary mixins. [#104](https://github.com/smashwilson/merge-conflicts/pull/104)
+- Update the stylesheets to correctly target elements within the shadow DOM. [#101](https://github.com/smashwilson/merge-conflicts/pull/101)
+- Use an overlay decoration rather than injecting controls into the `TextEditorView` DOM directly. [#93](https://github.com/smashwilson/merge-conflicts/pull/93)
+
 ## 1.2.8
 
 - Deprecation cop clean sweep! [#89](https://github.com/smashwilson/merge-conflicts/pull/89)
