@@ -1,0 +1,27 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+    'atom-text-editor': [
+      {
+        'label': 'Toggle atom-justify'
+        'command': 'atom-justify:createSelection'
+      }
+    ]
+'menu': [
+    {
+      'label': 'Packages'
+      'submenu': [
+        'label': 'atom-justify'
+        'submenu': [
+          {
+            'label': 'create selection'
+            'command': 'atom-justify:createSelection'
+          },
+          {
+            'label': 'toggle'
+            'command': 'atom-justify:justify'
+          },
+
+        ]
+      ]
+    }
+]

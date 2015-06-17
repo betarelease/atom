@@ -1,21 +1,22 @@
 {BufferedProcess, GitRepository} = require 'atom'
-StatusView = require './views/status-view'
+RepoListView = require './views/repo-list-view'
+notifier = require './notifier'
 
 # Public: Execute a git command.
 #
 # options - An {Object} with the following keys:
 #   :args    - The {Array} containing the arguments to pass.
+#   :cwd  - Current working directory as {String}.
 #   :options - The {Object} with options to pass.
-#     :cwd  - Current working directory as {String}.
 #   :stdout  - The {Function} to pass the stdout to.
 #   :exit    - The {Function} to pass the exit code to.
 #
 # Returns nothing.
-gitCmd = ({args, options, stdout, stderr, exit}={}) ->
+gitCmd = ({args, cwd, options, stdout, stderr, exit}={}) ->
   command = _getGitPath()
   options ?= {}
-  options.cwd ?= dir()
-  stderr ?= (data) -> new StatusView(type: 'error', message: data.toString())
+  options.cwd ?= cwd
+  stderr ?= (data) -> notifier.addError data.toString()
 
   if stdout? and not exit?
     c_stdout = stdout
@@ -35,81 +36,81 @@ gitCmd = ({args, options, stdout, stderr, exit}={}) ->
       stderr: stderr
       exit: exit
   catch error
-    new StatusView(type: 'error', message: 'Git Plus is unable to locate git command. Please ensure process.env.PATH can access git.')
+    notifier.addError 'Git Plus is unable to locate git command. Please ensure process.env.PATH can access git.'
 
-gitStatus = (stdout) ->
+gitStatus = (repo, stdout) ->
   gitCmd
     args: ['status', '--porcelain', '-z']
+    cwd: repo.getWorkingDirectory()
     stdout: (data) -> stdout(if data.length > 2 then data.split('\0') else [])
 
-gitStagedFiles = (stdout) ->
+gitStagedFiles = (repo, stdout) ->
   files = []
   gitCmd
     args: ['diff-index', '--cached', 'HEAD', '--name-status', '-z']
+    cwd: repo.getWorkingDirectory()
     stdout: (data) ->
       files = _prettify(data)
     stderr: (data) ->
       # edge case of no HEAD at initial commit
-      if data.toString().contains "ambiguous argument 'HEAD'"
+      if data.toString().includes "ambiguous argument 'HEAD'"
         files = [1]
       else
-        new StatusView(type: 'error', message: data.toString())
+        notifier.addError data.toString()
         files = []
     exit: (code) -> stdout(files)
 
-gitUnstagedFiles = (stdout, showUntracked=false) ->
+gitUnstagedFiles = (repo, {showUntracked}={}, stdout) ->
   gitCmd
     args: ['diff-files', '--name-status', '-z']
+    cwd: repo.getWorkingDirectory()
     stdout: (data) ->
       if showUntracked
-        gitUntrackedFiles(stdout, _prettify(data))
+        gitUntrackedFiles(repo, _prettify(data), stdout)
       else
         stdout _prettify(data)
 
-gitUntrackedFiles = (stdout, dataUnstaged=[]) ->
+gitUntrackedFiles = (repo, dataUnstaged=[], stdout) ->
   gitCmd
     args: ['ls-files', '-o', '--exclude-standard','-z']
+    cwd: repo.getWorkingDirectory()
     stdout: (data) ->
       stdout dataUnstaged.concat(_prettifyUntracked(data))
 
-gitDiff = (stdout, path) ->
+gitDiff = (repo, path, stdout) ->
   gitCmd
     args: ['diff', '-p', '-U1', path]
+    cwd: repo.getWorkingDirectory()
     stdout: (data) -> stdout _prettifyDiff(data)
 
-gitRefreshIndex = ->
+gitRefresh = ->
+  atom.project.getRepositories().forEach (r) -> r?.refreshStatus()
   gitCmd
     args: ['add', '--refresh', '--', '.']
     stderr: (data) -> # don't really need to flash an error
 
-gitAdd = ({file, stdout, stderr, exit}={}) ->
+gitAdd = (repo, {file, stdout, stderr, exit}={}) ->
   exit ?= (code) ->
     if code is 0
-      new StatusView(type: 'success', message: "Added #{file ? 'all files'}")
+      notifier.addSuccess "Added #{file ? 'all files'}"
   gitCmd
-    args: ['add', '--all', file ? '.'],
+    args: ['add', '--all', file ? '.']
+    cwd: repo.getWorkingDirectory()
     stdout: stdout if stdout?
     stderr: stderr if stderr?
     exit: exit
 
-gitMerge = ({branchName, stdout, stderr, exit}={}) ->
-  exit ?= (code) ->
-    if code is 0
-      new StatusView(type: 'success', message: 'Git merged branch #{brachName} successfully')
-  gitCmd
-    args: ['merge', branchName],
-    stdout: stdout if stdout?
-    stderr: stderr if stderr?
-    exit: exit
-
-gitResetHead = ->
+gitResetHead = (repo) ->
   gitCmd
     args: ['reset', 'HEAD']
+    cwd: repo.getWorkingDirectory()
     stdout: (data) ->
-      new StatusView(type: 'success', message: 'All changes unstaged')
+      notifier.addSuccess 'All changes unstaged'
 
 _getGitPath = ->
-  atom.config.get('git-plus.gitPath') ? 'git'
+  p = atom.config.get('git-plus.gitPath') ? 'git'
+  console.log "Git-plus: Using git at", p
+  return p
 
 _prettify = (data) ->
   data = data.split('\0')[...-1]
@@ -133,47 +134,62 @@ _prettifyDiff = (data) ->
 #
 # @param andSubmodules boolean determining whether to account for submodules
 dir = (andSubmodules=true) ->
-  found = false
-  if andSubmodules
-    if submodule = getSubmodule()
-      return submodule.getWorkingDirectory()
-  if not found
-    return getRepo()?.getWorkingDirectory() ? atom.project.getPath()
+  new Promise (resolve, reject) ->
+    if andSubmodules and submodule = getSubmodule()
+      resolve(submodule.getWorkingDirectory())
+    else
+      getRepo().then (repo) -> resolve(repo.getWorkingDirectory())
 
 # returns filepath relativized for either a submodule or repository
 #   otherwise just a full path
 relativize = (path) ->
-  getSubmodule(path)?.relativize(path) ? atom.project.getRepo()?.relativize(path) ? path
+  getSubmodule(path)?.relativize(path) ? atom.project.getRepositories()[0]?.relativize(path) ? path
 
 # returns submodule for given file or undefined
 getSubmodule = (path) ->
-  path ?= atom.workspace.getActiveEditor()?.getPath()
-  atom.project.getRepo()?.repo.submoduleForPath(path)
+  path ?= atom.workspace.getActiveTextEditor()?.getPath()
+  repo = GitRepository.open(atom.workspace.getActiveTextEditor()?.getPath(), refreshOnWindowFocus: false)
+  submodule = repo?.repo.submoduleForPath(path)
+  repo?.destroy?()
+  submodule
 
 # Public: Get the repository of the current file or project if no current file
-# Returns a {GitRepository}-like object or null if not found.
+# Returns a {Promise} that resolves to a repository like object
 getRepo = ->
-  repo = GitRepository.open(atom.workspace.getActiveEditor()?.getPath(), refreshOnWindowFocus: false)
-  if repo is not null
-    data = {
-      references: repo.getReferences()
-      shortHead: repo.getShortHead()
-      workingDirectory: repo.getWorkingDirectory()
-    }
-    repo.destroy()
-    return {
-      getReferences: -> data.references
-      getShortHead: -> data.shortHead
-      getWorkingDirectory: -> data.workingDirectory
-    }
-  else
-    return atom.project.getRepo()
+  new Promise (resolve, reject) ->
+    getRepoForCurrentFile().then (repo) -> resolve(repo)
+    .catch (e) ->
+      repos = atom.project.getRepositories().filter (r) -> r?
+      if repos.length is 0
+        reject("No repos found")
+      else if repos.length > 1
+        resolve(new RepoListView(repos).result)
+      else
+        resolve(repos[0])
+
+getRepoForCurrentFile = ->
+  new Promise (resolve, reject) ->
+    project = atom.project
+    path = atom.workspace.getActiveTextEditor()?.getPath()
+    directory = project.getDirectories().filter((d) -> d.contains(path))[0]
+    if directory?
+      project.repositoryForDirectory(directory).then (repo) ->
+        submodule = repo.repo.submoduleForPath(path)
+        if submodule?
+          console.debug "Git-plus: submodule path is", submodule.getPath()
+          console.debug "Git-plus: submodule working directory is", submodule.getWorkingDirectory()
+          resolve(submodule)
+        else resolve(repo)
+      .catch (e) ->
+        reject(e)
+    else
+      reject "no current file"
 
 module.exports.cmd = gitCmd
 module.exports.stagedFiles = gitStagedFiles
 module.exports.unstagedFiles = gitUnstagedFiles
 module.exports.diff = gitDiff
-module.exports.refresh = gitRefreshIndex
+module.exports.refresh = gitRefresh
 module.exports.status = gitStatus
 module.exports.reset = gitResetHead
 module.exports.add = gitAdd

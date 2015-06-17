@@ -1,18 +1,20 @@
-StartView = require './views/start-view'
-InputView = require './views/input-view'
-AlertView = require './views/alert-view'
+StartView = null
+InputView = null
+AlertView = null
 
 require './pusher/pusher'
 require './pusher/pusher-js-client-auth'
 
-randomstring = require 'randomstring'
-_ = require 'underscore'
-chunkString = require './helpers/chunk-string'
+randomstring = null
+_ = null
+chunkString = null
 
-HipChatInvite = require './modules/hipchat_invite'
-Marker = require './modules/marker'
-GrammarSync = require './modules/grammar_sync'
-AtomPairConfig = require './modules/atom_pair_config'
+HipChatInvite = null
+SlackInvite = null
+Marker = null
+GrammarSync = null
+AtomPairConfig = null
+CustomPaste = null
 
 {CompositeDisposable, Range} = require 'atom'
 
@@ -39,8 +41,27 @@ module.exports = AtomPair =
       type: 'string'
       description: 'Pusher App Secret'
       default: '4bf35003e819bb138249'
+    slack_url:
+      type: 'string'
+      description: 'WebHook URL for Slack Incoming Webhook Integration'
+      default: ''
 
   activate: (state) ->
+    StartView = require './views/start-view'
+    InputView = require './views/input-view'
+    AlertView = require './views/alert-view'
+
+    randomstring = require 'randomstring'
+    _ = require 'underscore'
+    chunkString = require './helpers/chunk-string'
+
+    HipChatInvite = require './modules/hipchat_invite'
+    SlackInvite = require './modules/slack_invite'
+    Marker = require './modules/marker'
+    GrammarSync = require './modules/grammar_sync'
+    AtomPairConfig = require './modules/atom_pair_config'
+    CustomPaste = require './modules/custom_paste'
+
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
     @editorListeners = new CompositeDisposable
@@ -48,87 +69,67 @@ module.exports = AtomPair =
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:start new pairing session': => @startSession()
     @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:join pairing session': => @joinSession()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:set configuration keys': => @setConfig()
     @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:invite over hipchat': => @inviteOverHipChat()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:custom-paste': => @customPaste()
-
-    atom.commands.add 'atom-workspace', 'AtomPair:hide views': => @hidePanel()
-    atom.commands.add '.session-id', 'AtomPair:copyid': => @copyId()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:invite over slack': => @inviteOverSlack()
+    @subscriptions.add atom.commands.add '.session-id', 'AtomPair:copyid': => @copyId()
 
     @colours = require('./helpers/colour-list')
     @friendColours = []
     @timeouts = []
     @events = []
-    _.extend(@, HipChatInvite, Marker, GrammarSync, AtomPairConfig)
-
-  customPaste: ->
-    text = atom.clipboard.read()
-    if text.length > 800
-      chunks = chunkString(text, 800)
-      _.each chunks, (chunk, index) =>
-        setTimeout(( =>
-          atom.clipboard.write(chunk)
-          @editor.pasteText()
-          if index is (chunks.length - 1) then atom.clipboard.write(text)
-        ), 180 * index)
-    else
-      @editor.pasteText()
+    _.extend(@, HipChatInvite, SlackInvite, Marker, GrammarSync, AtomPairConfig, CustomPaste)
 
   disconnect: ->
     @pusher.disconnect()
     @editorListeners.dispose()
     _.each @friendColours, (colour) => @clearMarkers(colour)
-    atom.views.getView(@editor).removeAttribute('id')
-    @hidePanel()
+    atom.views.getView(@editor)?.removeAttribute('id')
+    @editor = @buffer = null
+    @markerColour = null
 
-  copyId: ->
-    atom.clipboard.write(@sessionId)
-
-  hidePanel: ->
-    _.each atom.workspace.getModalPanels(), (panel) -> panel.hide()
+  copyId: -> atom.clipboard.write(@sessionId)
 
   joinSession: ->
 
     if @markerColour
       alreadyPairing = new AlertView "It looks like you are already in a pairing session. Please open a new window (cmd+shift+N) to start/join a new one."
-      atom.workspace.addModalPanel(item: alreadyPairing, visible: true)
       return
 
-    @joinView = new InputView("Enter the session ID here:")
-    @joinPanel = atom.workspace.addModalPanel(item: @joinView, visible: true)
-    @joinView.miniEditor.focus()
+    joinView = new InputView("Enter the session ID here:")
+    joinView.miniEditor.focus()
 
-    @joinView.on 'core:confirm', =>
-      @sessionId = @joinView.miniEditor.getText()
+    atom.commands.add joinView.element, 'core:confirm': =>
+      @sessionId = joinView.miniEditor.getText()
       keys = @sessionId.split("-")
       [@app_key, @app_secret] = [keys[0], keys[1]]
-      @joinPanel.hide()
-
+      joinView.panel.hide()
       atom.workspace.open().then => @pairingSetup() #starts a new tab to join pairing session
 
   startSession: ->
-    @getKeysFromConfig()
 
-    if @missingPusherKeys()
-      alertView = new AlertView "Please set your Pusher keys."
-      atom.workspace.addModalPanel(item: alertView, visible: true)
+    @editor = atom.workspace.getActiveTextEditor()
+    if !@editor
+      atom.workspace.open().then => @startSession()
     else
-      @generateSessionId()
-      @startView = new StartView(@sessionId)
-      @startPanel = atom.workspace.addModalPanel(item: @startView, visible: true)
-      @startView.focus()
-      @markerColour = @colours[0]
-      @pairingSetup()
+      @getKeysFromConfig()
+
+      if @missingPusherKeys()
+        new AlertView "Please set your Pusher keys."
+      else
+        @generateSessionId()
+        new StartView(@sessionId)
+        @markerColour = @colours[0]
+        @pairingSetup()
 
   generateSessionId: ->
     @sessionId = "#{@app_key}-#{@app_secret}-#{randomstring.generate(11)}"
 
   pairingSetup: ->
-    @editor = atom.workspace.getActiveEditor()
-    if !@editor then return atom.workspace.open().then => @pairingSetup()
+    @editor ?= atom.workspace.getActiveTextEditor()
     atom.views.getView(@editor).setAttribute('id', 'AtomPair')
     @connectToPusher()
     @synchronizeColours()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:custom-paste': => @customPaste()
     @subscriptions.add atom.commands.add 'atom-workspace', 'AtomPair:disconnect': => @disconnect()
 
   connectToPusher: ->
@@ -156,16 +157,20 @@ module.exports = AtomPair =
     @connectToPusher()
     @synchronizeColours()
 
-  startPairing: ->
-
+  withoutTrigger: (callback) ->
+    @triggerPush = false
+    callback()
     @triggerPush = true
+
+  startPairing: ->
+    @triggerPush = true
+
+    @editor ?= atom.workspace.getActiveTextEditor()
     buffer = @buffer = @editor.buffer
 
     # listening for Pusher events
-
     @pairingChannel.bind 'pusher:member_added', (member) =>
       noticeView = new AlertView "Your pair buddy has joined the session."
-      atom.workspace.addModalPanel(item: noticeView, visible: true)
       @sendGrammar()
       @shareCurrentFile()
       @friendColours.push(member.id)
@@ -175,15 +180,9 @@ module.exports = AtomPair =
       grammar = atom.grammars.grammarForScopeName(syntax)
       @editor.setGrammar(grammar)
 
-    @pairingChannel.bind 'client-share-whole-file', (file) =>
-      @triggerPush = false
-      buffer.setText(file)
-      @triggerPush = true
+    @pairingChannel.bind 'client-share-whole-file', (file) => @withoutTrigger => buffer.setText(file)
 
-    @pairingChannel.bind 'client-share-partial-file', (chunk) =>
-      @triggerPush = false
-      buffer.append(chunk)
-      @triggerPush = true
+    @pairingChannel.bind 'client-share-partial-file', (chunk) => @withoutTrigger => buffer.append(chunk)
 
     @pairingChannel.bind 'client-change', (events) =>
       _.each events, (event) =>
@@ -194,7 +193,6 @@ module.exports = AtomPair =
     @pairingChannel.bind 'pusher:member_removed', (member) =>
       @clearMarkers(member.id)
       disconnectView = new AlertView "Your pair buddy has left the session."
-      atom.workspace.addModalPanel(item: disconnectView, visible: true)
 
     @triggerEventQueue()
 
@@ -231,25 +229,23 @@ module.exports = AtomPair =
     if data.event.oldRange then oldRange = Range.fromObject(data.event.oldRange)
     if data.event.newText then newText = data.event.newText
 
-    @triggerPush = false
+    @withoutTrigger =>
 
-    @clearMarkers(data.colour)
+      @clearMarkers(data.colour)
 
-    switch data.changeType
-      when 'deletion'
-        @buffer.delete oldRange
-        actionArea = oldRange.start
-      when 'substitution'
-        @buffer.setTextInRange oldRange, newText
-        actionArea = oldRange.start
-      else
-        @buffer.insert newRange.start, newText
-        actionArea = newRange.start
+      switch data.changeType
+        when 'deletion'
+          @buffer.delete oldRange
+          actionArea = oldRange.start
+        when 'substitution'
+          @buffer.setTextInRange oldRange, newText
+          actionArea = oldRange.start
+        else
+          @buffer.insert newRange.start, newText
+          actionArea = newRange.start
 
-    @editor.scrollToBufferPosition(actionArea)
-    @addMarker(actionArea.toArray()[0], data.colour)
-
-    @triggerPush = true
+      @editor.scrollToBufferPosition(actionArea)
+      @addMarker(actionArea.toArray()[0], data.colour)
 
   syncSelectionRange: ->
     @editor.onDidChangeSelectionRange (event) =>

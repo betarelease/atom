@@ -1,7 +1,7 @@
 {
   "name": "auto-update-packages",
   "main": "./lib/auto-update-packages",
-  "version": "0.2.2",
+  "version": "1.0.0",
   "description": "Keep your Atom packages up to date.",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
     "darwin"
   ],
   "engines": {
-    "atom": ">0.162.0"
+    "atom": ">=0.206.0"
   },
   "dependencies": {
     "glob": "^3.2.9",
@@ -28,18 +28,16 @@
     "url": "https://github.com/yujinakayama/atom-auto-update-packages/issues"
   },
   "homepage": "https://github.com/yujinakayama/atom-auto-update-packages",
-  "_id": "auto-update-packages@0.2.2",
-  "dist": {
-    "shasum": "3f760de50d1835dc9815645bdb1cd7d6ef2b3079"
-  },
-  "_resolved": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-11505-72304-7b53kt/package.tgz",
-  "_from": "/private/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-11505-72304-7b53kt/package.tgz",
+  "_id": "auto-update-packages@1.0.0",
+  "_shasum": "675a326f1626e3a99e61f172b054a29215754d6b",
+  "_resolved": "file:../d-11558-43453-1efam1w/package.tgz",
+  "_from": "../d-11558-43453-1efam1w/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
       {
         "name": "fs-plus",
-        "version": "2.4.0",
+        "version": "2.8.1",
         "path": "node_modules/fs-plus/lib/fs-plus.js"
       },
       {
@@ -84,12 +82,12 @@
       },
       {
         "name": "lru-cache",
-        "version": "2.5.0",
+        "version": "2.6.4",
         "path": "node_modules/glob/node_modules/minimatch/node_modules/lru-cache/lib/lru-cache.js"
       },
       {
         "name": "sigmund",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "path": "node_modules/glob/node_modules/minimatch/node_modules/sigmund/sigmund.js"
       }
     ],

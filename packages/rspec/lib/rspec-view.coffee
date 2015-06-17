@@ -1,6 +1,6 @@
-{$, $$$, EditorView, ScrollView} = require 'atom'
-ChildProcess = require 'child_process'
+{$, $$$, EditorView, ScrollView} = require 'atom-space-pen-views'
 path = require 'path'
+ChildProcess  = require 'child_process'
 TextFormatter = require './text-formatter'
 
 module.exports =
@@ -24,7 +24,7 @@ class RSpecView extends ScrollView
     console.log "File path:", filePath
     @filePath = filePath
 
-    @output = @find(".rspec-output")
+    @output  = @find(".rspec-output")
     @spinner = @find(".rspec-spinner")
     @output.on("click", @terminalClicked)
 
@@ -37,13 +37,10 @@ class RSpecView extends ScrollView
     return if text == ''
     atom.clipboard.write(text)
 
-  destroy: ->
-    @unsubscribe()
-
   getTitle: ->
     "RSpec - #{path.basename(@getPath())}"
 
-  getUri: ->
+  getURI: ->
     "rspec-output://#{@getPath()}"
 
   getPath: ->
@@ -61,22 +58,24 @@ class RSpecView extends ScrollView
       line = $(e.target).data('line')
       file = $(e.target).data('file')
       console.log(file)
-      file = "#{atom.project.getPath()}/#{file}"
+      file = "#{atom.project.getPaths()[0]}/#{file}"
 
       promise = atom.workspace.open(file, { searchAllPanes: true, initialLine: line })
       promise.done (editor) ->
         editor.setCursorBufferPosition([line-1, 0])
 
   run: (lineNumber) ->
+    atom.workspace.saveAll() if atom.config.get("rspec.save_before_run")
     @spinner.show()
     @output.empty()
-    projectPath = atom.project.getRootDirectory().getPath()
+    projectPath = atom.project.getPaths()[0]
 
     spawn = ChildProcess.spawn
 
-    specCommand = atom.config.get("atom-rspec.command")
+    # Atom saves config based on package name, so we need to use rspec here.
+    specCommand = atom.config.get("rspec.command")
     options = " --tty"
-    options += " --color" if atom.config.get("atom-rspec.force_colored_results")
+    options += " --color" if atom.config.get("rspec.force_colored_results")
     command = "#{specCommand} #{options} #{@filePath}"
     command = "#{command}:#{lineNumber}" if lineNumber
 

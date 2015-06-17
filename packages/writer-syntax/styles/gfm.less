@@ -1,0 +1,123 @@
+.source.gfm .markup {
+  -webkit-font-smoothing: auto;
+  &.heading {
+    color: @gray;
+    &.space, &.marker {
+      text-decoration: none !important;
+      display: inline-block;
+      font-style: normal !important;
+    }
+  }
+  &.heading-1 {
+    color: @very-dark-gray;
+    font-weight: bold;
+  }
+  &.heading-2 {
+    color: @dark-gray;
+    font-weight: bold;
+  }
+  &.heading-3 {
+    color: @dark-gray;
+  }
+  &.heading-4 {
+    text-decoration: underline;
+  }
+  &.heading-6 {
+    font-style: italic;
+  }
+  &.marker {
+    color: @light-gray !important;
+    font-weight: normal !important;
+  }
+}
+
+.source.gfm {
+  // Bold and italic
+  .bold, .italic {
+    color: @syntax-text-color;
+  }
+  // List
+  .list {
+    color: @blue;
+  }
+  // Quotes
+  .quote {
+    color: @dark-gray;
+  }
+  // Raw code
+  .raw {
+    color: @green;
+  }
+  // Links
+  .link {
+    .entity {
+      color: @orange;
+    }
+    .underline {
+      text-decoration: none;
+    }
+    .punctuation {
+      color: @gray;
+    }
+  }
+  // Support characters
+  .support {
+    color: @cyan;
+    font-weight: normal;
+  }
+  // For references
+  .mention {
+    color: @light-green;
+  }
+  .username {
+    color: @blue;
+  }
+}
+
+// Syntax for tables
+.source.gfm {
+  .table.gfm {
+    .border {
+      color: @gray;
+      &.outer {
+        color: @dark-gray;
+      }
+      &.header {
+        color: @very-light-gray;
+      }
+    }
+    .alignment {
+      color: @light-gray;
+    }
+  }
+}
+
+// Syntax for critic markup
+.source.gfm > .critic.gfm {
+  &.addition {
+    color: @light-green;
+  }
+  &.deletion {
+    color: @light-red;
+  }
+  &.substitution {
+    color: @orange;
+  }
+  &.comment {
+    color: @light-blue;
+  }
+  &.highlight {
+    color: @light-purple;
+  }
+  .marker {
+    color: @dark-gray !important;
+  }
+  .operator {
+    color: @gray !important;
+  }
+}
+
+// When in julia docstrings
+.julia .source.gfm {
+  color: @syntax-text-color;
+}

@@ -1,0 +1,102 @@
+{
+  "name": "r-exec",
+  "main": "./lib/r-exec",
+  "version": "0.2.0",
+  "description": "Send R code to various R consoles",
+  "activationCommands": {
+    "atom-text-editor": [
+      "r-exec:send-to-r-app",
+      "r-exec:send-to-terminal",
+      "r-exec:send-to-rstudio-server"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hafen/atom-r-exec"
+  },
+  "keywords": [
+    "R",
+    "code",
+    "run",
+    "runner"
+  ],
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+    "node-osascript": "1.0.0"
+  },
+  "readme": "# r-exec\n\nSend R code from Atom to be executed in R.app, Terminal, or a web browser running RStudio Server on Mac OS X.  The current selection is sent or in the case of no selection the current line is sent.\n\n## Installation\n\n`apm install r-exec`\n\nor\n\nSearch for `r-exec` within package search in the Settings View.\n\n## Usage\n\n- `cmd-shift-r`: send code to R.app\n- `cmd-shift-t`: send code to active Terminal.app window (assuming R is running in the terminal window)\n- `cmd-shift-e`: send code to be pasted in active Safari window (assuming this window is RStudio Server)\n\n## Notes\n\nThis is very much in an **alpha** state and is a quick hobby project.  It is currently Mac-only because these things are easy to do with AppleScript.  Any help on the Windows or Linux side would be great.\n\nIn the R.app case, the working directory in R is set to the Atom project root directory before any command is run.  This is not done in the Terminal or RStudio Server cases because in those cases it is likely that R is running on a different system.\n\nIn the RStudio Server case, the solution is pretty clunky - the code is sent to the clipboard and then a paste command is sent to Safari.  But it works.\n\n## TODO\n\n- Make the choice of which R.app to send the code to configurable, based on a project-level configuration variable (sometimes multiple copies of R.app are made so that multiple R GUIs can be running simultaneously for different projects).\n- Make which browser to use configurable in the RStudio Server case (currently hard-coded to Safari).\n- In RStudio Server case, make sure active window really is RStudio Server before pasting, maybe by checking the  [title](http://www.alfredforum.com/topic/2013-how-to-get-frontmost-tab's-url-and-title-of-various-browsers/).\n- Error reporting.\n- Support for Windows and Linux.\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/hafen/atom-r-exec/issues"
+  },
+  "homepage": "https://github.com/hafen/atom-r-exec",
+  "_id": "r-exec@0.2.0",
+  "_shasum": "721512082eaca310ff3bf9c242ecd9de48fab8fa",
+  "_resolved": "file:../d-11554-30567-1cd9aih/package.tgz",
+  "_from": "../d-11554-30567-1cd9aih/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [
+      {
+        "name": "node-osascript",
+        "version": "1.0.0",
+        "path": "node_modules/node-osascript/lib/index.js"
+      },
+      {
+        "name": "buffers",
+        "version": "0.1.1",
+        "path": "node_modules/node-osascript/node_modules/buffers/index.js"
+      }
+    ],
+    "extensions": {
+      ".coffee": [
+        "lib/r-exec.coffee"
+      ],
+      ".js": [
+        "node_modules/node-osascript/Gruntfile.js",
+        "node_modules/node-osascript/demos/externalFile/demo.js",
+        "node_modules/node-osascript/demos/injectvariables/demos.js",
+        "node_modules/node-osascript/demos/simpleDialog/dialog.js",
+        "node_modules/node-osascript/lib/index.js",
+        "node_modules/node-osascript/lib/osa-parser.js",
+        "node_modules/node-osascript/lib/osa-vargen.js",
+        "node_modules/node-osascript/node_modules/buffers/examples/slice.js",
+        "node_modules/node-osascript/node_modules/buffers/examples/splice.js",
+        "node_modules/node-osascript/node_modules/buffers/index.js"
+      ],
+      ".json": [
+        "node_modules/node-osascript/node_modules/buffers/package.json",
+        "node_modules/node-osascript/package.json",
+        "package.json"
+      ]
+    },
+    "folders": [
+      {
+        "paths": [
+          "lib",
+          ""
+        ],
+        "dependencies": {
+          "node-osascript": "1.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/node-osascript",
+          "node_modules/node-osascript/demos/externalFile",
+          "node_modules/node-osascript/demos/injectvariables",
+          "node_modules/node-osascript/demos/simpleDialog",
+          "node_modules/node-osascript/lib",
+          "node_modules/node-osascript/tests/indipendent",
+          "node_modules/node-osascript/tests"
+        ],
+        "dependencies": {
+          "buffers": "^0.1.1"
+        }
+      }
+    ]
+  }
+}

@@ -3,9 +3,9 @@ fs = require 'fs'
 temp = require 'temp'
 path = require 'path'
 rimraf = require 'rimraf'
-{CompositeDisposable, Emitter} = require 'event-kit'
+{CompositeDisposable, Emitter} = require 'atom'
 
-{log, warn} = require './utils'
+{log, warn, moveToPreviousMessage, moveToNextMessage} = require './utils'
 
 
 temp.track()
@@ -38,7 +38,7 @@ class LinterView
     @subscriptions.add @editor.onDidChangeCursorPosition  =>
       @updateViews()
 
-  # Public: Initialize new linters (used on grammar chagne)
+  # Public: Initialize new linters (used on grammar change)
   #
   # linters - global linter set to utilize for linting
   initLinters: ->
@@ -58,10 +58,15 @@ class LinterView
     @subscriptions.add atom.config.observe 'linter.lintOnChangeInterval',
       (lintOnModifiedDelayMS) =>
         # If text instead of number into user config
-        throttleInterval = parseInt(lintOnModifiedDelayMS)
-        throttleInterval = 1000 if isNaN throttleInterval
+        delay = parseInt(lintOnModifiedDelayMS)
+        delay = 1000 if isNaN delay
         # create throttled lint command
-        @throttledLint = (_.throttle @lint, throttleInterval).bind this
+        intervalMethod = atom.config.get 'linter.lintOnChangeMethod'
+        log "IntervalMethod: #{intervalMethod}"
+        if intervalMethod is 'debounce'
+          @boundedLint = (_.debounce @lint, delay).bind this
+        else
+          @boundedLint = (_.throttle @lint, delay).bind this
 
     @subscriptions.add atom.config.observe 'linter.lintOnChange',
       (lintOnModified) => @lintOnModified = lintOnModified
@@ -94,25 +99,33 @@ class LinterView
         @showInfoMessages = showInfoMessages
         @display()
 
+    @subscriptions.add atom.config.observe 'linter.clearOnChange',
+      (clearOnChange) => @clearOnChange = clearOnChange
+
   # Internal: register handlers for editor buffer events
   handleEditorEvents: =>
     @editor.onDidChangeGrammar =>
       @initLinters()
       @lint()
 
-    maybeLintOnSave = => @throttledLint() if @lintOnSave
+    maybeLintOnSave = => @boundedLint() if @lintOnSave
     @subscriptions.add(@editor.getBuffer().onDidReload maybeLintOnSave)
     @subscriptions.add(@editor.onDidSave maybeLintOnSave)
 
     @subscriptions.add @editor.onDidStopChanging =>
-      @throttledLint() if @lintOnModified
+      if @lintOnModified
+        @boundedLint()
+      else if @clearOnChange and @messages.length > 0
+        @messages = []
+        @updateViews()
+        @destroyMarkers()
 
     @subscriptions.add @editor.onDidDestroy =>
       @remove()
 
     @subscriptions.add atom.workspace.observeActivePaneItem =>
       if @editor.id is atom.workspace.getActiveTextEditor()?.id
-        @throttledLint() if @lintOnEditorFocus
+        @boundedLint() if @lintOnEditorFocus
         @updateViews()
       else
         @statusBarView.hide()
@@ -123,10 +136,10 @@ class LinterView
       "linter:lint", => @lint()
 
     @subscriptions.add atom.commands.add "atom-text-editor",
-      "linter:next-message", => @moveToNextMessage()
+      "linter:next-message", => moveToNextMessage @messages, @editor
 
     @subscriptions.add atom.commands.add "atom-text-editor",
-      "linter:previous-message", => @moveToPreviousMessage()
+      "linter:previous-message", => moveToPreviousMessage @messages, @editor
 
   # Public: lint the current file in the editor using the live buffer
   lint: ->
@@ -177,7 +190,7 @@ class LinterView
     marker = @editor.markBufferRange message.range, invalidate: 'never'
     klass = 'linter-' + message.level
     if @showGutters
-      @editor.decorateMarker marker, type: 'gutter', class: klass
+      @editor.decorateMarker marker, type: 'line-number', class: klass
     if @showHighlighting
       @editor.decorateMarker marker, type: 'highlight', class: klass
     return marker
@@ -218,7 +231,7 @@ class LinterView
 
   # Internal: Update the views for new messages
   updateViews: ->
-    @statusBarSummaryView.render @messages
+    @statusBarSummaryView.render @messages, @editor
     if @showMessagesAroundCursor
       @statusBarView.render @messages, @editor
     else
@@ -228,48 +241,6 @@ class LinterView
       @inlineView.render @messages, @editor
     else
       @inlineView.render [], @editor
-
-  # Internal: Move cursor to the next lint message
-  moveToNextMessage: ->
-    cursorLine = @editor.getCursorBufferPosition().row + 1
-    nextLine = null
-    firstLine = null
-    for {line} in @messages ? []
-      if line > cursorLine
-        nextLine ?= line - 1
-        nextLine = Math.min(line - 1, nextLine)
-
-      firstLine ?= line - 1
-      firstLine = Math.min(line - 1, firstLine)
-
-    # Wrap around to the first diff in the file
-    nextLine = firstLine unless nextLine?
-
-    # TODO: when possible, move to the correct column
-    @moveToLine(nextLine)
-
-  # Internal: Move cursor to the previous lint message
-  moveToPreviousMessage: ->
-    cursorLine = @editor.getCursorBufferPosition().row + 1
-    previousLine = -1
-    lastLine = -1
-    for {line} in @messages ? []
-      if line < cursorLine
-        previousLine = Math.max(line - 1, previousLine)
-
-      lastLine = Math.max(line - 1, lastLine)
-
-    # Wrap around to the last diff in the file
-    previousLine = lastLine if previousLine is -1
-
-    # TODO: when possible, move to the correct column
-    @moveToLine(previousLine)
-
-  # Internal: Move cursor to the specified line number
-  moveToLine: (n = -1) ->
-    if n >= 0
-      @editor.setCursorBufferPosition([n, 0])
-      @editor.moveToFirstCharacterOfLine()
 
   # Public: remove this view and unregister all its subscriptions
   remove: ->

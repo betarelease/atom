@@ -16,3 +16,10 @@
 #   'ctrl-P': 'core:move-up'
 #   'ctrl-p': 'core:move-down'
 #
+'.editor':
+  'cmd-alt-l': 'editor:auto-indent'
+
+'atom-text-editor':
+  'ctrl-alt-x': 'rspec:run-for-line'
+  'ctrl-alt-t': 'rspec:run'
+  'ctrl-alt-r': 'rspec:run-all'

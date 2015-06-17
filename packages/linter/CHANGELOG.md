@@ -1,3 +1,36 @@
+# v0.12.1
+
+### New features
+
+* Support rust linter ([#290][290])
+* Handle missing linter executable ([#449][449])
+
+### Bug fixes
+
+* Fix underline when line height isn't default ([#500][500])
+
+[500]: https://github.com/AtomLinter/Linter/pull/500
+[449]: https://github.com/AtomLinter/Linter/pull/449
+[290]: https://github.com/AtomLinter/Linter/pull/290
+
+# v0.12.0
+
+### New features
+* New option: clear lint messages on change ([#437][437])
+* Click on status bar to move to error ([#422][422])
+* Improved package load time ([#428][428] & more)
+* Highlights are more visible ([#416][416])
+
+[416]: https://github.com/AtomLinter/Linter/pull/416
+[422]: https://github.com/AtomLinter/Linter/pull/422
+[428]: https://github.com/AtomLinter/Linter/pull/428
+[437]: https://github.com/AtomLinter/Linter/pull/437
+
+
+### Bug fixes
+* More deprecation fixes
+
+
 # v0.11.1
 
 ### Bug fixes

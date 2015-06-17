@@ -1,7 +1,7 @@
 {
   "name": "atom-color-highlight",
   "main": "./lib/atom-color-highlight",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "private": true,
   "description": "Highlights color in files",
   "repository": {
@@ -23,16 +23,16 @@
     "event-kit": "0.7.x",
     "grim": "^1"
   },
-  "readme": "# Atom Color Highlight [![Build Status](https://travis-ci.org/abe33/atom-color-highlight.svg?branch=master)](https://travis-ci.org/abe33/atom-color-highlight)\n\nHighlights colors in files.\n\n![AtomColorHighlight Screenshot](https://raw.github.com/abe33/atom-color-highlight/master/atom-color-highlight-variables.gif)\n\n![AtomColorHighlight Screenshot](https://raw.github.com/abe33/atom-color-highlight/master/atom-color-highlight.jpg)\n\n### Project Palette Support\n\nIf you have the [project-palette-finder package](https://atom.io/packages/project-palette-finder) installed, the package will automatically benefit from the palette definitions:\n\n![AtomColorHighlight And Project Palette Screenshot](https://raw.github.com/abe33/atom-color-highlight/master/atom-color-highlight-palette.jpg)\n\n### API\n\nThis package provides some API so that you can access the models it creates for the text editors:\n\n#### Observing Models Creation\n\n```coffeescript\natom.packages.activatePackage('atom-color-highlight').then (pkg) ->\n  atomColorHighlight = pkg.mainModule\n\n  atomColorHighlight.observeColorHighlightModels (model) ->\n    # Model is an instance of AtomColorHighlightModel\n```\n\n#### Retrieving Models For Text Editors\n\n```coffeescript\natom.packages.activatePackage('atom-color-highlight').then (pkg) ->\n  atomColorHighlight = pkg.mainModule\n\n  model = atomColorHighlight.modelForEditor(editor)\n```\n\n#### Listening To A Model's Markers Update\n\n```coffeescript\nmodel.onDidUpdateMarkers (markers) ->\n  # Do something with markers\n```\n\nThe `markers` array contains the display buffer markers for all the colors found in the corresponding text editor. Those markers contains extra properties with color data:\n\n* `marker.bufferMarker.properties.color`: The color `String` that was matched by the model.\n* `marker.bufferMarker.properties.cssColor`: The CSS representation of the color as a `String`.\n* `marker.bufferMarker.properties.textColor`: The text color, based on the original color luminance, computed beforehand.\n\n### Modifying Markers Styles\n\nTo target the classical markers, use the following rule:\n\n```less\natom-text-edidor, atom-text-editor::shadow {\n  atom-color-highlight color-marker .region {\n    // ...\n  }\n}\n```\n\nAnd to target the dot marker at end of lines, use the following rule:\n\n```less\natom-text-edidor, atom-text-editor::shadow {\n  atom-color-highlight dot-color-marker {\n    // ...\n  }\n}\n```\n\n### Extending Color Parsing\n\nYou can register a new color expression using the `Color.addExpression` method.\n\n```coffeescript\natom.packages.activatePackage('atom-color-highlight').then (pkg) ->\n  atomColorHighlight = pkg.mainModule\n  {Color} = atomColorHighlight\n\n  Color.addExpression 'name', 'regexp', (color, expression, fileVariables) ->\n    # modify color using data extracted from expression\n```\n\nThe first argument is a string that match the new expression using regular expressions.\nThis string will be used to match the expression both when scanning the\nbuffer and when creating a `Color` object for the various matches.\n\nNote that the regular expression source will be concatened with the other\nexpressions to create the `RegExp` used on the buffer.\nIn that regards, selectors such `^` and `$` should be avoided at all cost.\n\nThe second argument is the function called by the `Color` class when the\ncurrent expression match your regexp. It'll be called with the `Color` instance\nto modify, the matching expression as a string and an object containing the variables found in the file (can be colors or any other values).\n\nFor instance, the CSS hexadecimal RGB notation is defined as follow:\n\n```coffeescript\nColor.addExpression 'css_hexa_6', \"#([\\\\da-fA-F]{6})(?![\\\\da-fA-F])\", (color, expression, fileVariables) ->\n  [m, hexa] = @onigRegExp.search(expression)\n\n  color.hex = hexa.match\n```\n",
+  "readme": "<div class='alert alert-danger'>\nThis package is no longer maintained as it is now replaced by the [pigments package](https://atom.io/packages/pigments).\n<br/>If both packages are installed this package will not activate.\n</div>\n\n# Atom Color Highlight [![Build Status](https://travis-ci.org/abe33/atom-color-highlight.svg?branch=master)](https://travis-ci.org/abe33/atom-color-highlight)\n\nHighlights colors in files.\n\n![AtomColorHighlight Screenshot](https://raw.github.com/abe33/atom-color-highlight/master/atom-color-highlight-variables.gif)\n\n![AtomColorHighlight Screenshot](https://raw.github.com/abe33/atom-color-highlight/master/atom-color-highlight.jpg)\n\n### Project Palette Support\n\nIf you have the [project-palette-finder package](https://atom.io/packages/project-palette-finder) installed, the package will automatically benefit from the palette definitions:\n\n![AtomColorHighlight And Project Palette Screenshot](https://raw.github.com/abe33/atom-color-highlight/master/atom-color-highlight-palette.jpg)\n\n### API\n\nThis package provides some API so that you can access the models it creates for the text editors:\n\n#### Observing Models Creation\n\n```coffeescript\natom.packages.activatePackage('atom-color-highlight').then (pkg) ->\n  atomColorHighlight = pkg.mainModule\n\n  atomColorHighlight.observeColorHighlightModels (model) ->\n    # Model is an instance of AtomColorHighlightModel\n```\n\n#### Retrieving Models For Text Editors\n\n```coffeescript\natom.packages.activatePackage('atom-color-highlight').then (pkg) ->\n  atomColorHighlight = pkg.mainModule\n\n  model = atomColorHighlight.modelForEditor(editor)\n```\n\n#### Listening To A Model's Markers Update\n\n```coffeescript\nmodel.onDidUpdateMarkers (markers) ->\n  # Do something with markers\n```\n\nThe `markers` array contains the display buffer markers for all the colors found in the corresponding text editor. Those markers contains extra properties with color data:\n\n* `marker.bufferMarker.properties.color`: The color `String` that was matched by the model.\n* `marker.bufferMarker.properties.cssColor`: The CSS representation of the color as a `String`.\n* `marker.bufferMarker.properties.textColor`: The text color, based on the original color luminance, computed beforehand.\n\n### Modifying Markers Styles\n\nTo target the classical markers, use the following rule:\n\n```less\natom-text-editor, atom-text-editor::shadow {\n  atom-color-highlight color-marker .region {\n    // ...\n  }\n}\n```\n\nAnd to target the dot marker at end of lines, use the following rule:\n\n```less\natom-text-editor, atom-text-editor::shadow {\n  atom-color-highlight dot-color-marker {\n    // ...\n  }\n}\n```\n\n### Extending Color Parsing\n\nYou can register a new color expression using the `Color.addExpression` method.\n\n```coffeescript\natom.packages.activatePackage('atom-color-highlight').then (pkg) ->\n  atomColorHighlight = pkg.mainModule\n  {Color} = atomColorHighlight\n\n  Color.addExpression 'name', 'regexp', (color, expression, fileVariables) ->\n    # modify color using data extracted from expression\n```\n\nThe first argument is a string that match the new expression using regular expressions.\nThis string will be used to match the expression both when scanning the\nbuffer and when creating a `Color` object for the various matches.\n\nNote that the regular expression source will be concatened with the other\nexpressions to create the `RegExp` used on the buffer.\nIn that regards, selectors such `^` and `$` should be avoided at all cost.\n\nThe second argument is the function called by the `Color` class when the\ncurrent expression match your regexp. It'll be called with the `Color` instance\nto modify, the matching expression as a string and an object containing the variables found in the file (can be colors or any other values).\n\nFor instance, the CSS hexadecimal RGB notation is defined as follow:\n\n```coffeescript\nColor.addExpression 'css_hexa_6', \"#([\\\\da-fA-F]{6})(?![\\\\da-fA-F])\", (color, expression, fileVariables) ->\n  [m, hexa] = @onigRegExp.search(expression)\n\n  color.hex = hexa.match\n```\n",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/abe33/atom-color-highlight/issues"
   },
   "homepage": "https://github.com/abe33/atom-color-highlight",
-  "_id": "atom-color-highlight@3.0.8",
-  "_shasum": "44d44a906bdbcefee79b065e93a15288cb0620a1",
-  "_resolved": "file:../d-115123-40993-12pgbgw/package.tgz",
-  "_from": "../d-115123-40993-12pgbgw/package.tgz",
+  "_id": "atom-color-highlight@3.0.9",
+  "_shasum": "a211dd78d07e368c9ad5caf64b11d8f2571b0a2d",
+  "_resolved": "file:../d-115322-23342-o2pdi3/package.tgz",
+  "_from": "../d-115322-23342-o2pdi3/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -53,7 +53,7 @@
       },
       {
         "name": "es6-weak-map",
-        "version": "0.1.2",
+        "version": "0.1.4",
         "path": "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/index.js"
       },
       {
@@ -63,13 +63,8 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.6",
+        "version": "0.10.7",
         "path": "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "2.0.1",
-        "path": "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
         "name": "es6-iterator",
@@ -79,11 +74,6 @@
       {
         "name": "es6-symbol",
         "version": "2.0.1",
-        "path": "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "0.1.1",
         "path": "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/index.js"
       },
       {
@@ -93,7 +83,7 @@
       },
       {
         "name": "grim",
-        "version": "1.2.0",
+        "version": "1.2.2",
         "path": "node_modules/grim/lib/grim.js"
       },
       {
@@ -113,7 +103,7 @@
       },
       {
         "name": "fs-plus",
-        "version": "2.5.0",
+        "version": "2.7.1",
         "path": "node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/lib/fs-plus.js"
       },
       {
@@ -148,7 +138,7 @@
       },
       {
         "name": "es6-weak-map",
-        "version": "0.1.2",
+        "version": "0.1.4",
         "path": "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/index.js"
       },
       {
@@ -158,13 +148,8 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.6",
+        "version": "0.10.7",
         "path": "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "2.0.1",
-        "path": "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
         "name": "es6-iterator",
@@ -174,11 +159,6 @@
       {
         "name": "es6-symbol",
         "version": "2.0.1",
-        "path": "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "0.1.1",
         "path": "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/index.js"
       },
       {
@@ -238,7 +218,7 @@
       },
       {
         "name": "es6-weak-map",
-        "version": "0.1.2",
+        "version": "0.1.4",
         "path": "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/index.js"
       },
       {
@@ -248,13 +228,8 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.6",
+        "version": "0.10.7",
         "path": "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "2.0.1",
-        "path": "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
         "name": "es6-iterator",
@@ -264,11 +239,6 @@
       {
         "name": "es6-symbol",
         "version": "2.0.1",
-        "path": "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "0.1.1",
         "path": "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/index.js"
       },
       {
@@ -278,7 +248,7 @@
       },
       {
         "name": "es6-weak-map",
-        "version": "0.1.2",
+        "version": "0.1.4",
         "path": "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/index.js"
       },
       {
@@ -288,13 +258,8 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.6",
+        "version": "0.10.7",
         "path": "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "2.0.1",
-        "path": "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
         "name": "es6-iterator",
@@ -304,11 +269,6 @@
       {
         "name": "es6-symbol",
         "version": "2.0.1",
-        "path": "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js"
-      },
-      {
-        "name": "es6-symbol",
-        "version": "0.1.1",
         "path": "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/index.js"
       },
       {
@@ -344,9 +304,7 @@
       ".json": [
         "node_modules/event-kit/api.json",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/d/package.json",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/package.json",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/package.json",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/package.json",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/package.json",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/package.json",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/package.json",
@@ -365,9 +323,7 @@
         "node_modules/grim/node_modules/coffeestack/node_modules/source-map/package.json",
         "node_modules/grim/node_modules/coffeestack/package.json",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/d/package.json",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/package.json",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/package.json",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/package.json",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/package.json",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/package.json",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/package.json",
@@ -384,17 +340,13 @@
         "node_modules/pigments/node_modules/css-color-function/node_modules/rgb/package.json",
         "node_modules/pigments/node_modules/css-color-function/package.json",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/d/package.json",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/package.json",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/package.json",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/package.json",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/package.json",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/package.json",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/package.json",
         "node_modules/pigments/node_modules/emissary/package.json",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/d/package.json",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/package.json",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/package.json",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/package.json",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/package.json",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/package.json",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/package.json",
@@ -560,6 +512,11 @@
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function/valid-function.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/global.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/for-each.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/index.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/is.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate-object.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/_pack-ieee754.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/_unpack-ieee754.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh/implement.js",
@@ -631,13 +588,6 @@
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/index.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/is-implemented.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/shim.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/implement.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/polyfill.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/index.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/pad.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/epsilon/implement.js",
@@ -721,6 +671,10 @@
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-callable.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-object.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-value.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like-object.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable-value.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/index.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-sticky.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-unicode.js",
@@ -806,13 +760,6 @@
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/get.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/index.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/is-iterable.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/implement.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/polyfill.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/string.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/valid-iterable.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/implement.js",
@@ -821,7 +768,7 @@
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/is-native-implemented.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/is-symbol.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/polyfill.js",
-        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/valid-symbol.js",
+        "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/polyfill.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/valid-weak-map.js",
         "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/property-accessors/lib/property-accessors.js",
@@ -1019,6 +966,11 @@
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function/valid-function.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/global.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/for-each.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/index.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/is.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate-object.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/_pack-ieee754.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/_unpack-ieee754.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh/implement.js",
@@ -1090,13 +1042,6 @@
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/index.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/is-implemented.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/shim.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/implement.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/polyfill.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/index.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/pad.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/epsilon/implement.js",
@@ -1180,6 +1125,10 @@
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-callable.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-object.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-value.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like-object.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable-value.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/index.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-sticky.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-unicode.js",
@@ -1265,13 +1214,6 @@
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/get.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/index.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/is-iterable.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/implement.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/polyfill.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/string.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/valid-iterable.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/implement.js",
@@ -1280,7 +1222,7 @@
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/is-native-implemented.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/is-symbol.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/polyfill.js",
-        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/valid-symbol.js",
+        "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/polyfill.js",
         "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/valid-weak-map.js",
         "node_modules/grim/node_modules/emissary/node_modules/property-accessors/lib/property-accessors.js",
@@ -1468,6 +1410,11 @@
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function/valid-function.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/global.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/for-each.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/index.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/is.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate-object.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/_pack-ieee754.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/_unpack-ieee754.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh/implement.js",
@@ -1539,13 +1486,6 @@
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/index.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/is-implemented.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/shim.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/implement.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/polyfill.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/index.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/pad.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/epsilon/implement.js",
@@ -1629,6 +1569,10 @@
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-callable.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-object.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-value.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like-object.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable-value.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/index.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-sticky.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-unicode.js",
@@ -1714,13 +1658,6 @@
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/get.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/index.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/is-iterable.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/implement.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/polyfill.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/string.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/valid-iterable.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/implement.js",
@@ -1729,7 +1666,7 @@
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/is-native-implemented.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/is-symbol.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/polyfill.js",
-        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/valid-symbol.js",
+        "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/polyfill.js",
         "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/valid-weak-map.js",
         "node_modules/pigments/node_modules/property-accessors/lib/property-accessors.js",
@@ -1873,6 +1810,11 @@
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/function/valid-function.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/global.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/index.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/iterable/for-each.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/iterable/index.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/iterable/is.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate-object.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/iterable/validate.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/_pack-ieee754.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/_unpack-ieee754.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh/implement.js",
@@ -1944,13 +1886,6 @@
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/index.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/is-implemented.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/shim.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/implement.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/polyfill.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/number/#/index.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/number/#/pad.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/number/epsilon/implement.js",
@@ -2034,6 +1969,10 @@
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-callable.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-object.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/object/valid-value.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like-object.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-array-like.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable-value.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/object/validate-stringifiable.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/index.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-sticky.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/reg-exp/#/is-unicode.js",
@@ -2119,13 +2058,6 @@
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/get.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/index.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/is-iterable.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/implement.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/index.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-implemented.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-native-implemented.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/is-symbol.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/polyfill.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/string.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/valid-iterable.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/implement.js",
@@ -2134,7 +2066,7 @@
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/is-native-implemented.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/is-symbol.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/polyfill.js",
-        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/valid-symbol.js",
+        "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/polyfill.js",
         "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/valid-weak-map.js",
         "node_modules/pigments/node_modules/q/benchmark/compare-with-callbacks.js",
@@ -2202,9 +2134,9 @@
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4",
-          "es6-iterator": "~0.1.1",
-          "es6-symbol": "0.1.x"
+          "es5-ext": "~0.10.6",
+          "es6-iterator": "~0.1.3",
+          "es6-symbol": "~2.0.1"
         }
       },
       {
@@ -2243,6 +2175,7 @@
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function/#",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext",
+          "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/asinh",
@@ -2318,6 +2251,7 @@
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/error",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/function/#",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/function",
+          "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/iterable",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math/acosh",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math/asinh",
@@ -2376,16 +2310,6 @@
       },
       {
         "paths": [
-          "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol",
-          "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/#",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/test/#",
@@ -2399,22 +2323,12 @@
       },
       {
         "paths": [
-          "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol",
-          "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol",
           "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/test"
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4"
+          "es5-ext": "~0.10.5"
         }
       },
       {
@@ -2500,9 +2414,9 @@
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4",
-          "es6-iterator": "~0.1.1",
-          "es6-symbol": "0.1.x"
+          "es5-ext": "~0.10.6",
+          "es6-iterator": "~0.1.3",
+          "es6-symbol": "~2.0.1"
         }
       },
       {
@@ -2541,6 +2455,7 @@
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function/#",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext",
+          "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/asinh",
@@ -2616,6 +2531,7 @@
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/error",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/function/#",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/function",
+          "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/iterable",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math/acosh",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math/asinh",
@@ -2674,16 +2590,6 @@
       },
       {
         "paths": [
-          "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol",
-          "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/#",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/test/#",
@@ -2697,22 +2603,12 @@
       },
       {
         "paths": [
-          "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol",
-          "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol",
           "node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/test"
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4"
+          "es5-ext": "~0.10.5"
         }
       },
       {
@@ -2790,9 +2686,9 @@
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4",
-          "es6-iterator": "~0.1.1",
-          "es6-symbol": "0.1.x"
+          "es5-ext": "~0.10.6",
+          "es6-iterator": "~0.1.3",
+          "es6-symbol": "~2.0.1"
         }
       },
       {
@@ -2831,6 +2727,7 @@
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function/#",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/function",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext",
+          "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/iterable",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/asinh",
@@ -2906,6 +2803,7 @@
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/error",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/function/#",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/function",
+          "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/iterable",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math/acosh",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/math/asinh",
@@ -2964,16 +2862,6 @@
       },
       {
         "paths": [
-          "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol",
-          "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/#",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/test/#",
@@ -2987,22 +2875,12 @@
       },
       {
         "paths": [
-          "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol",
-          "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol",
           "node_modules/pigments/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/test"
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4"
+          "es5-ext": "~0.10.5"
         }
       },
       {
@@ -3022,9 +2900,9 @@
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4",
-          "es6-iterator": "~0.1.1",
-          "es6-symbol": "0.1.x"
+          "es5-ext": "~0.10.6",
+          "es6-iterator": "~0.1.3",
+          "es6-symbol": "~2.0.1"
         }
       },
       {
@@ -3063,6 +2941,7 @@
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/function/#",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/function",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext",
+          "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/iterable",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/acosh",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/math/asinh",
@@ -3138,6 +3017,7 @@
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/test/error",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/test/function/#",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/test/function",
+          "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/test/iterable",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/test/math",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/test/math/acosh",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/test/math/asinh",
@@ -3196,16 +3076,6 @@
       },
       {
         "paths": [
-          "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol",
-          "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/#",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/test/#",
@@ -3219,22 +3089,12 @@
       },
       {
         "paths": [
-          "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol",
-          "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-iterator/node_modules/es6-symbol/test"
-        ],
-        "dependencies": {
-          "d": "~0.1.1",
-          "es5-ext": "~0.10.5"
-        }
-      },
-      {
-        "paths": [
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol",
           "node_modules/pigments/node_modules/property-accessors/node_modules/es6-weak-map/node_modules/es6-symbol/test"
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.4"
+          "es5-ext": "~0.10.5"
         }
       },
       {

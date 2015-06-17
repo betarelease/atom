@@ -1,7 +1,7 @@
 {
   "name": "blackboard",
   "theme": "syntax",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "TextMate’s Blackboard syntax theme, ported to Atom.",
   "repository": {
@@ -14,14 +14,22 @@
   "homepage": "https://github.com/mathiasbynens/atom-blackboard",
   "license": "MIT",
   "engines": {
-    "atom": ">0.60.0"
+    "atom": ">0.189.0"
   },
-  "readme": "# Blackboard theme for Atom\n\nTextMate’s Blackboard syntax theme, ported to [Atom](https://atom.io/).\n\n![](http://i.imgur.com/wdAIowr.png)\n\nOriginally converted from the TextMate theme using the [TextMate bundle converter](https://atom.io/docs/latest/converting-a-text-mate-theme), and then modified by hand to fix a few conversion bugs.\n\n## Maintainer\n\n| [![twitter/mathias](https://gravatar.com/avatar/24e08a9ea84deb17ae121074d0f17125?s=70)](https://twitter.com/mathias \"Follow @mathias on Twitter\") |\n|---|\n| [Mathias Bynens](http://mathiasbynens.be/) |\n\n## License\n\nThis theme is available under the [MIT](http://mths.be/mit) license.\n",
+  "readme": "# Blackboard theme for Atom\n\nTextMate’s Blackboard syntax theme, ported to [Atom](https://atom.io/).\n\n![](https://i.imgur.com/wdAIowr.png)\n\nOriginally converted from the TextMate theme using the [TextMate bundle converter](https://atom.io/docs/latest/converting-a-text-mate-theme), and then modified by hand to fix a few conversion bugs.\n\n## Maintainer\n\n| [![twitter/mathias](https://gravatar.com/avatar/24e08a9ea84deb17ae121074d0f17125?s=70)](https://twitter.com/mathias \"Follow @mathias on Twitter\") |\n|---|\n| [Mathias Bynens](https://mathiasbynens.be/) |\n\n## License\n\nThis theme is available under the [MIT](https://mths.be/mit) license.\n",
   "readmeFilename": "README.md",
-  "_id": "blackboard@0.1.0",
-  "dist": {
-    "shasum": "e375a4de1cdd2236aefd3339211e4b69b4e58a13"
-  },
-  "_resolved": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114525-49042-1i7oj35/package.tgz",
-  "_from": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114525-49042-1i7oj35/package.tgz"
+  "_id": "blackboard@1.0.0",
+  "_shasum": "211b798d9dfb5a19125ae7ad5d24cae4def6979e",
+  "_resolved": "file:../d-115312-84012-5yi25x/package.tgz",
+  "_from": "../d-115312-84012-5yi25x/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
 }

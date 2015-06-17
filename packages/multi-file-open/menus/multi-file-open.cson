@@ -1,0 +1,24 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  '.tree-view-scroller': [
+    {
+      'label': 'Open files'
+      'command': 'multi-file-open:open'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      {
+        'label': 'MultiFile Open'
+        'submenu': [
+          {
+            'label': 'Open fies'
+            'command': 'multi-file-open:open'
+          }
+        ]
+      }
+    ]
+  }
+]

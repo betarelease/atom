@@ -1,0 +1,42 @@
+{
+  "name": "multi-file-open",
+  "main": "./lib/multi-file-open",
+  "version": "0.1.1",
+  "description": "selected files open on tree-view",
+  "activationCommands": {
+    "atom-workspace": "multi-file-open:open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hikaruworld/atom-multi-file-open"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {},
+  "readme": "# multi-file-open package\n\nMulti selected files `ctrl-enter` open on TreeView.\n\n![A screenshot of your spankin' package](./readme.gif)\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/hikaruworld/atom-multi-file-open/issues"
+  },
+  "homepage": "https://github.com/hikaruworld/atom-multi-file-open",
+  "_id": "multi-file-open@0.1.1",
+  "_shasum": "844041d674ece4ac7d9886a1973ae8f4d9642a53",
+  "_resolved": "file:../d-115212-4742-1xz4p22/package.tgz",
+  "_from": "../d-115212-4742-1xz4p22/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".coffee": [
+        "lib/multi-file-open-view.coffee",
+        "lib/multi-file-open.coffee"
+      ],
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
+}

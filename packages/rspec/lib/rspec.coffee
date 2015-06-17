@@ -7,6 +7,7 @@ module.exports =
     command: "rspec",
     spec_directory: "spec",
     force_colored_results: true,
+    save_before_run: false
 
   activate: (state) ->
     if state?
@@ -16,14 +17,23 @@ module.exports =
     atom.config.setDefaults "atom-rspec",
       command:               @configDefaults.command,
       spec_directory:        @configDefaults.spec_directory,
-      force_colored_results: @configDefaults.force_colored_results
+      save_before_run:       @configDefaults.save_before_run,
+      force_colored_results: @configDefaults.force_colored_results,
 
-    atom.workspaceView.command 'rspec:run'         , => @run()
-    atom.workspaceView.command 'rspec:run-for-line', => @runForLine()
-    atom.workspaceView.command 'rspec:run-last'    , => @runLast()
-    atom.workspaceView.command 'rspec:run-all'     , => @runAll()
+    atom.commands.add 'atom-workspace',
+      'rspec:run': =>
+        @run()
 
-    atom.workspace.registerOpener (uriToOpen) ->
+      'rspec:run-for-line': =>
+        @runForLine()
+
+      'rspec:run-last': =>
+        @runLast()
+
+      'rspec:run-all': =>
+        @runAll()
+
+    atom.workspace.addOpener (uriToOpen) ->
       {protocol, pathname} = url.parse(uriToOpen)
       return unless protocol is 'rspec-output:'
       new RSpecView(pathname)
@@ -44,18 +54,18 @@ module.exports =
 
     previousActivePane = atom.workspace.getActivePane()
     uri = "rspec-output://#{file}"
-    atom.workspace.open(uri, split: 'right', changeFocus: false, searchAllPanes: true).done (rspecView) ->
+    atom.workspace.open(uri, split: 'right', activatePane: false, searchAllPanes: true).done (rspecView) ->
       if rspecView instanceof RSpecView
         rspecView.run(lineNumber)
         previousActivePane.activate()
 
   runForLine: ->
     console.log "Starting runForLine..."
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     console.log "Editor", editor
     return unless editor?
 
-    cursor = editor.getCursor()
+    cursor = editor.getLastCursor()
     console.log "Cursor", cursor
     line = cursor.getBufferRow() + 1
     console.log "Line", line
@@ -68,7 +78,7 @@ module.exports =
 
   run: ->
     console.log "RUN"
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     return unless editor?
 
     @openUriFor(editor.getPath())
@@ -77,4 +87,5 @@ module.exports =
     project = atom.project
     return unless project?
 
-    @openUriFor(project.getPath() + "/" + atom.config.get("atom-rspec.spec_directory"))
+    @openUriFor(project.getPaths()[0] +
+    "/" + atom.config.get("atom-rspec.spec_directory"), @lastLine)

@@ -1,7 +1,7 @@
 {
   "name": "atom-soda-dark-ui",
   "theme": "ui",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Soda Dark theme for interface components",
   "license": "MIT",
   "repository": {
@@ -17,10 +17,18 @@
     "url": "https://github.com/dmackerman/atom-soda-dark-ui/issues"
   },
   "homepage": "https://github.com/dmackerman/atom-soda-dark-ui",
-  "_id": "atom-soda-dark-ui@0.8.0",
-  "dist": {
-    "shasum": "8519a20132e443aafb562cf5c31dca17ebe9535e"
-  },
-  "_resolved": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114625-94115-1pdcoi3/package.tgz",
-  "_from": "/var/folders/tv/2mrcbc6x0mq1ccmqvlf2ncsr0000gn/T/d-114625-94115-1pdcoi3/package.tgz"
+  "_id": "atom-soda-dark-ui@0.9.0",
+  "_shasum": "f5cc9362e203deaa5d0fd474774fd2ddbd6cd704",
+  "_resolved": "file:../d-115220-1945-14dtj5u/package.tgz",
+  "_from": "../d-115220-1945-14dtj5u/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
 }

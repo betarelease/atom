@@ -1,7 +1,7 @@
 {
   "name": "flatland-dark-ui",
   "theme": "ui",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A port of the Sublime Text/TextMate Dark UI Theme",
   "license": "MIT",
   "repository": {
@@ -17,10 +17,10 @@
     "url": "https://github.com/michaelhelmick/flatland-dark-ui/issues"
   },
   "homepage": "https://github.com/michaelhelmick/flatland-dark-ui",
-  "_id": "flatland-dark-ui@0.2.3",
-  "_shasum": "14d211fe56a22330515aa70f564a2b37fec1bd46",
-  "_resolved": "file:../d-115123-40993-1cwqtpm/package.tgz",
-  "_from": "../d-115123-40993-1cwqtpm/package.tgz",
+  "_id": "flatland-dark-ui@0.2.4",
+  "_shasum": "a81bf1f3e8cb69c02e7bdd398acab1eef949bad7",
+  "_resolved": "file:../d-115310-76143-ntzyir/package.tgz",
+  "_from": "../d-115310-76143-ntzyir/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [],

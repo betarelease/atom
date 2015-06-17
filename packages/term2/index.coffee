@@ -8,62 +8,119 @@ module.exports =
     termViews: []
     focusedTerminal: off
 
-    configDefaults:
-      autoRunCommand: null
-      titleTemplate: "Terminal ({{ bashName }})"
+    config:
+      autoRunCommand:
+        type: 'string'
+        default: ''
+      titleTemplate:
+        type: 'string'
+        default: "Terminal ({{ bashName }})"
       colors:
-        normalBlack : '#2e3436'
-        normalRed   : '#cc0000'
-        normalGreen : '#4e9a06'
-        normalYellow: '#c4a000'
-        normalBlue  : '#3465a4'
-        normalPurple: '#75507b'
-        normalCyan  : '#06989a'
-        normalWhite : '#d3d7cf'
-        brightBlack : '#555753'
-        brightRed   : '#ef2929'
-        brightGreen : '#8ae234'
-        brightYellow: '#fce94f'
-        brightBlue  : '#729fcf'
-        brightPurple: '#ad7fa8'
-        brightCyan  : '#34e2e2'
-        brightWhite : '#eeeeec'
-
-      scrollback: 1000
-      cursorBlink: yes
-      shellArguments: do ({SHELL, HOME}=process.env)->
-        switch path.basename SHELL.toLowerCase()
-          when 'bash' then "--init-file #{path.join HOME, '.bash_profile'}"
-          when 'zsh'  then ""
-          else ''
-      openPanesInSameSplit: no
+        type: 'object'
+        properties:
+          normalBlack:
+            type: 'color'
+            default: '#2e3436'
+          normalRed:
+            type: 'color'
+            default: '#cc0000'
+          normalGreen:
+            type: 'color'
+            default: '#4e9a06'
+          normalYellow:
+            type: 'color'
+            default: '#c4a000'
+          normalBlue:
+            type: 'color'
+            default: '#3465a4'
+          normalPurple:
+            type: 'color'
+            default: '#75507b'
+          normalCyan:
+            type: 'color'
+            default: '#06989a'
+          normalWhite:
+            type: 'color'
+            default: '#d3d7cf'
+          brightBlack:
+            type: 'color'
+            default: '#555753'
+          brightRed:
+            type: 'color'
+            default: '#ef2929'
+          brightGreen:
+            type: 'color'
+            default: '#8ae234'
+          brightYellow:
+            type: 'color'
+            default: '#fce94f'
+          brightBlue:
+            type: 'color'
+            default: '#729fcf'
+          brightPurple:
+            type: 'color'
+            default: '#ad7fa8'
+          brightCyan:
+            type: 'color'
+            default: '#34e2e2'
+          brightWhite:
+            type: 'color'
+            default: '#eeeeec'
+          background:
+            type: 'color'
+            default: '#000000'
+          foreground:
+            type: 'color'
+            default: '#f0f0f0'
+      scrollback:
+        type: 'integer'
+        default: 1000
+      cursorBlink:
+        type: 'boolean'
+        default: true
+      shellOverride:
+        type: 'string'
+        default: ''
+      shellArguments:
+        type: 'string'
+        default: do ({SHELL, HOME}=process.env)->
+          switch path.basename SHELL.toLowerCase()
+            when 'bash' then "--init-file #{path.join HOME, '.bash_profile'}"
+            when 'zsh'  then ""
+            else ''
+      openPanesInSameSplit:
+        type: 'boolean'
+        default: false
 
     activate: (@state)->
 
       ['up', 'right', 'down', 'left'].forEach (direction)=>
-        atom.workspaceView.command "term2:open-split-#{direction}", @splitTerm.bind(this, direction)
+        atom.commands.add "atom-workspace", "term2:open-split-#{direction}", @splitTerm.bind(this, direction)
 
-      atom.workspaceView.command "term2:open", @newTerm.bind(this)
-      atom.workspaceView.command "term2:pipe-path", @pipeTerm.bind(this, 'path')
-      atom.workspaceView.command "term2:pipe-selection", @pipeTerm.bind(this, 'selection')
+      atom.commands.add "atom-workspace", "term2:open", @newTerm.bind(this)
+      atom.commands.add "atom-workspace", "term2:pipe-path", @pipeTerm.bind(this, 'path')
+      atom.commands.add "atom-workspace", "term2:pipe-selection", @pipeTerm.bind(this, 'selection')
 
     getColors: ->
-      {colors: {
+      {
         normalBlack, normalRed, normalGreen, normalYellow
         normalBlue, normalPurple, normalCyan, normalWhite
         brightBlack, brightRed, brightGreen, brightYellow
         brightBlue, brightPurple, brightCyan, brightWhite
-      }} = atom.config.getSettings().term2
+        background, foreground
+      } = (atom.config.getAll 'term2.colors')[0].value
       [
         normalBlack, normalRed, normalGreen, normalYellow
         normalBlue, normalPurple, normalCyan, normalWhite
         brightBlack, brightRed, brightGreen, brightYellow
         brightBlue, brightPurple, brightCyan, brightWhite
+        background, foreground
       ]
 
     createTermView:->
       opts =
         runCommand    : atom.config.get 'term2.autoRunCommand'
+        shellOverride : atom.config.get 'term2.shellOverride'
         shellArguments: atom.config.get 'term2.shellArguments'
         titleTemplate : atom.config.get 'term2.titleTemplate'
         cursorBlink   : atom.config.get 'term2.cursorBlink'
@@ -106,7 +163,7 @@ module.exports =
       pane.activateItem item
 
     pipeTerm: (action)->
-      editor = atom.workspace.getActiveEditor()
+      editor = @getActiveEditor()
       stream = switch action
         when 'path'
           editor.getBuffer().file.path

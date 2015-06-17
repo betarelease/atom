@@ -34,7 +34,7 @@
 }
 
 /* more subtle invisibles */
-.editor {
+.atom-text-editor {
   .invisible-character {
     color: #504949;
     opacity: 0.5;
@@ -46,25 +46,24 @@
 
 
 /* thicker cursor */
-.editor {
+.atom-text-editor {
   .cursor {
     border-left-width: 2px;
+    border-color: pink;
   }
   .cursor-line {
     background-color: rgba(192, 192, 192, 0.6);
   }
+  .comment{
+    color: lightpink;
+  }
 }
 
-.editor.is-focused .line-number.cursor-line-no-selection, .editor.is-focused .line.cursor-line {
+.atom-text-editor.is-focused .line-number.cursor-line-no-selection, .atom-text-editor.is-focused .line.cursor-line {
     background-color: rgba(118, 157, 179, 0)
 }
 
-.editor.is-focused .selection .region {
+.atom-text-editor.is-focused .selection .region {
   background-color: rgba(108, 117, 181, 0.6);
   color: red !important;
-  text-shadow: none;
-}
-
-.comment{
-  color: lightpink;
 }

@@ -1,6 +1,5 @@
 "*":
   editor:
-    fontSize: 15
     softWrap: true
     showIndentGuide: true
     showInvisibles: true
@@ -9,12 +8,9 @@
   core:
     audioBeep: false
     disabledPackages: [
-      "autocomplete-plus"
       "markdown-format"
       "term"
       "git-show"
-      "deprecation-cop"
-      "exception-reporting"
       "feedback"
       "autocomplete-paths"
       "vim-mode"
@@ -22,17 +18,26 @@
       "indentation-indicator"
       "atomtools"
       "execute-as-ruby"
-    ]
-    themes: [
-      "flatland-dark-ui"
-      "ir-black-syntax"
+      "term2"
+      "Atom-Syntax-highlighting-for-Sass"
+      "linter"
+      "move-panes"
+      "reveal-active-file-context"
+      "reveal-active-file-context"
     ]
     ignoredNames: [
       ".git"
       "*.log"
       "*.scssc"
       "_site/"
+      ".bundle/**/*"
+      "tmp/**/*"
     ]
+    themes: [
+      "atom-dark-ui"
+      "atom-dark-syntax"
+    ]
+    excludeVcsIgnoredPaths: false
   "exception-reporting":
     userId: "269a4d18-9704-90cc-4545-df739b838308"
   welcome:
@@ -62,8 +67,23 @@
   "autoclose-html": {}
   linter: {}
   "atom-rspec":
-    command: "bundle exec rspec"
+    command: "rspec"
   "ruby-test":
     rspecFileCommand: "bundle exec rspec {relative_path}"
     rspecSingleCommand: "bundle exec rspec {relative_path}:{line_number}"
-  rspec: {}
+  rspec:
+    save_before_run: true
+  "linter-rubocop":
+    rubocopExecutablePath: "bundle exec"
+  "atom-lint":
+    showViolationMetadata: false
+    ignoredNames: [
+      "gk_sync_controller.rb"
+    ]
+  "atom-beautify":
+    _analyticsUserId: "1f9a3c19-4f00-4058-98e7-511044633d41"
+    beautifyOnSave: true
+    ruby_rbeautify_path: "bundle exec rbeautify"
+  tabs: {}
+  "git-log": {}
+  "xml-formatter": {}

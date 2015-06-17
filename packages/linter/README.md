@@ -2,6 +2,14 @@
 
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg?style=flat)](https://gitter.im/AtomLinter/Linter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://img.shields.io/travis/AtomLinter/Linter.svg?style=flat)](https://travis-ci.org/AtomLinter/Linter)
+[![Stories in Ready](https://badge.waffle.io/atomlinter/linter.png?label=ready&title=Ready)](https://waffle.io/atomlinter/linter)
+[![Plugin installs!](https://img.shields.io/apm/dm/linter.svg)](https://atom.io/packages/linter)
+[![Package version!](https://img.shields.io/apm/v/linter.svg?style=flat)](https://atom.io/packages/linter)
+[![Dependencies!](https://david-dm.org/AtomLinter/Linter.svg)](https://david-dm.org/AtomLinter/linter)
+
+[![Gratipay donate button](https://img.shields.io/gratipay/hd-deman.svg?style=flat)](https://www.gratipay.com/hd-deman/ "Donate weekly to this project using Gratipay")
+[![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg?style=flat)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KXUYS4ARNHCN8 "Donate once-off to this project using Paypal")
+[![BitCoin donate button](https://img.shields.io/badge/bitcoin-donate-yellow.svg?style=flat)](https://www.coinbase.com/checkouts/2945dab392cb1cefbb7097e4cd17a603 "Donate once-off to this project using BitCoin")
 
 Lint your code with ease in [Atom](http://atom.io).
 
@@ -17,6 +25,7 @@ The idea is to stop the linter plugins war, by providing a top level API for lin
 - [linter-eslint](https://atom.io/packages/linter-eslint), for JavaScript, using `eslint`
 - [linter-gjslint](https://atom.io/packages/linter-gjslint), for JavaScript, using `gjslint`
 - [linter-flow](https://atom.io/packages/linter-flow), for JavaScript, using `flow`
+- [linter-js-standard](https://atom.io/packages/linter-js-standard), for JavaScript, using `standard`
 
 #### for CoffeeScript
 - [linter-coffeelint](https://atom.io/packages/linter-coffeelint), for CoffeeScript, using `coffeelint`
@@ -35,6 +44,8 @@ The idea is to stop the linter plugins war, by providing a top level API for lin
 - [linter-ruby](https://atom.io/packages/linter-ruby), for Ruby, using `ruby -wc`
 - [linter-erb](https://atom.io/packages/linter-erb), for .erb files, using `erb -x`
 - [linter-haml](https://atom.io/packages/linter-haml), for .haml files, using `haml-lint`
+- [linter-reek](https://atom.io/packages/linter-reek), for Ruby, using `reek`
+- [linter-slim](https://atom.io/packages/linter-slim), for .slim files, using `slimrb -c`
 
 #### for PHP
 - [linter-php](https://atom.io/packages/linter-php), for PHP using `php -l`
@@ -52,10 +63,12 @@ The idea is to stop the linter plugins war, by providing a top level API for lin
 #### for Java
 - [linter-javac](https://atom.io/packages/linter-javac), for Java, using `javac`
 
-#### for CSS / SASS / SCSS / LESS
+#### for CSS / SASS / SCSS / LESS / STYLUS
 - [linter-scss-lint](https://atom.io/packages/linter-scss-lint), for SASS/SCSS, using `scss-lint`
 - [linter-less](https://atom.io/packages/linter-less), for LESS, using `less`
 - [linter-csslint](https://atom.io/packages/linter-csslint), for CSS, using `csslint`
+- [linter-stylint](https://atom.io/packages/linter-stylint), for Stylus, using `stylint`
+- [linter-stylus](https://atom.io/packages/linter-stylus), for Stylus, using `stylus`
 
 #### for XML
 - [linter-xmllint](https://atom.io/packages/linter-xmllint), for XML, using `xmllint`
@@ -109,8 +122,20 @@ The idea is to stop the linter plugins war, by providing a top level API for lin
 #### for Erlang
 - [linter-erlc](https://atom.io/packages/linter-erlc), for Erlang, using `erlc`
 
+#### for JSONiq & XQuery
+- [language-jsoniq](https://github.com/wcandillon/language-jsoniq), for JSONiq & XQuery using `xqlint`
+
 #### for ActionScript/Flash/Flex/AIR
 - [linter-flexpmd](https://atom.io/packages/linter-flexpmd),for ActionScript/Flash/Flex/AIR, using flexpmd
+
+#### for Swift
+- [linter-swiftc](https://atom.io/packages/linter-swiftc), for Swift, using `swiftc`
+
+#### for LaTeX
+- [linter-chktex](https://atom.io/packages/linter-chktex), for LaTeX, using `chktex`
+
+#### for Crystal
+- [linter-crystal](https://atom.io/packages/linter-crystal), for Crystal using `crystal`
 
 ## Features
 
@@ -168,8 +193,9 @@ Also, run `$ grunt dev` before any submission and while developing, it will achi
 You can generate the doc with `$ grunt doc`, it will open in your default browser.
 
 ## Donation
-[![Share the love!](https://chewbacco-stuff.s3.amazonaws.com/donate.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KXUYS4ARNHCN8)
 
-[![donate-paypal](https://s3-eu-west-1.amazonaws.com/chewbacco-stuff/donate-paypal.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KXUYS4ARNHCN8)
+[![Share the love!](https://s3-eu-west-1.amazonaws.com/atom-linter/we-need-your-help.png?style=flat)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KXUYS4ARNHCN8 "Share the love")
 
-<a class="coinbase-button" data-code="2945dab392cb1cefbb7097e4cd17a603" data-button-style="custom_small" href="https://www.coinbase.com/checkouts/2945dab392cb1cefbb7097e4cd17a603">Donate Bitcoins</a><script src="https://www.coinbase.com/assets/button.js" type="text/javascript"></script>
+[![Gratipay donate button](https://img.shields.io/gratipay/hd-deman.svg?style=flat)](https://www.gratipay.com/hd-deman/ "Donate weekly to this project using Gratipay")
+[![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg?style=flat)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KXUYS4ARNHCN8 "Donate once-off to this project using Paypal")
+[![BitCoin donate button](https://img.shields.io/badge/bitcoin-donate-yellow.svg?style=flat)](https://www.coinbase.com/checkouts/2945dab392cb1cefbb7097e4cd17a603 "Donate once-off to this project using BitCoin")
