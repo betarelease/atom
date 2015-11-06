@@ -1,0 +1,257 @@
+{
+  "name": "color-tabs",
+  "main": "./lib/main",
+  "version": "0.1.8",
+  "description": "Adds colors to tabs..",
+  "keywords": [
+    "tabs",
+    "color"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paulpflug/color-tabs"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">=0.174.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-simple-logger": "~0.0.1",
+    "season": "^5.3.0"
+  },
+  "dev-dependencies": {
+    "atom-package-reloader": "~0.0.2"
+  },
+  "providedServices": {
+    "color-change-cb": {
+      "description": "Is called on color change",
+      "versions": {
+        "0.0.1": "provideColorChangeCb"
+      }
+    },
+    "change-color": {
+      "description": "changes the color of a tab",
+      "versions": {
+        "0.0.1": "provideChangeColor"
+      }
+    }
+  },
+  "readme": "# color-tabs package\n\nAdds colors to tabs..\n\n![seti](https://cloud.githubusercontent.com/assets/1881921/8502970/cf0522b2-21b7-11e5-919d-6d66f236de7a.png) -- backgroundStyle: solid, markerStyle: none, borderStyle: none\n\n![color-tabs](https://cloud.githubusercontent.com/assets/1881921/8267564/90525440-1767-11e5-96de-565e02a1cc67.png) -- backgroundStyle: gradient, markerStyle: none, borderStyle: none\n\n![atom](https://cloud.githubusercontent.com/assets/1881921/8502967/ced57ddc-21b7-11e5-9782-7fbc733d40b1.png) -- backgroundStyle: none, markerStyle: none, borderStyle: bottom\n\n![darkone](https://cloud.githubusercontent.com/assets/1881921/8502968/cef22932-21b7-11e5-8619-349fa1182b0a.png) -- backgroundStyle: none, markerStyle: corner, borderStyle: none\n\n![isotope](https://cloud.githubusercontent.com/assets/1881921/8502969/cefee492-21b7-11e5-9d5b-447df17ab4be.png) -- backgroundStyle: none, markerStyle: corner, borderStyle: bottom\n\n\n\nNot all styles are working with all themes!\n\n\n## Usage\n\n`ctrl+alt+a` to add a random color to active tab\n\n`ctrl+alt+x` to remove the color from active tab\n\n### Other cool packages\n\n- Automatically colors your tabs based on regex: [color-tabs-regex](https://atom.io/packages/color-tabs-regex)\n\n### Where to set style\n\n![settings](https://cloud.githubusercontent.com/assets/1881921/8529066/df3c337a-2417-11e5-8e73-fecbf0ce2379.png)\n\n### Services\n\nThis package also provides two services\n\npackage.json\n```json\n{\n  \"otherStuff\": \"otherData\",\n  \"consumedServices\": {\n    \"color-change-cb\": {\n      \"versions\": {\n        \"^0.0.1\": \"consumeColorChangeCb\"\n      }\n    },\n    \"change-color\": {\n      \"versions\": {\n        \"^0.0.1\": \"consumeChangeColor\"\n      }\n    }\n  }\n}\n```\n\nyour package:\n```coffee\n  #in main module\n  consumeChangeColor: (changeColor) =>\n    @changeColor = changeColor\n  consumeColorChangeCb: (colorChangeCb) =>\n    @colorChangeCb = colorChangeCb\n\n  #Wherever you want to use it\n    @changeColor path, newColor # changes the color of a tab for a specific file path\n    @changeColor path, false # removes the color\n    @changeColor path, newColor, false # prevents saving, colors will not be persistent\n    @changeColor path, newColor, false, true # will show a warning if path is undefined\n\n    @cbHandler = @colorChangeCb (path, newColor) ->\n      #is called after the color of a tab got changed\n      #newColor is false if it got uncolored\n\n  #cleanup cb\n  deactivate: ->\n    @cbHandler?.dispose?()\n```\n\n## Developing\n\nRun `npm install` in the package directory.\n\nOpen it in atom in dev mode.\n\nFor debugging set the debug field in package settings to the needed debug level.\n\nShould autoreload the package on changes in `lib` and `styles` folders\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/paulpflug/color-tabs/issues"
+  },
+  "homepage": "https://github.com/paulpflug/color-tabs",
+  "_id": "color-tabs@0.1.8",
+  "_shasum": "66e8fd4eab57d5434ccccb7af9249210fc751588",
+  "_resolved": "file:../d-115721-31882-12jojp2/package.tgz",
+  "_from": "../d-115721-31882-12jojp2/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [
+      {
+        "name": "atom-simple-logger",
+        "version": "0.0.1",
+        "path": "node_modules/atom-simple-logger/lib/index.js"
+      },
+      {
+        "name": "season",
+        "version": "5.3.0",
+        "path": "node_modules/season/lib/cson.js"
+      },
+      {
+        "name": "cson-parser",
+        "version": "1.0.9",
+        "path": "node_modules/season/node_modules/cson-parser/lib/cson-parser.js"
+      },
+      {
+        "name": "coffee-script",
+        "version": "1.9.0",
+        "path": "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/coffee-script.js"
+      },
+      {
+        "name": "fs-plus",
+        "version": "2.8.1",
+        "path": "node_modules/season/node_modules/fs-plus/lib/fs-plus.js"
+      },
+      {
+        "name": "async",
+        "version": "0.2.10",
+        "path": "node_modules/season/node_modules/fs-plus/node_modules/async/lib/async.js"
+      },
+      {
+        "name": "mkdirp",
+        "version": "0.3.5",
+        "path": "node_modules/season/node_modules/fs-plus/node_modules/mkdirp/index.js"
+      },
+      {
+        "name": "rimraf",
+        "version": "2.2.8",
+        "path": "node_modules/season/node_modules/fs-plus/node_modules/rimraf/rimraf.js"
+      },
+      {
+        "name": "underscore-plus",
+        "version": "1.6.6",
+        "path": "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/lib/underscore-plus.js"
+      },
+      {
+        "name": "underscore",
+        "version": "1.6.0",
+        "path": "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/node_modules/underscore/underscore.js"
+      },
+      {
+        "name": "optimist",
+        "version": "0.4.0",
+        "path": "node_modules/season/node_modules/optimist/index.js"
+      },
+      {
+        "name": "wordwrap",
+        "version": "0.0.3",
+        "path": "node_modules/season/node_modules/optimist/node_modules/wordwrap/index.js"
+      }
+    ],
+    "extensions": {
+      ".coffee": [
+        "lib/color-tabs.coffee",
+        "lib/main.coffee",
+        "node_modules/atom-simple-logger/src/index.coffee"
+      ],
+      ".js": [
+        "node_modules/atom-simple-logger/lib/index.js",
+        "node_modules/season/lib/cson.js",
+        "node_modules/season/lib/csonc.js",
+        "node_modules/season/node_modules/cson-parser/lib/cson-parser.js",
+        "node_modules/season/node_modules/cson-parser/lib/parse.js",
+        "node_modules/season/node_modules/cson-parser/lib/stringify.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/browser.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/cake.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/coffee-script.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/command.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/grammar.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/helpers.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/index.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/lexer.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/nodes.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/optparse.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/parser.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/register.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/repl.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/rewriter.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/scope.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/lib/coffee-script/sourcemap.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/register.js",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/repl.js",
+        "node_modules/season/node_modules/fs-plus/lib/fs-plus.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/async/lib/async.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/mkdirp/examples/pow.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/mkdirp/index.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/rimraf/bin.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/rimraf/rimraf.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/lib/underscore-plus.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/node_modules/underscore/underscore-min.js",
+        "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/node_modules/underscore/underscore.js",
+        "node_modules/season/node_modules/optimist/example/bool.js",
+        "node_modules/season/node_modules/optimist/example/boolean_double.js",
+        "node_modules/season/node_modules/optimist/example/boolean_single.js",
+        "node_modules/season/node_modules/optimist/example/default_hash.js",
+        "node_modules/season/node_modules/optimist/example/default_singles.js",
+        "node_modules/season/node_modules/optimist/example/divide.js",
+        "node_modules/season/node_modules/optimist/example/line_count.js",
+        "node_modules/season/node_modules/optimist/example/line_count_options.js",
+        "node_modules/season/node_modules/optimist/example/line_count_wrap.js",
+        "node_modules/season/node_modules/optimist/example/nonopt.js",
+        "node_modules/season/node_modules/optimist/example/reflect.js",
+        "node_modules/season/node_modules/optimist/example/short.js",
+        "node_modules/season/node_modules/optimist/example/string.js",
+        "node_modules/season/node_modules/optimist/example/usage-options.js",
+        "node_modules/season/node_modules/optimist/example/xup.js",
+        "node_modules/season/node_modules/optimist/index.js",
+        "node_modules/season/node_modules/optimist/node_modules/wordwrap/example/center.js",
+        "node_modules/season/node_modules/optimist/node_modules/wordwrap/example/meat.js",
+        "node_modules/season/node_modules/optimist/node_modules/wordwrap/index.js"
+      ],
+      ".json": [
+        "node_modules/atom-simple-logger/package.json",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/bower.json",
+        "node_modules/season/node_modules/cson-parser/node_modules/coffee-script/package.json",
+        "node_modules/season/node_modules/cson-parser/package.json",
+        "node_modules/season/node_modules/fs-plus/node_modules/async/component.json",
+        "node_modules/season/node_modules/fs-plus/node_modules/async/package.json",
+        "node_modules/season/node_modules/fs-plus/node_modules/mkdirp/package.json",
+        "node_modules/season/node_modules/fs-plus/node_modules/rimraf/package.json",
+        "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/node_modules/underscore/package.json",
+        "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/package.json",
+        "node_modules/season/node_modules/fs-plus/package.json",
+        "node_modules/season/node_modules/optimist/node_modules/wordwrap/package.json",
+        "node_modules/season/node_modules/optimist/package.json",
+        "node_modules/season/package.json",
+        "package.json"
+      ]
+    },
+    "folders": [
+      {
+        "paths": [
+          "lib",
+          "",
+          "spec"
+        ],
+        "dependencies": {
+          "atom-simple-logger": "~0.0.1",
+          "season": "^5.3.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/season/lib",
+          "node_modules/season"
+        ],
+        "dependencies": {
+          "cson-parser": "1.0.9",
+          "fs-plus": "2.x",
+          "optimist": "~0.4.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/season/node_modules/cson-parser/lib",
+          "node_modules/season/node_modules/cson-parser"
+        ],
+        "dependencies": {
+          "coffee-script": "1.9.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/season/node_modules/fs-plus/lib",
+          "node_modules/season/node_modules/fs-plus"
+        ],
+        "dependencies": {
+          "underscore-plus": "1.x",
+          "mkdirp": "~0.3.5",
+          "rimraf": "~2.2.2",
+          "async": "~0.2.9"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus/lib",
+          "node_modules/season/node_modules/fs-plus/node_modules/underscore-plus"
+        ],
+        "dependencies": {
+          "underscore": "~1.6.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/season/node_modules/optimist/example",
+          "node_modules/season/node_modules/optimist",
+          "node_modules/season/node_modules/optimist/test/_",
+          "node_modules/season/node_modules/optimist/test"
+        ],
+        "dependencies": {
+          "wordwrap": "~0.0.2"
+        }
+      }
+    ]
+  }
+}

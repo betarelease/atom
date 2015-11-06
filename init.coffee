@@ -12,3 +12,6 @@
 #   editor = editorView.getEditor()
 #   if path.extname(editor.getPath()) is '.md'
 #     editor.setSoftWrap(true)
+activate: ->
+  console.log 'activate linter-rubocop'
+  process.env['GEM_PATH'] = ['/Users/srao/.rvm/gems/ruby-2.2.1@server', process.env['GEM_PATH']].join(':')

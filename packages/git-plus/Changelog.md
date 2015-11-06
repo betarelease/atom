@@ -1,5 +1,91 @@
 ## Changelog
 
+### 5.5.2
+- Refactoring
+- Catch unstage files errors
+
+### 5.5.0
+- A lot of refactoring into promises
+- __Output console__
+  - Add toggle on the right of status-bar for toggling the output console
+  - Output from `Git Run` will be displayed in the output console
+  - Show notification when Push/Pull/Fetch starts in the output console
+  - Show bigger messages like results of stash/merge in output console
+- Clicking on the branch name in the status-bar will trigger the `Git Checkout` menu (@kandros)
+- Amending no longer resets HEAD so you can safely cancel an amend
+- __`Add All Commit And Push`__
+  - is now an activation command (@dbenson24)
+  - it tries to `pull` before pushing (@mhuggins7278)
+- Add `Git Difftool` to open up a difftool (@outsmirkable)
+- Add `Git Rebase` (@afontaine)
+
+### 5.4.7
+- #269
+
+### 5.4.6
+ - Refactor to fix #266
+
+### 5.4.5
+- #265
+
+### 5.4.4
+- #263
+
+### 5.4.3
+- Add deactivate method to package
+- Refactoring
+
+### 5.4.2
+- #261
+
+### 5.4.1
+- #260: Destroy 'COMMIT_EDITMSG' pane not just editor
+
+### 5.4.0
+- #201: Add `Commit All` command. Equivalent of `git commit -a`
+
+### 5.3.5
+- #209: Only destroy textEditor for 'COMMIT_EDITMSG'
+
+### 5.3.4
+- unlink COMMIT_EDITMSG file after commits
+- Respect no 'open pane' setting with commit window
+
+### 5.3.3
+- #231: Shift-Enter confirms stage/unstage in dialogs
+
+### 5.3.2
+- Fix #226: remove COMMIT_EDITMSG file from repo when committing
+- Fix #228: Don't show color codes in diff when `color.ui=always`
+
+### 5.3.0
+- Fix #233 (@hotoiledgoblins)
+- Add 'Git checkout remote' to atom command palette
+- Respect `commit.template` config option
+
+### 5.2.4
+- Fix #243
+- Fix #42
+- Add 'push' command to context menu
+
+### 5.2.3
+- Make git-diff highlighting non-greedy. Thanks to @Victorystick
+
+### 5.2.2
+
+- fix 'Git log current file'
+
+### 5.2.1
+
+- add support for Git pull using rebase (@maxcnunes)
+- Git diff opens panes with respect to the 'open in pane' setting
+- Commit and diff won't explode if you don't have the spit panes option selected
+
+### 5.1.7
+
+- Git log command now works with submodules and different repos
+- new command: `Remote Checkout`
+
 ### 5.1.2
 
 - #206: Fix for commit file syntax highlighting not working sometimes. (@Gwasanaethau)

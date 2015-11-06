@@ -1,0 +1,8 @@
+diff --git a/config/environments/feature.rb b/config/environments/feature.rb
+index 5f7125e..2b1fb79 100644
+--- a/config/environments/feature.rb
++++ b/config/environments/feature.rb
+@@ -1 +1 @@
+-require_relative 'development'
+\ No newline at end of file
++require_relative 'development'

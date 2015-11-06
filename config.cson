@@ -3,8 +3,9 @@
     softWrap: true
     showIndentGuide: true
     showInvisibles: true
-    normalizeIndentOnPaste: false
+    normalizeIndentOnPaste: true
     invisibles: {}
+    backUpBeforeSaving: true
   core:
     audioBeep: false
     disabledPackages: [
@@ -20,7 +21,6 @@
       "execute-as-ruby"
       "term2"
       "Atom-Syntax-highlighting-for-Sass"
-      "linter"
       "move-panes"
       "reveal-active-file-context"
       "reveal-active-file-context"
@@ -60,12 +60,15 @@
     includeCompletionsFromAllBuffers: true
   "highlight-line":
     enableSelectionBorder: true
+    enableUnderline: true
   autosave:
     enabled: true
   "tabs-to-spaces":
     onSave: "untabify"
   "autoclose-html": {}
-  linter: {}
+  linter:
+    showErrorTabProject: false
+    showErrorTabFile: false
   "atom-rspec":
     command: "rspec"
   "ruby-test":
@@ -74,7 +77,7 @@
   rspec:
     save_before_run: true
   "linter-rubocop":
-    rubocopExecutablePath: "bundle exec"
+    command: "/Users/srao/.rvm/gems/ruby-2.2.1@server/bin/rubocop --config /Users/srao/code/kings-landing/.rubocop.yml"
   "atom-lint":
     showViolationMetadata: false
     ignoredNames: [
@@ -87,3 +90,7 @@
   tabs: {}
   "git-log": {}
   "xml-formatter": {}
+  blame: {}
+  "git-blame":
+    ignoreWhiteSpaceDiffs: true
+  "linter-jsonlint": {}

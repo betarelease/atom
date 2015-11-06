@@ -1,4 +1,7 @@
 fs = require("fs")
+imageSize = require("image-size")
+mime = require("mime")
+moment = require("moment")
 
 module.exports =
 class FilesizeCalculator
@@ -27,29 +30,57 @@ class FilesizeCalculator
     "YB"
   ]
 
+  @IMAGE_SUPPORT = [
+    "image/bmp"
+    "image/jpeg"
+    "image/png"
+    "image/gif"
+    "image/tiff"
+    "image/x-tiff"
+    "image/webp"
+    "image/vnd.adobe.photoshop"
+  ]
+
   activeBase: null
 
-  constructor: (@multiple) ->
+  hourFormat: "HH:mm:ss"
+
+  constructor: (@multiple, hourFormat) ->
     if not @multiple? or typeof @multiple isnt "number" then @multiple = 1024
+    @setHourFormat(hourFormat)
     @setActiveBase(multiple)
 
-  fetchReadableSize: (callback) ->
-    @getSize (size, err) =>
-      @makeReadable(size, err, callback)
+  fetchReadableInfo: (callback) ->
+    @getInfo (info, err) =>
+      @makeReadable(info, err, callback)
 
   setMultiple: (multiple) ->
     @multiple = multiple
     @setActiveBase(multiple)
 
+  setHourFormat: (hourFormat) ->
+    if hourFormat then @hourFormat = "HH:mm:ss" else @hourFormat = "hh:mm:ss a"
+
   setActiveBase: (multiple) ->
     if @multiple is 1024 then @activeBase = FilesizeCalculator.BASE_1024
     if @multiple is 1000 then @activeBase = FilesizeCalculator.BASE_1000
 
-  getSize: (callback) ->
-    editor = atom.workspace.getActiveTextEditor()
+  getInfo: (callback) ->
+    info = {
+      absolutePath: null
+      size: null
+      mimeType: null
+      dateCreated: null
+      dateChanged: null
+      dimensions: {
+        w: null
+        h: null
+      }
+    }
+    editor = atom.workspace.getActivePaneItem()
     filePath = null
     try
-      file = editor?.buffer.file
+      file = editor?.buffer?.file or editor?.file
       filePath = file?.path
     #User opened settings or some tab without file
     catch error
@@ -57,39 +88,56 @@ class FilesizeCalculator
       return
     if filePath?
       #Use Node.JS filesystem to get the size stat
-      fs.stat filePath, (err, stats) ->
+      fs.stat filePath, (err, stats) =>
         if err?
           #if atom.getLoadSettings().devMode
           console.warn("File size not available, path not found.")
           callback.apply(this, [null, "File not found"])
         else
-          callback.apply(this, [stats.size, null])
+          info.absolutePath = filePath
+          info.mimeType = mime.lookup(filePath)
+          info.size = stats.size
+          info.dateCreated = moment(stats.birthtime)
+          .format("MMMM Do YYYY, #{@hourFormat}")
+          info.dateChanged = moment(stats.mtime)
+          .format("MMMM Do YYYY, #{@hourFormat}")
+          if info.mimeType in FilesizeCalculator.IMAGE_SUPPORT
+            try
+              imageRect = imageSize(filePath)
+              info.dimensions.w = imageRect.width
+              info.dimensions.h = imageRect.height
+            catch error
+              console.warn("Invalid image format!")
+          callback.apply(this, [info, null])
     else
       callback.apply(this, [null, "Can't get size now"])
 
-  makeReadable: (size, err, callback) ->
-    if err? or not size?
+  makeReadable: (info, err, callback) ->
+    if err? or not info?
       callback.apply(this, [null, err])
       return null
-    if size is 0
+    if info.size is 0
       if callback? and typeof callback is "function"
-        callback.apply(this, ["0 bytes", null])
+        info.size = "0 bytes"
+        callback.apply(this, [info, null])
         return
       else
-        return "0 bytes"
-    if size is 1
+        return info.size = "0 bytes"
+    if info.size is 1
       if callback? and typeof callback is "function"
-        callback.apply(this, ["1 byte", null])
+        info.size = "1 byte"
+        callback.apply(this, [info, null])
         return
       else
-        return "1 byte"
-    scale = Math.floor(Math.log(size) / Math.log(@multiple))
+        return info.size = "1 byte"
+    scale = Math.floor(Math.log(info.size) / Math.log(@multiple))
     metric = @activeBase[scale]
-    size = size / Math.pow(@multiple, scale)
+    size = info.size / Math.pow(@multiple, scale)
     #Efficiently round it to 2 decimal precision
     size = Number(Math.round(size + "e+2")  + "e-2")
     result = "#{size} #{metric}"
     if callback? and typeof callback is "function"
-      callback.apply(this, [result, null])
+      info.size = result
+      callback.apply(this, [info, null])
     else
-      return result
+      return info.size = result

@@ -1,20 +1,17 @@
 git = require '../git'
 LogListView = require '../views/log-list-view'
-ViewUriLog = 'atom://git-plus:log'
+LogViewURI = 'atom://git-plus:log'
 
 amountOfCommitsToShow = ->
   atom.config.get('git-plus.amountOfCommitsToShow')
 
-gitLog = (repo, {onlyCurrentFile}={}) ->
+module.exports = (repo, {onlyCurrentFile}={}) ->
+  atom.workspace.addOpener (uri) ->
+    return new LogListView if uri is LogViewURI
+
   currentFile = repo.relativize(atom.workspace.getActiveTextEditor()?.getPath())
-  atom.workspace.addOpener (filePath) ->
-    new LogListView(repo) if filePath is ViewUriLog
-
-  atom.workspace.open(ViewUriLog).done (logListView) ->
-    if logListView instanceof LogListView
-      if onlyCurrentFile
-        logListView.currentFileLog(onlyCurrentFile, currentFile)
-      else
-        logListView.branchLog()
-
-module.exports = gitLog
+  atom.workspace.open(LogViewURI).then (view) ->
+    if onlyCurrentFile
+      view.currentFileLog(repo, currentFile)
+    else
+      view.branchLog repo

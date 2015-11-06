@@ -3,6 +3,8 @@
 # ----------------------------------------------------------------------------
 
     module.exports = ->
+        Parent: null
+
         SmartColor: (require './modules/SmartColor')()
         SmartVariable: (require './modules/SmartVariable')()
         Emitter: (require './modules/Emitter')()
@@ -140,8 +142,7 @@
             @close()
 
             # TODO: Is this really the best way to do this? Hint: Probably not
-            atom.views.getView atom.workspace
-                .querySelector '.vertical'
+            (@Parent = (atom.views.getView atom.workspace).querySelector '.vertical')
                 .appendChild @element.el
             return this
 
@@ -254,7 +255,9 @@
 
             Editor = atom.workspace.getActiveTextEditor()
             EditorView = atom.views.getView Editor
-            EditorShadowRoot = EditorView.shadowRoot
+
+            return unless EditorView
+            EditorRoot = EditorView.shadowRoot or EditorView
 
             # Reset selection
             @selection = null
@@ -265,8 +268,10 @@
 
             # Fail if the cursor isn't visible
             _visibleRowRange = Editor.getVisibleRowRange()
-            _cursorRow = Cursor.getBufferRow()
-            return if (_cursorRow < _visibleRowRange[0] - 1) or (_cursorRow > _visibleRowRange[1])
+            _cursorScreenRow = Cursor.getScreenRow()
+            _cursorBufferRow = Cursor.getBufferRow()
+
+            return if (_cursorScreenRow < _visibleRowRange[0]) or (_cursorScreenRow > _visibleRowRange[1])
 
             # Try matching the contents of the current line to color regexes
             _lineContent = Cursor.getCurrentBufferLine()
@@ -285,13 +290,13 @@
                 Editor.clearSelections()
 
                 _selection = Editor.addSelectionForBufferRange [
-                    [_cursorRow, _match.start]
-                    [_cursorRow, _match.end]]
-                @selection = match: _match, row: _cursorRow
+                    [_cursorBufferRow, _match.start]
+                    [_cursorBufferRow, _match.end]]
+                @selection = match: _match, row: _cursorBufferRow
             # But if we don't have a match, center the Color Picker on last cursor
             else
                 _cursorPosition = Cursor.getPixelRect()
-                @selection = column: Cursor.getBufferColumn(), row: _cursorRow
+                @selection = column: Cursor.getBufferColumn(), row: _cursorBufferRow
 
         #  Emit
         # ---------------------------
@@ -337,44 +342,47 @@
         #  After (& if) having selected text (as this might change the scroll
         #  position) gather information about the Editor
         # ---------------------------
-            _editorWidth = Editor.getWidth()
-            _editorHeight = Editor.getHeight()
+            PaneView = atom.views.getView atom.workspace.getActivePane()
+            _paneOffsetTop = PaneView.offsetTop
+            _paneOffsetLeft = PaneView.offsetLeft
+
             _editorOffsetTop = EditorView.parentNode.offsetTop
-            _editorOffsetLeft = EditorShadowRoot.querySelector('.scroll-view').offsetLeft
+            _editorOffsetLeft = EditorRoot.querySelector('.scroll-view').offsetLeft
             _editorScrollTop = Editor.getScrollTop()
 
             _lineHeight = Editor.getLineHeightInPixels()
-            _lineOffsetLeft = EditorShadowRoot.querySelector('.line').offsetLeft
+            _lineOffsetLeft = EditorRoot.querySelector('.line').offsetLeft
 
             # Tinker with the `Cursor.getPixelRect` object to center it on
             # the middle of the selection range
             # TODO: There can be lines over more than one row
             if _match
-                _selectionPosition = _selection.marker.getPixelRange()
+                _rect = Editor.pixelRectForScreenRange(_selection.getScreenRange())
+                _right = _rect.left + _rect.width
                 _cursorPosition = Cursor.getPixelRect()
-                _cursorPosition.left = _selectionPosition.end.left - ((_selectionPosition.end.left - _selectionPosition.start.left) / 2)
+                _cursorPosition.left = _right - (_rect.width / 2)
 
         #  Figure out where to place the Color Picker
         # ---------------------------
-            _totalOffsetLeft = _editorOffsetLeft + _lineOffsetLeft
+            _totalOffsetTop = _paneOffsetTop + _cursorPosition.height - _editorScrollTop + _editorOffsetTop
+            _totalOffsetLeft = _paneOffsetLeft + _editorOffsetLeft + _lineOffsetLeft
 
             _position =
                 x: _cursorPosition.left + _totalOffsetLeft
-                y: _cursorPosition.top + _cursorPosition.height - _editorScrollTop + _editorOffsetTop
+                y: _cursorPosition.top + _totalOffsetTop
 
         #  Figure out where to actually place the Color Picker by
         #  setting up boundaries and flipping it if necessary
         # ---------------------------
             _colorPickerPosition =
                 x: do =>
-                    _halfColorPickerWidth = (@element.width() / 2) << 0
+                    _colorPickerWidth = @element.width()
+                    _halfColorPickerWidth = (_colorPickerWidth / 2) << 0
 
                     # Make sure the Color Picker isn't too far to the left
-                    _x = Math.max (_totalOffsetLeft / 2), (_position.x - _halfColorPickerWidth)
+                    _x = Math.max 10, _position.x - _halfColorPickerWidth
                     # Make sure the Color Picker isn't too far to the right
-                    _x = Math.min (_editorWidth - _totalOffsetLeft - _halfColorPickerWidth), _x
-
-                    # TODO: It is overflowing on the right
+                    _x = Math.min (@Parent.offsetWidth - _colorPickerWidth - 10), _x
 
                     return _x
                 y: do =>
@@ -383,7 +391,7 @@
                     # TODO: It's not really working out great
 
                     # If the color picker is too far down, flip it
-                    if @element.height() + _position.y > _editorHeight + _editorOffsetTop
+                    if @element.height() + _position.y > @Parent.offsetHeight - 32
                         @element.flip()
                         return _position.y - _lineHeight - @element.height()
                     # But if it's fine, keep the Y position

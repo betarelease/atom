@@ -5,6 +5,8 @@ notifier = require '../notifier'
 
 module.exports =
 class ListView extends SelectListView
+  args: ['checkout']
+
   initialize: (@repo, @data) ->
     super
     @show()
@@ -26,13 +28,11 @@ class ListView extends SelectListView
   show: ->
     @panel ?= atom.workspace.addModalPanel(item: this)
     @panel.show()
-
     @storeFocusedElement()
 
   cancelled: -> @hide()
 
-  hide: ->
-    @panel?.destroy()
+  hide: -> @panel?.destroy()
 
   viewForItem: ({name}) ->
     current = false
@@ -49,15 +49,16 @@ class ListView extends SelectListView
     @cancel()
 
   checkout: (branch) ->
-    git.cmd
-      args: ['checkout', branch]
-      cwd: @repo.getWorkingDirectory()
-      # using `stderr` for success here
-      stderr: (data) =>
-        notifier.addSuccess data.toString()
-        atom.workspace.observeTextEditors (editor) =>
-          if filepath = editor.getPath()
-            fs.exists filepath, (exists) =>
-              editor.destroy() if not exists
-        git.refresh()
-        @currentPane.activate()
+    git.cmd(@args.concat(branch), cwd: @repo.getWorkingDirectory())
+    # command terminates with an error-ish exit code
+    .catch (data) =>
+      if data.includes 'error'
+        notifier.addError data
+      else
+        notifier.addSuccess data
+      atom.workspace.observeTextEditors (editor) =>
+        if filepath = editor.getPath()?.toString()
+          fs.exists filepath, (exists) =>
+            editor.destroy() if not exists
+      git.refresh()
+      @currentPane.activate()

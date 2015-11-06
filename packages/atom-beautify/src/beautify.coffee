@@ -4,6 +4,7 @@ pkg = require('../package.json')
 
 # Dependencies
 plugin = module.exports
+{CompositeDisposable} = require 'event-kit'
 _ = require("lodash")
 Beautifiers = require("./beautifiers")
 beautifier = new Beautifiers()
@@ -311,28 +312,27 @@ debug = () ->
   # Get editor path and configurations for paths
   filePath = editor.getPath()
 
-
   # Path
   addInfo('Original File Path', "`#{filePath}`")
-
 
   # Get Grammar
   grammarName = editor.getGrammar().name
 
-
   # Grammar
   addInfo('Original File Grammar', grammarName)
 
+  # Language
+  language = beautifier.getLanguage(grammarName, filePath)
+
+  addInfo('Original File Language', language?.name)
 
   # Get current editor's text
   text = editor.getText()
-
 
   # Contents
   codeBlockSyntax = grammarName.toLowerCase().split(' ')[0]
   addInfo('Original File Contents', "\n```#{codeBlockSyntax}\n#{text}\n```")
   addHeader(2, "Beautification options")
-
 
   # Beautification Options
   # Get all options
@@ -348,6 +348,8 @@ debug = () ->
         editorConfigOptions
     ] = allOptions
     projectOptions = allOptions[4..]
+
+    finalOptions = beautifier.getOptionsForLanguage(allOptions, language?)
 
     # Show options
     addInfo('Editor Options', "\n" +
@@ -365,6 +367,15 @@ debug = () ->
     addInfo('Project Options', "\n" +
     "Options from `.jsbeautifyrc` files starting from directory `#{path.dirname(filePath)}` and going up to root\n" +
     "```json\n#{JSON.stringify(projectOptions, undefined, 4)}\n```")
+    addInfo('Final Options', "\n" +
+    "Final combined options that are used\n" +
+    "```json\n#{JSON.stringify(finalOptions, undefined, 4)}\n```")
+
+    addInfo('Package Settings', "\n" +
+    "The raw package settings options\n" +
+    "```json\n#{JSON.stringify(atom.config.get('atom-beautify'), undefined, 4)}\n```")
+
+    #
     logs = ""
     subscription = logger.onLogging((msg) ->
       # console.log('logging', msg)
@@ -421,19 +432,27 @@ handleSaveEvent = ->
         beautifyFilePath(filePath, ->
           buffer.reload()
           logger.verbose('restore editor positions', posArray,origScrollTop)
-          setCursors(editor, posArray)
-          editor.setScrollTop(origScrollTop)
+          # Let the scrollTop setting run after all the save related stuff is run,
+          # otherwise setScrollTop is not working, probably because the cursor
+          # addition happens asynchronously
+          setTimeout ( ->
+            setCursors(editor, posArray)
+            editor.setScrollTop(origScrollTop)
+            # console.log "setScrollTop"
+            return
+          ), 0
         )
       )
-    plugin.subscribe disposable
-{Subscriber} = require path.join(atom.packages.resourcePath, 'node_modules', 'emissary')
-Subscriber.extend plugin
+    plugin.subscriptions.add disposable
 plugin.config = _.merge(require('./config.coffee'), defaultLanguageOptions)
 plugin.activate = ->
-  handleSaveEvent()
-  plugin.subscribe atom.config.observe("atom-beautify.beautifyOnSave", handleSaveEvent)
-  atom.commands.add "atom-workspace", "atom-beautify:beautify-editor", beautify
-  atom.commands.add "atom-workspace", "atom-beautify:help-debug-editor", debug
-  atom.commands.add ".tree-view .file .name", "atom-beautify:beautify-file", beautifyFile
-  atom.commands.add ".tree-view .directory .name", "atom-beautify:beautify-directory", beautifyDirectory
+  @subscriptions = new CompositeDisposable
+  @subscriptions.add handleSaveEvent()
+  @subscriptions.add atom.config.observe("atom-beautify.beautifyOnSave", handleSaveEvent)
+  @subscriptions.add atom.commands.add "atom-workspace", "atom-beautify:beautify-editor", beautify
+  @subscriptions.add atom.commands.add "atom-workspace", "atom-beautify:help-debug-editor", debug
+  @subscriptions.add atom.commands.add ".tree-view .file .name", "atom-beautify:beautify-file", beautifyFile
+  @subscriptions.add atom.commands.add ".tree-view .directory .name", "atom-beautify:beautify-directory", beautifyDirectory
 
+plugin.deactivate = ->
+  @subscriptions.dispose()

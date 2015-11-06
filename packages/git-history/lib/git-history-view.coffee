@@ -67,6 +67,7 @@ class GitHistoryView extends SelectListView
                 "--pretty=format:#{format}",
                 "--topo-order",
                 "--date=local",
+                "--follow"
                 @file
             ],
             stdout,
@@ -112,14 +113,14 @@ class GitHistoryView extends SelectListView
         @_loadRevision logItem.hash, stdout, exit
 
     _loadRevision: (hash, stdout, exit) ->
-        repo = r for r in atom.project.getRepositories() when @file.indexOf(r.repo.workingDirectory) != -1
+        repo = r for r in atom.project.getRepositories() when @file.replace(/\\/g, '/').indexOf(r?.repo.workingDirectory) != -1
         showDiff = @_isDiffEnabled()
         diffArgs = [
             "-C",
-            repo.repo.workingDirectory.replace(/\\/g, '/'),
+            repo.repo.workingDirectory,
             "diff",
             "-U9999999",
-            "#{hash}:#{atom.project.relativize(@file)}",
+            "#{hash}:#{atom.project.relativize(@file).replace(/\\/g, '/')}",
             "#{atom.project.relativize(@file).replace(/\\/g, '/')}"
         ]
         showArgs = [

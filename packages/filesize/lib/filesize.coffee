@@ -1,11 +1,18 @@
 {Disposable, CompositeDisposable} = require "atom"
 FilesizeView = require("./filesize-view")
 FilesizeCalculator = require("./filesize-calculator")
+apd = require("atom-package-dependencies")
 
 module.exports =
 
   config:
     KibibyteRepresentation:
+      type: "boolean"
+      default: true
+    "EnablePopupAppearance":
+      type: "boolean"
+      default: true
+    "DisplayFullDayTimeOnPopup":
       type: "boolean"
       default: true
 
@@ -16,15 +23,27 @@ module.exports =
   filesizeCalculator: null
 
   activate: ->
+    # Force dependency on atom's status-bar
+    apd.install()
+
     @wk = atom.views.getView(atom.workspace)
     @editor = atom.workspace.getActiveTextEditor()
     @disposables = new CompositeDisposable
 
+    showPopup = atom.config.get("filesize.EnablePopupAppearance")
+
     #Instantiate FilesizeView
-    @filesizeView = new FilesizeView()
+    @filesizeView = new FilesizeView(showPopup)
+
+    multiple = 1024
+
+    use24Hour = atom.config.get("filesize.DisplayFullDayTimeOnPopup")
+
+    if atom.config.get('filesize.KibibyteRepresentation') is false
+      multiple = 1000
 
     #Instantiate FilesizeCalculator
-    @filesizeCalculator = new FilesizeCalculator(@filesizeView)
+    @filesizeCalculator = new FilesizeCalculator(multiple, use24Hour)
 
     #Register action events
     @disposables.add @editor?.onDidChangePath => @exec()
@@ -44,23 +63,32 @@ module.exports =
         multiple = 1000
       @filesizeCalculator.setMultiple(multiple)
 
+    atom.config.observe "filesize.DisplayFullDayTimeOnPopup", (checked) =>
+      @filesizeCalculator.setHourFormat(checked)
+
+    atom.config.observe "filesize.EnablePopupAppearance", (checked) =>
+      @filesizeView.togglePopupAppearance(checked)
+
     #Start package automatically on load
     @exec()
 
   deactivate: ->
-    #Destroy FilesizeView instance
-    if @filesizeView?
-      @filesizeView.destroy()
-      @filesizeView = null
+    try
+      #Destroy FilesizeView instance
+      if @filesizeView?
+        @filesizeView.destroy()
+        @filesizeView = null
 
-    #Destroy FilesizeCalculator
-    if @filesizeCalculator?
-      @filesizeCalculator = null
+      #Destroy FilesizeCalculator
+      if @filesizeCalculator?
+        @filesizeCalculator = null
 
-    @disposables.dispose()
+      @disposables?.dispose()
+    catch error
+      console.log('Filesize deactivated through settings')
 
   exec: (callback) ->
-    @filesizeCalculator?.fetchReadableSize (info, err) =>
+    @filesizeCalculator?.fetchReadableInfo (info, err) =>
       if not err?
         @filesizeView.display(info)
         if callback? and typeof callback is "function"

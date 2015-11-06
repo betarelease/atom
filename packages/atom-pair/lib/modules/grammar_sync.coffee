@@ -4,4 +4,4 @@ module.exports = GrammarSync =
 
   sendGrammar: ->
     grammar = @editor.getGrammar()
-    @pairingChannel.trigger 'client-grammar-sync', grammar.scopeName
+    @queue.add(@channel.name, 'client-grammar-sync', grammar.scopeName)

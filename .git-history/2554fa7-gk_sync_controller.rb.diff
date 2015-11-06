@@ -1,0 +1,1393 @@
+diff --git a/app/controllers/api/v1/gk_sync_controller.rb b/app/controllers/api/v1/gk_sync_controller.rb
+index ac6a050..027794f 100644
+--- a/app/controllers/api/v1/gk_sync_controller.rb
++++ b/app/controllers/api/v1/gk_sync_controller.rb
+@@ -1,1386 +1,1387 @@
+ module Api
+   module V1
+     GK_FOOD = 'GKFood'
+     GK_EXERCISE = 'GKExercise'
+     GK_GOAL = 'GKGoal'
+     GK_MEDICATION = 'GKMedication'
+     GK_NOTE = 'GKNote'
+     GK_PHOTO = 'GKPhoto'
+     GK_FAT_SECRET_FOOD_ID = 'GKFatSecretFoodId'
+     GK_READING = 'GKReading'
+     GK_HYPO_EVENT = 'GKHypoEvent'
+     GK_METER_SYNC_EVENT = 'GKSync'
+     GK_METER = 'GKMeter'
+     GK_PREFERENCES = 'GKPreferences'
+     GK_USER = 'GKUser'
+ 
+     class GkSyncController < BaseController
+       @@HTML_OPTIONS_SHARE = {style: "height: 500px; width: 1200px"}
+       @@HTML_OPTIONS_PIE = {style: "height: 230px; width: 230px"}
+ 
+       skip_before_filter :verify_authenticity_token
+       before_filter :api_authenticate_joslin_with_token, only: [:report]
+       before_filter :authenticate_user!, :except => [:header, :verify_provider_code]
+ 
+       respond_to :json
+       @@sync_models = [
+           Food,
+           FatSecretFoodId,
+           Goal,
+           Exercise,
+           Note,
+           Medication,
+           Reading,
+           HypoEvent,
+           MeterSyncEvent,
+           Meter,
+           Preference,
+           User,
+           ValidicBiometricMeasurement,
+           ValidicFitness,
+           ValidicNutrition,
+           ValidicRoutine,
+           ValidicWeight]
+ 
+       @@download_models = [
+           Food,
+           FatSecretFoodId,
+           Goal,
+           Exercise,
+           Note,
+           Medication,
+           OtherMedication,
+           InjectableMedication,
+           Insulin,
+           OralMedication,
+           Reading,
+           HypoEvent,
+           MeterSyncEvent,
+           Meter,
+           Preference,
+           User]
+ 
+       @@sync_collections = %w[user, preference, fatSecretFoodId, goal, exercise, note, medication, food, reading, meterSyncEvent,  meter]
+ 
+       def report
+         @user = get_user
+         redirect_to '/' and return if @user.nil?
+ 
+         @start_date = convert_date_string(params[:start_date] || 1.month.ago.strftime('%Y-%m-%d')).at_midnight
+         @end_date = convert_date_string(params[:end_date] || Date.today.to_s).end_of_day
+ 
+         @show_graphs = fix_params_issue_for_ios(params[:graphs])
+         @show_logbook = fix_params_issue_for_ios(params[:logbook])
+ 
+         @show_events = params[:events] || 'true'
+         @hypo_map = params[:hypo] || 'true'
+         @hypo_enabled = @user.hypo_enabled? && @hypo_map == 'true'
+         @quick_note = params[:quick_note] || ''
+         pd_available = @user.cgm_or_pump_data?
+         @show_pump_day_view = params[:dailyDetails] == 'true' && pd_available
+         @show_pump_modal_view = params[:modalDay] == 'true' && pd_available
+         @show_pump_insights = params[:insightReports] == 'true' && pd_available
+         @show_pump_settings = params[:pumpSettings] == 'true' && pd_available
+ 
+         @has_exercise = @user.exercises.length > 0 || @user.validic_synced_apps.length > 0
+         preference = @user.preference
+         normal_min = preference.normal_glucose_min
+         before_normal_max = preference.before_meal_normal_glucose_max
+         after_normal_max = preference.after_meal_normal_glucose_max
+         @meter_units = preference.meter_units
+ 
+         @normal_min_display = display_value(normal_min, @meter_units)
+         @before_normal_max_display = display_value(before_normal_max, @meter_units)
+         @after_normal_max_display = display_value(after_normal_max, @meter_units)
+         @daily_time_ranges = {}
+         @daily_time_ranges[:breakfast_begin] = Time.at(preference.breakfast_begin).utc
+         @daily_time_ranges[:lunch_begin] = Time.at(preference.lunch_begin).utc
+         @daily_time_ranges[:dinner_begin] = Time.at(preference.dinner_begin).utc
+         @daily_time_ranges[:midnight_snack_begin] = Time.at(preference.midnight_snack_begin).utc
+ 
+         #get the readings for the time span
+         #TODO: do this in model scope
+         @readings = @user.readings.where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:controlled => false).and(:soft_deleted => false)
+         p_readings = @user.pumps_readings.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).and(:type => 'pump').where(soft_deleted: false).asc(:pump_timestamp).entries
+ 
+         @pump_readings = []
+         p_readings.each do |reading|
+           @pump_readings << Reading.new(
+             timestamp: reading.pump_timestamp,
+             value: reading.value,
+             meter_meal_tag: 0,
+             user_meal_tag: 0
+           )
+         end
+ 
+         @readings_before_meal = @readings.or({:meter_meal_tag => 1}, {:user_meal_tag => 1})
+         @readings_after_meal = @readings.or({:meter_meal_tag => 2}, {:user_meal_tag => 2})
+         @readings_untagged = @readings.and(:meter_meal_tag => 0).and(:user_meal_tag => 0).entries
+         @readings_untagged.concat @pump_readings
+ 
+         draw_pdf = ((@readings.length > 0 || @pump_readings.length > 0) ||
+                     @hypo_enabled || @show_pump_day_view ||
+                     @show_pump_modal_view || @show_pump_insights ||
+                     @show_pump_settings)
+ 
+         if draw_pdf
+           if @readings.length > 0 || @pump_readings.length > 0
+             all_readings = @readings.entries
+             all_readings.concat @pump_readings
+             all_readings.sort_by! { |r| r.timestamp }
+ 
+             @ss = SummaryStatistic.new(all_readings, @user.preference.meter_units)
+             @precision = @user.preference.meter_units == 1 ? 1 : 0
+ 
+             if params[:start_date]
+               days = ((@end_date.at_midnight - @start_date) / 1.day).to_i
+             else
+               days = ((@end_date - all_readings[0].timestamp) / 1.day).to_i
+             end
+ 
+             # include the first day into account
+             days += 1
+ 
+             @readings_per_day = (all_readings.length.round(1) / days).round(1)
+ 
+             insulin = Insulin.where(:user_id => @user.id).where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:soft_deleted => false).all.entries
+             oral_medication = OralMedication.where(:user_id => @user.id).where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:soft_deleted => false).all.entries
+             injectable_medication = InjectableMedication.where(:user_id => @user.id).where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:soft_deleted => false).all.entries
+             foods = Food.where(:user_id => @user.id).where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:soft_deleted => false).all.entries
+             exercises = Exercise.where(:user_id => @user.id).where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:soft_deleted => false).all.entries
+             notes = Note.where(:user_id => @user.id).where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:soft_deleted => false).all.entries
+             p_normal_boluses = @user.pumps_normal_boluses.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             p_extended_boluses = @user.pumps_extended_boluses.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             p_injection_boluses = @user.pumps_injection_boluses.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+ 
+             p_normal_boluses.each do |normal_bolus|
+               foods << Food.new(
+                 timestamp: normal_bolus.pump_timestamp,
+                 carbs: normal_bolus.carbs_input
+               )
+ 
+               insulin << Insulin.new(
+                 timestamp: normal_bolus.pump_timestamp,
+                 value: normal_bolus.insulin_delivered,
+                 name: 'Bolus'
+               )
+             end
+ 
+             p_extended_boluses.each do |extended_bolus|
+               foods << Food.new(
+                 timestamp: extended_bolus.pump_timestamp,
+                 carbs: extended_bolus.carbs_input
+               )
+ 
+               insulin << Insulin.new(
+                 timestamp: extended_bolus.pump_timestamp,
+                 value: extended_bolus.insulin_delivered,
+                 name: 'Bolus'
+               )
+             end
+ 
+             p_injection_boluses.each do |injection_bolus|
+               insulin << Insulin.new(
+                 timestamp: injection_bolus.pump_timestamp,
+                 value: injection_bolus.insulin_delivered,
+                 name: 'Bolus'
+               )
+             end
+ 
+             # sort retrieved values chronologically
+             items = all_readings
+             items += insulin.sort! { |i1, i2| i1.timestamp <=> i2.timestamp }
+             items += oral_medication.sort! { |i1, i2| i1.timestamp <=> i2.timestamp }
+             items += injectable_medication.sort! { |i1, i2| i1.timestamp <=> i2.timestamp }
+             items += foods.sort! { |i1, i2| i1.timestamp <=> i2.timestamp }
+             items += exercises.sort! { |i1, i2| i1.timestamp <=> i2.timestamp }
+             items += notes.sort! { |i1, i2| i1.timestamp <=> i2.timestamp }
+ 
+             @logbook = Logbook.new(@user.preference.time_buckets)
+             items.each do |obj|
+               @logbook << obj
+             end
+ 
+             normal_min = @user.preference.normal_glucose_min #70
+             before_normal_max = @user.preference.before_meal_normal_glucose_max #130
+             after_normal_max = @user.preference.after_meal_normal_glucose_max #180
+ 
+             #TODO: just rename the var above with the @ sign
+             @normal_min = normal_min
+             @before_normal_max = before_normal_max
+             @after_normal_max = after_normal_max
+ 
+             @high_readings_by_date = @ss.high_readings(before_normal_max, after_normal_max, true) || []
+             @low_readings_by_date = @ss.low_readings(normal_min, true) || []
+             @normal_readings_by_date = @ss.by_date(before_normal_max, after_normal_max, normal_min) || []
+ 
+             @high_readings_by_value = @ss.high_readings(before_normal_max, after_normal_max, false) || []
+             @low_readings_by_value = @ss.low_readings(normal_min, false) || []
+ 
+             @before_meal_high_count = @readings_before_meal.where(:value.gt => before_normal_max).count
+             @after_meal_high_count = @readings_after_meal.where(:value.gt => after_normal_max).count
+             @untagged_high_count = @readings_untagged.select { |r| r.value > after_normal_max }.count + @after_meal_high_count + @before_meal_high_count
+ 
+             @before_meal_low_count = @readings_before_meal.where(:value.lt => normal_min).count
+             @after_meal_low_count = @readings_after_meal.where(:value.lt => normal_min).count
+             @untagged_low_count = @readings_untagged.select { |r| r.value < normal_min }.count + @after_meal_low_count + @before_meal_low_count
+ 
+             @before_meal_normal_count = @readings_before_meal.count - @before_meal_high_count - @before_meal_low_count
+             @after_meal_normal_count = @readings_after_meal.count - @after_meal_high_count - @after_meal_low_count
+ 
+             @all_readings_count = all_readings.count
+ 
+             @hourly_averages = @ss.hourly_averages
+ 
+             rbb = @ss.readings_by_buckets(@user.preference.time_buckets)
+             graph_keys = [:breakfast, :lunch, :dinner, :midnight_snack]
+             @bucketed_graph_values = @ss.get_bucketed_graph_values(graph_keys, rbb)
+ 
+             @day_of_week_graph_values = @ss.set_day_of_week_values @ss.readings_by_day_of_week()
+ 
+             @high_percent = @untagged_high_count.percent_of(@all_readings_count).round(0) unless @untagged_high_count == 0 || @all_readings_count == 0
+             @low_percent = @untagged_low_count.percent_of(@all_readings_count).round(0) unless @untagged_low_count == 0 || @all_readings_count == 0
+ 
+             @high_percent ||= 0
+             @low_percent ||= 0
+             @normal_percent = 100 - @high_percent - @low_percent
+ 
+             time_diff = (@end_date - @start_date) + 1.day
+             new_end = Time.zone.at(@end_date.to_i - time_diff)
+             new_start = Time.zone.at(@start_date.to_i - time_diff)
+ 
+             readings_last_period = @user.readings.where(:timestamp.gte => new_start).and(:timestamp.lte => new_end).and(:controlled => false).and(:soft_deleted => false)
+ 
+             unit_modifier_proc = ValueTimestamp.unit_modifier(@user.preference.meter_units)
+             if @user.preference.meter_units == 1
+               @unit_modifier = 0.05555555555555555
+               @precision = 1
+             else
+               @unit_modifier = 1
+               @precision = 0
+             end
+ 
+             #if there were no readings last period, @change_in_average == false
+             #otherwise it has data like this:
+             #{:direction=>:down, :percent=>10}
+             #or
+             #{:direction=>:up, :percent=>10}
+             if readings_last_period.count == 0
+               @change_in_average = false
+             else
+               @change_in_average = @ss.change_in_average(all_readings, readings_last_period)
+               @change_in_average[:start_date] = new_start
+               @change_in_average[:end_date] = new_end
+             end
+ 
+             @current_average = @ss.average(all_readings.collect { |r| r.denormalized_value(&@ss.unit_modifier) })
+             @before_average = @ss.average(@readings_before_meal.collect { |r| r.denormalized_value(&@ss.unit_modifier) })
+             @after_average = @ss.average(@readings_after_meal.collect { |r| r.denormalized_value(&@ss.unit_modifier) })
+ 
+             @untagged_options = {}
+             @untagged_options[:chart_size] = @all_readings_count
+             @untagged_options[:low] = @low_percent
+             @untagged_options[:high] = @high_percent
+             @untagged_options[:norm] = @normal_percent
+             @untagged_options[:title] = 'All Readings'
+             @pie_styles = @@HTML_OPTIONS_PIE
+ 
+             @before_options = {}
+             @before_options[:chart_size] = @before_meal_high_count + @before_meal_low_count + @before_meal_normal_count
+             @before_options[:low] = @before_meal_low_count
+             @before_options[:high] = @before_meal_high_count
+             @before_options[:norm] = @before_meal_normal_count
+             @before_options[:title] = 'Before Meal Readings'
+ 
+             @after_options = {}
+             @after_options[:chart_size] = @after_meal_high_count + @after_meal_low_count + @after_meal_normal_count
+             @after_options[:low] = @after_meal_low_count
+             @after_options[:high] = @after_meal_high_count
+             @after_options[:norm] = @after_meal_normal_count
+             @after_options[:title] = 'After Meal Readings'
+ 
+             @daily_options = {}
+             @daily_options[:norm] = @normal_readings_by_date
+             @daily_options[:high] = @high_readings_by_date
+             @daily_options[:low] = @low_readings_by_date
+             @daily_options[:tick_interval] = time_diff < 31.days ? (1.day * 1000) : ((@end_date - @start_date) / 30) * 1000
+             @daily_options[:regression] = @ss.by_date_average_regression
+             @daily_options[:normal_min] = normal_min / 100 * @unit_modifier
+             @daily_options[:after_normal_max] = after_normal_max / 100 * @unit_modifier
+             @daily_options[:before_normal_max] = before_normal_max / 100 * @unit_modifier
+             @bar_options = @@HTML_OPTIONS_SHARE
+ 
+             @hourly_options = {}
+             @hourly_options[:supress_events] = true
+             @hourly_options[:tod] = @ss.by_time_of_day
+             @hourly_options[:high] = @high_readings_by_value
+             @hourly_options[:low] = @low_readings_by_value
+             @hourly_options[:average] = @hourly_averages
+             @hourly_options[:normal_min] = normal_min / 100 * @unit_modifier
+             @hourly_options[:after_normal_max] = after_normal_max / 100 * @unit_modifier
+             @hourly_options[:before_normal_max] = before_normal_max / 100 * @unit_modifier
+ 
+             @sorted_averages = @ss.hourly_averages_sorted(normal_min / 100 * @unit_modifier, after_normal_max / 100 * @unit_modifier)
+             @sorted_medians = @ss.hourly_medians_sorted(normal_min / 100 * @unit_modifier, after_normal_max / 100 * @unit_modifier)
+             @analysis_options = {}
+             @analysis_options[:candle] = @ss.candle_sticks
+             @analysis_options[:average] = @hourly_averages
+             @analysis_options[:average_in_range] = @sorted_averages[:normal]
+             @analysis_options[:average_high] = @sorted_averages[:high]
+             @analysis_options[:average_low] = @sorted_averages[:low]
+             @analysis_options[:normal_min] = normal_min / 100 * @unit_modifier
+             @analysis_options[:after_normal_max] = after_normal_max / 100 * @unit_modifier
+             @analysis_options[:before_normal_max] = before_normal_max / 100 * @unit_modifier
+             @analysis_options[:median_in_range] = @sorted_medians[:normal]
+             @analysis_options[:median_high] = @sorted_medians[:high]
+             @analysis_options[:median_low] = @sorted_medians[:low]
+           end
+           # HYPO SECTION
+           # Day and Patterns
+           if @hypo_enabled
+             @hypo_events = @user.hypo_events.where(:timestamp.gte => @start_date).and(:timestamp.lte => @end_date).and(:soft_deleted => false).select { |x| !x.readings.empty? }
+ 
+             if @hypo_events.nil?
+               respond_to do |format|
+                 format.html
+               end
+               return
+             end
+ 
+             if @hypo_events.length > 0
+ 
+               #sort all readings by time in each hypo event
+               @hypo_events.map! do |hypo_event|
+                 hypo_event.readings.sort! { |x, y| x.timestamp <=> y.timestamp }
+                 hypo_event.to_hash do |item|
+                   item[:_id] = hypo_event.id.to_s
+                   item[:user_id] = hypo_event.user_id.to_s
+                   item[:first_reading_time] = hypo_event.timestamp.strftime '%I:%M %p'
+                   item[:first_reading_date] = hypo_event.timestamp.strftime('%^a<br>%d<br>%^B')
+                   item[:timestamp_sort] = Time.utc(1970, 1, 1, item[:timestamp].hour, item[:timestamp].min, item[:timestamp].sec)
+                   item[:reading_value_sort] = hypo_event.readings.first.value
+                   item[:symptoms_list] = hypo_event.symptoms_list
+                   item[:causes_list] = hypo_event.causes_list
+                   item[:treatments_list] = hypo_event.treatments_list
+ 
+                   # generate the assistance comment with pre appended comma separated required assistance options
+                   item[:required_assistance_list] = []
+                   hypo_event.required_assistance_options_list.each do |assistance_option|
+                     item[:required_assistance_list] << assistance_option
+                   end
+ 
+                   unless hypo_event.required_assistance_comment.nil_or_whitespace?
+                     item[:required_assistance_list] << hypo_event.required_assistance_comment
+                   end
+ 
+                   item[:BG] = hypo_event.readings.first.display_value(hypo_event.readings.first.value)
+                 end
+               end
+ 
+               @hypo_events.each do |hypo_event|
+                 hypo_event[:readings].map! do |reading|
+                   reading.to_hash do |hash|
+                     hash[:_id] = reading.id.to_s
+                     hash[:denormalized_value] = reading.denormalized_value
+                     hash[:display_val] = reading.display_value(@precision, &unit_modifier_proc)
+                     hash[:timestamp_display] = reading.timestamp.strftime '%I:%M %p'
+                   end
+                 end
+               end
+ 
+               #sort all hypo events by value of the first reading
+               @hypo_events.sort! { |x, y| x[:readings].first[:value] <=> y[:readings].first[:value] }
+ 
+               # create time buckets
+               morning_bucket_start = DateTime.new(1970, 1, 1, 6, 0, 0, 0)
+               morning_bucket_end = DateTime.new(1970, 1, 1, 12, 0, 0, 0)
+               afternoon_bucket_start = DateTime.new(1970, 1, 1, 12, 0, 0)
+               afternoon_bucket_end = DateTime.new(1970, 1, 1, 18, 0, 0, 0)
+               evening_bucket_start = DateTime.new(1970, 1, 1, 18, 0, 0, 0)
+               evening_bucket_end = DateTime.new(1970, 1, 1, 23, 59, 59, 0)
+               night_bucket_start = DateTime.new(1970, 1, 1, 0, 0, 0, 0)
+               night_bucket_end = DateTime.new(1970, 1, 1, 6, 0, 0, 0)
+ 
+               morning_bucket_not_grouped = []
+               afternoon_bucket_not_grouped = []
+               evening_bucket_not_grouped = []
+               night_bucket_not_grouped = []
+ 
+               # put events in appropriate bucket
+               @hypo_events.each do |hypo_event|
+                 modified_hypo_date_time = hypo_event[:timestamp].change({year: 1970, month: 1, day: 1})
+ 
+                 if modified_hypo_date_time >= morning_bucket_start && modified_hypo_date_time < morning_bucket_end
+                   morning_bucket_not_grouped << hypo_event
+                 elsif modified_hypo_date_time >= afternoon_bucket_start && modified_hypo_date_time < afternoon_bucket_end
+                   afternoon_bucket_not_grouped << hypo_event
+                 elsif modified_hypo_date_time >= evening_bucket_start && modified_hypo_date_time <= evening_bucket_end
+                   evening_bucket_not_grouped << hypo_event
+                 elsif modified_hypo_date_time >= night_bucket_start && modified_hypo_date_time < night_bucket_end
+                   night_bucket_not_grouped << hypo_event
+                 end
+               end
+ 
+               # sort the buckets by value and by timestamp
+               morning_bucket_not_grouped = sort_collection(morning_bucket_not_grouped, [%w(reading_value_sort ASC), %w(timestamp_sort ASC)])
+               afternoon_bucket_not_grouped = sort_collection(afternoon_bucket_not_grouped, [%w(reading_value_sort ASC), %w(timestamp_sort ASC)])
+               evening_bucket_not_grouped = sort_collection(evening_bucket_not_grouped, [%w(reading_value_sort ASC), %w(timestamp_sort ASC)])
+               night_bucket_not_grouped = sort_collection(night_bucket_not_grouped, [%w(reading_value_sort ASC), %w(timestamp_sort ASC)])
+ 
+               # group events by week day within each bucket
+               morning_bucket_not_sorted = morning_bucket_not_grouped.group_by { |x| x[:timestamp].wday }
+               afternoon_bucket_not_sorted = afternoon_bucket_not_grouped.group_by { |x| x[:timestamp].wday }
+               evening_bucket_not_sorted = evening_bucket_not_grouped.group_by { |x| x[:timestamp].wday }
+               night_bucket_not_sorted = night_bucket_not_grouped.group_by { |x| x[:timestamp].wday }
+ 
+               # sort each day within bucket by hypo event value
+               buckets = {}
+               if morning_bucket_not_sorted.length > 0
+                 buckets[:morning_bucket] = Hash[morning_bucket_not_sorted.sort_by { |day_of_week, hypo_events| [hypo_events.first[:reading_value_sort], day_of_week] }]
+               end
+               if afternoon_bucket_not_sorted.length > 0
+                 buckets[:afternoon_bucket] = Hash[afternoon_bucket_not_sorted.sort_by { |day_of_week, hypo_events| [hypo_events.first[:reading_value_sort], day_of_week] }]
+               end
+               if evening_bucket_not_sorted.length > 0
+                 buckets[:evening_bucket] = Hash[evening_bucket_not_sorted.sort_by { |day_of_week, hypo_events| [hypo_events.first[:reading_value_sort], day_of_week] }]
+               end
+               if night_bucket_not_sorted.length > 0
+                 buckets[:night_bucket] = Hash[night_bucket_not_sorted.sort_by { |day_of_week, hypo_events| [hypo_events.first[:reading_value_sort], day_of_week] }]
+               end
+ 
+               @sorted_buckets = Hash[buckets.sort_by { |_key, bucket| bucket.first[1].first[:reading_value_sort] }]
+ 
+               # Calendar
+               grouped_events = @hypo_events.group_by { |x| x[:timestamp].to_date }
+               # get the keys from Hash
+               grouped_keys = grouped_events.keys
+               # initialize the array for calendar data
+               @calendar_data = []
+ 
+               #iterate trough the keys
+               grouped_keys.each do |key|
+                 # reset the period array indicators for each group
+                 has_first = false
+                 has_second = false
+                 has_third = false
+                 has_fourth = false
+ 
+                 # iterate trough each group in hash
+                 grouped_events[key].each do |hypo_event|
+                   #set the ranges
+                   first_low = DateTime.new(key.year, key.month, key.day, 0, 0, 0)
+                   first_high = DateTime.new(key.year, key.month, key.day, 6, 0, 0)
+                   second_low = DateTime.new(key.year, key.month, key.day, 6, 0, 0)
+                   second_high = DateTime.new(key.year, key.month, key.day, 12, 0, 0)
+                   third_low = DateTime.new(key.year, key.month, key.day, 12, 0, 0)
+                   third_high = DateTime.new(key.year, key.month, key.day, 18, 0, 0)
+                   fourth_low = DateTime.new(key.year, key.month, key.day, 18, 0, 0)
+                   fourth_high = DateTime.new(key.year, key.month, key.day, 0, 0, 0) + 1.day
+ 
+                   # determine the columns
+                   if first_low <= hypo_event[:timestamp] && hypo_event[:timestamp] < first_high
+                     has_first = true
+                   elsif second_low <= hypo_event[:timestamp] && hypo_event[:timestamp] < second_high
+                     has_second = true
+                   elsif third_low <= hypo_event[:timestamp] && hypo_event[:timestamp] < third_high
+                     has_third = true
+                   elsif fourth_low <= hypo_event[:timestamp] && hypo_event[:timestamp] < fourth_high
+                     has_fourth = true
+                   end
+ 
+                 end
+ 
+                 @calendar_data << CalendarEntity.new(key.day, key.month, key.year, [has_first, has_second, has_third, has_fourth])
+               end
+ 
+               # get Hypo Surveys / Hypo Events for each month and year
+               grouped_events_by_date = @hypo_events.group_by { |x| [x[:timestamp].to_date.month, x[:timestamp].to_date.year] }
+               # get the keys from Hash
+               grouped_events_by_date_keys = grouped_events_by_date.keys
+               # initialize the resulting hash
+               @surveys_and_events = {}
+ 
+               grouped_events_by_date_keys.each do |key|
+                 month = :"#{key[0]}"
+                 year = :"#{key[1]}"
+ 
+                 if @surveys_and_events[year].nil?
+                   @surveys_and_events[year] = {}
+                 end
+ 
+                 if @surveys_and_events[year][month].nil?
+                   @surveys_and_events[year][month] = {}
+                 end
+ 
+                 @surveys_and_events[year][month][:events] = grouped_events_by_date[key].count
+                 @surveys_and_events[year][month][:surveys] = 0
+ 
+                 grouped_events_by_date[key].each do |hypo_event|
+                   if hypo_event[:symptoms] > 0 || hypo_event[:causes] > 0 || hypo_event[:treatments] > 0
+                     @surveys_and_events[year][month][:surveys] += 1
+                   end
+                 end
+ 
+               end
+ 
+               # prepare JSON data for javascript drawing
+               @hypo_events_json = @hypo_events.to_json
+               @calendar_data = @calendar_data.to_json
+               @surveys_and_events = @surveys_and_events.to_json
+             end
+           end
+ 
+           if @show_pump_insights
+             events = @user.pumps_events
+                       .gte(pump_timestamp: @start_date)
+                       .lte(pump_timestamp: @end_date)
+                       .where(soft_deleted: false)
+                       .or({type: :prime_cannula}, {type: :prime_tubing})
+                       .asc(:pump_timestamp).entries
+             # remove duplicates
+             filtered = []
+             events.each_with_index do |event, index|
+               if index == 0
+                 filtered << event
+               else
+                 filtered << event if events[index - 1].pump_timestamp != event.pump_timestamp
+               end
+             end
+             events = filtered
+ 
+             @insights_view_data = {
+                 bucket_graph_data: {
+                     bg: {
+                         median: [],
+                         data: []
+                     },
+                     cgm: {
+                         median: [],
+                         data: []
+                     },
+                     bucket_1_count: 0,
+                     bucket_2_count: 0,
+                     bucket_3_count: 0,
+                     bucket_4_count: 0,
+                     bucket_5_count: 0
+                 },
+                 set_site_change_events: [],
+                 temp_basal_decrease_events: [],
+                 temp_basal_increase_events: []
+             }
+ 
+             insights_view = PumpsGraphFunctions::PumpsInsightsView.new(@user, @meter_units, @start_date, @end_date)
+             result = insights_view.process_bucket_graph_data(events)
+ 
+             @insights_view_data[:bucket_graph_data] = result[:bucket_graph_data]
+             @insights_view_data[:set_site_change_events] = result[:set_site_change_events]
+ 
+             @insights_view_data[:temp_basal_decrease_events] = insights_view.process_temp_basal_decrease_data
+ 
+             @insights_view_data[:temp_basal_increase_events] = insights_view.process_temp_basal_increase_data
+           end
+ 
+           if @show_pump_day_view
+             # make the queries
+             pump_bg_data = @user.pumps_readings.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             pump_cgm_data = @user.cgm_egvs.gte(display_time: @start_date).lte(display_time: @end_date).where(soft_deleted: false).asc(:display_time).entries
+             injection_boluses = @user.pumps_injection_boluses.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             normal_boluses = @user.pumps_normal_boluses.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             extended_boluses = @user.pumps_extended_boluses.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             scheduled_basals = @user.pumps_scheduled_basals.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             temporary_basals = @user.pumps_temporary_basals.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             suspended_basals = @user.pumps_suspend_basals.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             pump_events = @user.pumps_events.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+             pump_alarms = @user.pumps_alarms.gte(pump_timestamp: @start_date).lte(pump_timestamp: @end_date).where(soft_deleted: false).asc(:pump_timestamp).entries
+ 
+             # group data by day
+             readings_g = @readings.entries.group_by { |x| x.timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             pump_bg_g = pump_bg_data.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             pump_cgm_g = pump_cgm_data.group_by { |x| x.display_time.change(hour: 0, min:0, sec: 0, usec:0) }
+             injection_boluses_g = injection_boluses.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             normal_boluses_g = normal_boluses.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             extended_boluses_g = extended_boluses.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             scheduled_basals_g = scheduled_basals.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             temporary_basals_g = temporary_basals.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             suspended_basals_g = suspended_basals.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             pump_events_g = pump_events.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+             pump_alarms_g = pump_alarms.group_by { |x| x.pump_timestamp.change(hour: 0, min:0, sec: 0, usec:0) }
+ 
+             # make note of basal / bolus days in range
+             basal_days = 0
+             bolus_days = 0
+ 
+             # loop trough PDF date range and create data
+             @pump_day_view_data = {}
+             day = @start_date
+             while day < @end_date
+               if @pump_day_view_data[day] == nil
+                 @pump_day_view_data[day] = {
+                     bg_data: {
+                         high_readings: [],
+                         normal_readings: [],
+                         low_readings: [],
+                         above400: []
+                     },
+                     pump_bg_data: {
+                         high_readings: [],
+                         normal_readings: [],
+                         low_readings: [],
+                         above400: []
+                     },
+                     cgm_data: {
+                         high_readings: [],
+                         normal_readings: [],
+                         low_readings: [],
+                         above400: []
+                     },
+                     bolus_data: {
+                         injection: [],
+                         suggested: [],
+                         delivered: [],
+                         extended: [], # step function for extended bolus
+                         override_below: [],
+                         override_above: [],
+                         interruption: []
+                     },
+                     basal_data: {
+                         scheduled_basals: [],
+                         temporary_basals: [],
+                         suspended_basals: []
+                     },
+                     pump_events: {
+                         reservoir_changes: [],
+                         other_events: []
+                     },
+                     pump_alarms: [],
+                     exercise_data: {
+                         hour_buckets: {},
+                         day_buckets: {}
+                     }
+                 }
+               end
+ 
+               @pump_day_view_data[day][:bg_data] = PumpsGraphFunctions::PumpsDayView.bucket_readings_by_value(readings_g[day] || [], preference, false)
+               @pump_day_view_data[day][:pump_bg_data] = PumpsGraphFunctions::PumpsDayView.bucket_readings_by_value(pump_bg_g[day] || [], preference, true)
+               @pump_day_view_data[day][:cgm_data] = PumpsGraphFunctions::PumpsDayView.bucket_cgm_readings_by_value(pump_cgm_g[day] || [], normal_min, before_normal_max, after_normal_max, @meter_units)
+ 
+               bolus_data = {}
+               bolus_data[:injection_boluses] = injection_boluses_g[day] || []
+               bolus_data[:normal_boluses] = normal_boluses_g[day] || []
+               bolus_data[:extended_boluses] = extended_boluses_g[day] || []
+ 
+               if bolus_data[:injection_boluses].length > 0 ||
+                 bolus_data[:normal_boluses].length > 0 ||
+                 bolus_data[:extended_boluses].length > 0
+ 
+                 bolus_days += 1
+               end
+ 
+               @pump_day_view_data[day][:bolus_data] = PumpsGraphFunctions::PumpsDayView.process_bolus_data(bolus_data)
+ 
+               basal_data = {}
+               basal_data[:scheduled_basals] = scheduled_basals_g[day] || []
+               basal_data[:temporary_basals] = temporary_basals_g[day] || []
+               basal_data[:suspended_basals] = suspended_basals_g[day] || []
+ 
+               if basal_data[:scheduled_basals].length > 0 ||
+                 basal_data[:temporary_basals].length > 0 ||
+                 basal_data[:suspended_basals].length > 0
+ 
+                 basal_days += 1
+               end
+ 
+               @pump_day_view_data[day][:basal_data] = PumpsGraphFunctions::PumpsDayView.process_basal_data(basal_data, 15.minutes)
+ 
+               @pump_day_view_data[day][:pump_events] = PumpsGraphFunctions::PumpsDayView.process_pump_events(pump_events_g[day] || [])
+               @pump_day_view_data[day][:pump_alarms] = PumpsGraphFunctions::PumpsDayView.process_pump_alarms(pump_alarms_g[day] || [])
+ 
+               @pump_day_view_data[day][:extremes] = {
+                 min: day.to_i * 1000,
+                 max: (day + 1.day).to_i * 1000
+               }
+ 
+               day += 1.day
+             end
+ 
+             @pump_day_view_data_all = {
+                 bg_data: {
+                     high_readings: [],
+                     normal_readings: [],
+                     low_readings: [],
+                     above400: []
+                 },
+                 pump_bg_data: {
+                     high_readings: [],
+                     normal_readings: [],
+                     low_readings: [],
+                     above400: []
+                 },
+                 cgm_data: {
+                     high_readings: [],
+                     normal_readings: [],
+                     low_readings: [],
+                     above400: []
+                 },
+                 bolus_data: {
+                     injection: [],
+                     suggested: [],
+                     delivered: [],
+                     extended: [], # step function for extended bolus
+                     override_below: [],
+                     override_above: [],
+                     interruption: []
+                 },
+                 basal_data: {
+                     scheduled_basals: [],
+                     temporary_basals: [],
+                     suspended_basals: []
+                 },
+                 pump_events: {
+                     reservoir_changes: [],
+                     other_events: []
+                 },
+                 pump_alarms: [],
+                 exercise_data: {
+                     hour_buckets: {},
+                     day_buckets: {}
+                 },
+                 bolus_days: bolus_days,
+                 basal_days: basal_days
+             }
+ 
+             @pump_day_view_data_all[:bg_data] = PumpsGraphFunctions::PumpsDayView.bucket_readings_by_value(@readings, preference, false)
+             @pump_day_view_data_all[:pump_bg_data] = PumpsGraphFunctions::PumpsDayView.bucket_readings_by_value(pump_bg_data, preference, true)
+             @pump_day_view_data_all[:cgm_data] = PumpsGraphFunctions::PumpsDayView.bucket_cgm_readings_by_value(pump_cgm_data, normal_min, before_normal_max, after_normal_max, @meter_units)
+ 
+             bolus_data = {}
+             bolus_data[:injection_boluses] = injection_boluses
+             bolus_data[:normal_boluses] = normal_boluses
+             bolus_data[:extended_boluses] = extended_boluses
+             @pump_day_view_data_all[:bolus_data] = PumpsGraphFunctions::PumpsDayView.process_bolus_data(bolus_data)
+ 
+             basal_data = {}
+             basal_data[:scheduled_basals] = scheduled_basals
+             basal_data[:temporary_basals] = temporary_basals
+             basal_data[:suspended_basals] = suspended_basals
+             @pump_day_view_data_all[:basal_data] = PumpsGraphFunctions::PumpsDayView.process_basal_data(basal_data, 15.minutes)
+ 
+             @pump_day_view_data_all[:pump_events] = PumpsGraphFunctions::PumpsDayView.process_pump_events(pump_events)
+             @pump_day_view_data_all[:pump_alarms] = PumpsGraphFunctions::PumpsDayView.process_pump_alarms(pump_alarms)
+ 
+           end
+ 
+           if @show_pump_modal_view
+             @modal_view_data = {}
+             @modal_view_data[:pump_cgm_data] = @user.cgm_egvs
+                                        .gte(display_time: @start_date)
+                                        .lte(display_time: @end_date)
+                                        .where(soft_deleted: false)
+                                        .asc(:glucose_value).entries
+ 
+             pump_readings = @user.pumps_readings
+                             .gte(pump_timestamp: @start_date)
+                             .lte(pump_timestamp: @end_date)
+                             .where(soft_deleted: false)
+                             .asc(:value).entries
+ 
+             # move manual pump readings into separate collection
+             @modal_view_data[:manaul_readings] = pump_readings
+                                          .select(&:manual?)
+                                          .sort_by(&:pump_timestamp)
+             @modal_view_data[:bg_data] = pump_readings.reject(&:manual?)
+ 
+             # concatenate pump bg and meter bg data
+             @modal_view_data[:bg_data].concat @readings.asc(:value).entries
+ 
+             # get gk medications for statistics
+             @modal_view_data[:gk_medications] = @user.medications
+                                         .gte(timestamp: @start_date)
+                                         .lte(timestamp: @end_date)
+                                         .where(soft_deleted: false, hidden: false)
+                                         .asc(:value).entries
+ 
+             basal_data = {}
+             basal_data[:scheduled_basals] = @user.pumps_scheduled_basals
+                                             .gte(pump_timestamp: @start_date)
+                                             .lte(pump_timestamp: @end_date)
+                                             .where(soft_deleted: false)
+                                             .asc(:pump_timestamp).entries
+             basal_data[:temporary_basals] = @user
+                                             .pumps_temporary_basals
+                                             .gte(pump_timestamp: @start_date)
+                                             .lte(pump_timestamp: @end_date)
+                                             .where(soft_deleted: false)
+                                             .asc(:pump_timestamp).entries
+             basal_data[:suspended_basals] = @user.pumps_suspend_basals
+                                             .gte(pump_timestamp: @start_date)
+                                             .lte(pump_timestamp: @end_date)
+                                             .where(soft_deleted: false)
+                                             .asc(:pump_timestamp).entries
+ 
+             proc_basal_data = PumpsGraphFunctions::PumpsDayView
+                               .process_basal_data(basal_data, 15.minutes)
+ 
+             # take only statistics data and group it by day
+             @modal_view_data[:basal_data] = proc_basal_data[:statistics_data].group_by do |x|
+               x[:pump_timestamp].change(hour: 0, min: 0, sec: 0, usec: 0)
+             end
+ 
+             bolus_data = {}
+             bolus_data[:injection_boluses] = @user.pumps_injection_boluses
+                                              .gte(pump_timestamp: @start_date)
+                                              .lte(pump_timestamp: @end_date)
+                                              .where(soft_deleted: false)
+                                              .asc(:pump_timestamp).entries
+             bolus_data[:normal_boluses] = @user.pumps_normal_boluses
+                                           .gte(pump_timestamp: @start_date)
+                                           .lte(pump_timestamp: @end_date)
+                                           .where(soft_deleted: false)
+                                           .asc(:pump_timestamp).entries
+             bolus_data[:extended_boluses] = @user.pumps_extended_boluses
+                                             .gte(pump_timestamp: @start_date)
+                                             .lte(pump_timestamp: @end_date)
+                                             .where(soft_deleted: false)
+                                             .asc(:pump_timestamp).entries
+ 
+             proc_bolus_data = PumpsGraphFunctions::PumpsDayView
+                               .process_bolus_data(bolus_data)
+ 
+             # take only delivered and injected boluses
+             @modal_view_data[:bolus_data] = proc_bolus_data[:delivered]
+             @modal_view_data[:bolus_data].concat proc_bolus_data[:injection]
+ 
+             # sort the data by pump_timestamp
+             @modal_view_data[:bolus_data].sort_by! { |x| x[:pump_timestamp] }
+ 
+             # group data by day
+             @modal_view_data[:bolus_data] = @modal_view_data[:bolus_data].group_by do |x|
+               x[:pump_timestamp].change(hour: 0, min: 0, sec: 0, usec: 0)
+             end
+           end
+ 
+           if @show_pump_settings
+             @pumps = @user.pumps.where(soft_deleted: false).entries
+             @cgm_devices = @user.cgm_devices.where(soft_deleted: false).entries
+             @pumps_settings = @user.pumps_settings.where(soft_deleted: false).entries[0]
+ 
+             @total_basals = []
+             # calculate total basal using definite integrals
+             unless @pumps_settings.nil?
+               @pumps_settings.basal_settings.each do |basal_setting|
+                 range_start = 1
+                 total = 0
+ 
+                 basal_setting.segments.each do |segment|
+                   start_seconds = segment.start.to_f
+                   end_seconds = segment.end == 0 ? 24 * 3600 : segment.end
+ 
+                   duration = (end_seconds - start_seconds) / 60.0 / 60.0 # get duration in hours
+                   range_end = range_start + duration
+                   total += (range_end * segment.rate) - (range_start * segment.rate)
+                   range_start = range_end # adjust the range start for next segment
+                 end
+ 
+                 @total_basals << total.round(3)
+               end
+             end
+           end
+ 
+           if params['html'] == 'true'
+             render(template: 'dashboard/report', layout: false)
+           else
+             html = render_to_string(template: 'dashboard/report', layout: false, formats: :html)
+             dob = @user.date_of_birth.nil? ? '' : @user.date_of_birth.strftime('%D')
+             dt = @user.diabetes_string.nil? ? '' : @user.diabetes_string
+ 
+-            kit = PDFKit.new(html, :header_html => "file:///#{Rails.root}/app/assets/html/reportHeader.html?name=#{@user.first_name} #{@user.last_name}&dob=#{dob}&dt=#{dt}&sdate=#{@start_date.strftime('%b %e, %Y')}&edate=#{@end_date.strftime('%b %e, %Y')}")
++            kit = PDFKit.new(html, :header_html => "file:///#{Rails.root}/app/assets/html/reportHeader.html?name=#{@user.first_name} #{@user.last_name}&dob=#{dob}&dt=#{dt}&sdate=#{@start_date.strftime('%b %e, %Y')}&edate=#{@end_date.strftime('%b %e, %Y')}",
++                                   :footer_html => "file:///#{Rails.root}/app/assets/html/reportFooter.html")
+ 
+             if params[:save] == 'true'
+               send_data kit.to_pdf, :filename => "glooko.pdf", :type => 'application/pdf', :disposition => 'attachment'
+             else
+               send_data kit.to_pdf, :filename => "glooko.pdf", :type => 'application/pdf', :disposition => 'inline'
+             end
+           end
+         else
+           html = '<p style="color: #555; padding-top: 50px; text-align: center; font-family: Helvetica, Arial, \'Lucida Grande\', sans-serif; font-size: 17px;">No data available for selected period.</p>'
+           dob = @user.date_of_birth.nil? ? '' : @user.date_of_birth.strftime('%D')
+           dt = @user.diabetes_string.nil? ? '' : @user.diabetes_string
+ 
+           kit = PDFKit.new(html, :header_html => "file:///#{Rails.root}/app/assets/html/reportHeader.html?name=#{@user.first_name} #{@user.last_name}&dob=#{dob}&dt=#{dt}&sdate=#{@start_date.strftime('%b %e, %Y')}&edate=#{@end_date.strftime('%b %e, %Y')}")
+ 
+           if params[:save] == 'true'
+             send_data kit.to_pdf, :filename => "glooko.pdf", :type => 'application/pdf', :disposition => 'attachment'
+           else
+             send_data kit.to_pdf, :filename => "glooko.pdf", :type => 'application/pdf', :disposition => 'inline'
+           end
+         end
+       end
+ 
+       # use :template OR :url
+       def header
+         #logger.info "-----------------------------------------------"
+       end
+ 
+       def upload
+         updated_by = params[:params][:updatedBy]
+         access_token = params[:access_token]
+         data = params[:params][:data]
+         server_time = (Time.now.utc.to_f * 1000).to_i
+         meters = Meter.where(user_id: current_user._id)
+         available_meters = meters.where(:soft_deleted => false).in(:duplicate => [nil, false])
+         originals = []
+         batches = {}
+         invalid_meter_guid_found = false
+         mse_uploaded = false
+         begin
+           s = Time.now
+           delete_schedule_job = nil
+           data.each do |o|
+             obj = nil
+             type = o.delete(:typeName)
+             o[:modification_date] = o.delete(:modificationDate) unless o[:modificationDate].nil?
+ 
+             #sanitize for user obj
+             o.delete(:accountType) unless o[:accountType].nil?
+             o.delete(:registerDate) unless o[:registerDate].nil?
+             o.delete(:expirationDate) unless o[:expirationDate].nil?
+ 
+             ukey_hash = {}
+             o.each_pair do |k, v|
+               ukey_hash[k.underscore.to_sym] = v unless v.nil?
+             end
+             next if type.nil? or ukey_hash[:guid].nil?
+             #add updated_by
+             ukey_hash[:updated_by] = updated_by
+             ukey_hash[:user_id] = current_user._id
+             case type
+               when GK_HYPO_EVENT
+                 obj = current_user.hypo_events.find_by(guid: ukey_hash[:guid])
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = HypoEvent.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+               when GK_FOOD
+                 ukey_hash[:reading] = ukey_hash[:reading_id].nil? ? '' : ukey_hash.delete(:reading_id) #fix client problem
+                 obj = current_user.foods.find_by(guid: ukey_hash[:guid])
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = Food.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+               when GK_EXERCISE
+                 obj = current_user.exercises.find_by(guid: ukey_hash[:guid])
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = Exercise.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+               when GK_GOAL
+                 obj = current_user.goals.find_by(guid: ukey_hash[:guid])
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = Goal.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+               when GK_MEDICATION
+                 ukey_hash[:_type] ||= 'OtherMedication'
+                 claz = Object.const_get(ukey_hash[:_type])
+                 obj = claz.find_by(guid: ukey_hash[:guid])
+ 
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = claz.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+ 
+               when GK_METER_SYNC_EVENT
+                 ukey_hash[:total_readings] = ukey_hash.delete(:totalReadings) unless ukey_hash[:totalReadings].nil?
+ 
+                 obj = current_user.meter_sync_events.find_by(guid: ukey_hash[:guid])
+ 
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = MeterSyncEvent.new(ukey_hash)
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                   # only update next reminder date first time MSE is uploaded
+                   if current_user.meter_sync_reminder.nil?
+                     current_user.meter_sync_reminder = MeterSyncReminder.new
+                   end
+                   current_user.meter_sync_reminder.set_reminder_date obj.timestamp.utc
+                   current_user.save!
+                   delete_schedule_job = UrbanAirshipJobs::DeleteSchedule.new.future.delete_schedule_for_user current_user
+                 end
+                 mse_uploaded = true
+               when GK_METER
+                 ukey_hash[:meter_type] = ukey_hash.delete(:type) unless ukey_hash[:type].nil? #fix client problem
+                 index = available_meters.find_index { |x| x.guid != ukey_hash[:guid] && x.serial_number == ukey_hash[:serial_number] }
+                 if index
+                   ukey_hash[:duplicate] = true
+                   ukey_hash[:soft_deleted] = true
+                   ukey_hash[:modification_date] = Time.now + 10.years
+                   originals << available_meters[index] unless originals.include? available_meters[index]
+                 end
+                 obj = meters.find_by(guid: ukey_hash[:guid])
+ 
+                 if obj #perform an upate
+                   if !obj.duplicate #only if the obj we found isn't a duplicate
+                     obj.assign_attributes ukey_hash
+                     obj.save #just save now since we can't batch updates
+                   else
+                     logger.debug "But its not a duplicate"
+                   end
+                 else #create and add for batch insert
+                   obj = Meter.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+ 
+               when GK_NOTE
+                 obj = current_user.notes.find_by(guid: ukey_hash[:guid])
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = Note.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+               when GK_PREFERENCES
+                 obj = current_user.preference
+                 obj.update_attributes(ukey_hash)
+               when GK_FAT_SECRET_FOOD_ID
+                 ukey_hash[:fs_food_id] = ukey_hash.delete(:food_id) unless ukey_hash[:food_id].nil?
+                 obj = current_user.fat_secret_food_ids.find_by(guid: ukey_hash[:guid])
+                 if obj #perform an upate
+                   obj.assign_attributes ukey_hash
+                   obj.save #just save now since we can't batch updates
+                 else #create and add for batch insert
+                   obj = FatSecretFoodId.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+               when GK_READING
+                 obj = current_user.readings.find_by(guid: ukey_hash[:guid])
+                 if obj #perform an update?
+                   unless obj.duplicate || obj.soft_deleted
+                     obj.assign_attributes ukey_hash
+                     obj.save #just save now since we can't batch updates
+                     logger.debug "Done saving object with guid #{ukey_hash[:guid]}"
+                   else
+                     logger.debug "Will not perform a save because obj.duplicate or obj.soft_deleted is true"
+                   end
+                 else #create and add for batch insert
+                   obj = Reading.new ukey_hash
+                   batches[obj.class] ||= []
+                   batches[obj.class] << obj.as_document
+                 end
+ 
+               when GK_USER
+                 obj = current_user
+                 obj.update_attributes ukey_hash.except(:guid)
+             end
+           end
+ 
+           @@download_models.reverse.each do |claz|
+             docs = batches[claz] or next
+             logger.debug "processing instances of class #{claz} currently there are #{meters.length} meters"
+             if claz == Reading && meters.length > 0
+               docs.each do |reading_hash|
+                 logger.debug "Processing reading:: #{reading_hash}"
+                 logger.debug "Meters we have are: #{meters.to_a}"
+ 
+                 duplicate_meter = meters.find_index { |x| x.duplicate == true && x.guid == reading_hash['meter_id'] }
+ 
+                 original_readings = current_user.readings.where(timestamp: reading_hash['timestamp'], value: reading_hash['value'], :guid.ne => reading_hash['guid'], :soft_deleted => false)
+                 or_count = original_readings.count
+                 if or_count == 0
+                   logger.debug "There were no original readings, we don't have a duplicate"
+                   if duplicate_meter
+                     logger.debug "We have a reading that is not a duplicate but is pointing to a duplicate meter - finding original meter by serial number"
+                     reading_hash['soft_deleted'] = true
+                     reading_hash['modification_date'] = Time.now
+                     reading_hash['updated_by'] = 'server'
+                     invalid_meter_guid_found = true
+                   end
+                 else
+                   logger.debug "We have #{or_count} original readings - this is a possible duplicate reading"
+                   orig_reading = original_readings.first
+                   logger.debug "Adding the original reading to the originals list"
+                   originals << orig_reading unless originals.include? orig_reading
+ 
+                   logger.debug "Finding the meter of the original reading by guid"
+                   original_meter = meters.find_index { |x| !x.duplicate && x.guid == orig_reading.meter_id }
+                   if original_meter
+                     logger.debug "An original reading is pointing to this duplicate reading's meter:: mark as dup, mark deleted, set modificatoin_date to 10 years from today"
+                     reading_hash['duplicate'] = true
+                     reading_hash['soft_deleted'] = true
+                     reading_hash['modification_date'] = Time.now + 10.years
+                     reading_hash['updated_by'] = 'server'
+                   end
+                 end
+               end
+             end
+             unless docs.blank?
+               claz.create! docs
+               if claz == Reading
+                 if ONECARE_PROCONNECT_CODES.include?(current_user.authorized_viewers.try(:auth_code).try(:downcase))
+                   start_date, end_date = docs.minmax_by { |reading| reading['timestamp'] }.map { |reading| reading['timestamp'] }
+                   OneCarePushNotificationsWorker.add_new_worker current_user.glooko_code, start_date, end_date
+                 elsif current_user.authorized_viewers.try(:auth_code).try(:downcase) == 'tactio'
+                   start_date, end_date = docs.minmax_by { |reading| reading['timestamp'] }.map { |reading| reading['timestamp'] }
+                   TactioPushNotificationsWorker.add_new_worker current_user.glooko_code, start_date, end_date
+                 elsif current_user.authorized_viewers.try(:auth_code).try(:downcase) == 'pharmacy3'
+                   start_date, end_date = docs.minmax_by { |reading| reading['timestamp'] }.map { |reading| reading['timestamp'] }
+                   TactioPharmacy3PushNotificationsWorker.add_new_worker current_user.glooko_code, start_date, end_date
+                 elsif current_user.authorized_viewers.try(:auth_code).try(:downcase) == 'childrensmercy'
+                   start_date, end_date = docs.minmax_by { |reading| reading['timestamp'] }.map { |reading| reading['timestamp'] }
+                   ChildrensMercyPushNotificationsWorker.add_new_worker current_user.glooko_code, start_date, end_date
+                 end
+               end
+             end
+           end
+ 
+           originals.each do |obj|
+             obj.touch
+           end
+ 
+           # wait for delete_schedule_job to finish (if it was started)
+           delete_schedule_job.value if delete_schedule_job
+           # start StatisticsWorker if MSE was uploaded
+           StatisticsWorker.add_new_worker current_user.id if mse_uploaded
+           render json: {response: {success: true, server_time: server_time, invalid_meter_guid: invalid_meter_guid_found}}
+ 
+         rescue Exception => e
+           render :json => {:success => false, :error => e.to_s}, :status => 422
+         end
+ 
+       end
+ 
+       def download
+         if params.nil? || params[:gk_sync].length == 0
+           @res = OpenStruct.new({error: "The parameters dictionary is missing or invalid."})
+           return
+         end
+ 
+         if params[:params][:startDate].nil? or params[:params][:endDate].nil?
+           @res = OpenStruct.new({error: "The startDate or endDate parameter is missing or invalid."})
+           return
+         end
+ 
+         begin
+           start_f = params[:params][:startDate].to_f
+           start_date = start_f > 0 ? Time.at(start_f / 1000).utc : Time.at(0).utc
+           end_date = Time.at(params[:params][:endDate].to_f / 1000).utc
+         rescue Exception => e
+           @res = OpenStruct.new({error: "The startDate or endDate parameter is out of range."})
+           return
+         end
+ 
+         if (end_date < start_date)
+           @res = OpenStruct.new({error: "The end date is earlier than the start date."})
+           return
+         end
+ 
+         begin
+           offset = params[:params][:offset].to_i
+           desired_object_count = params[:params][:chunkSize].to_i
+         rescue
+           @res = OpenStruct.new({error: "The download offset or chunkSize parameters are missing or invalid."})
+           return
+         end
+ 
+         excluded_device = params[:params][:updatedBy]
+         ignore_deleted = params[:params][:ignore_deleted] == true
+ 
+         uid = current_user._id
+         logger.debug "DOWNLOAD: Current user is #{current_user.email}"
+         count = 0
+         models = []
+ 
+         server_time = (Time.now.utc.to_f * 1000).to_i
+         #begin
+         @@sync_models.each do |model|
+           key = model == User ? :_id : :user_id
+           candidates = model.unscoped.where(key => uid).where(:updated_at.gte => start_date).where(:updated_at.lt => end_date)
+           candidates = candidates.visible if candidates.respond_to? :visible
+ 
+           if ignore_deleted
+             candidates = candidates.where(:soft_deleted.ne => true)
+           end
+ 
+           candidates = candidates.where(:updated_by.ne => excluded_device) unless excluded_device.nil?
+           next if candidates.nil?
+           candidate_count = candidates.length
+           next if candidate_count == 0
+ 
+           if count + candidate_count > offset
+             start_index = offset - count
+             skip = start_index < 0 ? 0 : start_index
+             limit = desired_object_count - models.length
+             models += candidates.skip(skip).limit(limit).to_a
+           end
+ 
+           break if (models.length >= desired_object_count)
+ 
+           count += candidate_count
+         end
+         add_dependencies(models, end_date)
+         obj = DownloadResponse.new({data: models, server_time: server_time})
+         render json: obj, serializer: DownloadResponseSerializer, root: 'response'
+       end
+ 
+       def add_dependencies(models = [], end_date)
+         models.reverse!
+         dependencies = []
+         models.each do |m|
+           case m.class
+             when Reading
+               dependencies += current_user.meter_sync_events.where(:guid => m.sync_id) unless m.sync_id.nil?
+               dependencies += current_user.meters.where(:guid => m.meter_id) unless m.meter_id.nil?
+             when Exercise, Medication, Note, Food
+               dependencies += current_user.readings.where(:guid => m.reading) unless m.reading.nil?
+           end
+         end
+ 
+         dependencies.each do |d|
+           models += d.to_a unless d.updated_at >= end_date or models.include?(d)
+         end
+ 
+         models.reverse!
+       end
+ 
+ 
+       ### no snake_case
+       def download_size
+         if params.nil? || params[:gk_sync].length == 0
+           @res = OpenStruct.new({error: "The parameters dictionary is missing or invalid."})
+           return
+         end
+ 
+         if params[:params][:startDate].nil?
+           @res = OpenStruct.new({error: "The start date parameter is missing or invalid."})
+           return
+         end
+ 
+         begin
+           start_f = params[:params][:startDate].to_f
+           start_date = start_f > 0 ? Time.at(start_f / 1000).utc : Time.at(0).utc
+         rescue Exception => e
+           @res = OpenStruct.new({error: "The start date parameter is out of range."})
+           return
+         end
+ 
+         ignore_deleted = params[:params][:ignore_deleted] == true
+ 
+         excluded_device = params[:params][:updatedBy]
+         access_token = params[:access_token]
+         server_time = (Time.now.utc.to_f * 1000).to_i
+         uid = current_user._id
+         logger.debug "DOWNLOAD-SIZE: Current user is #{current_user.email}"
+         count = 0
+         end_date = Time.now.utc + 1.hour
+         @@sync_models.each do |model|
+           key = model == User ? :_id : :user_id
+           logger.debug("start:: #{start_date}, end:: #{end_date}, updated_by:: #{excluded_device}")
+ 
+           q = model.unscoped.where(key => uid).where(:updated_at.gte => start_date).where(:updated_at.lt => end_date)
+           q = q.visible if q.respond_to? :visible
+           if ignore_deleted
+             q = q.where(:soft_deleted.ne => true)
+           end
+           count += q.count
+         end
+ 
+ 
+         @res = OpenStruct.new({response: {server_time: server_time, size: count}})
+         @res = {response: {server_time: server_time, size: count}}
+ 
+         render json: @res
+       end
+ 
+       def verify_provider_code
+         code = params[:code]
+         pgs = ProviderGroupSite.find_by(auth_code: code)
+ 
+         if user_signed_in?
+           user = current_user
+         else
+           user = User.find_by(email: params[:email])
+           return render json: {success: false} unless user
+           return render json: {success: false} if request.headers[AUTHENTICATION_TOKEN_HEADER].nil_or_empty?
+ 
+           authentication_token = request.headers[AUTHENTICATION_TOKEN_HEADER]
+           return render json: {success: false} if pgs.try(:token_auth_key).blank?
+           calculated_token = Digest::MD5.hexdigest(request.raw_post + pgs.token_auth_key)
+ 
+           return render json: {success: false} if calculated_token != authentication_token
+         end
+         begin
+           previous_site_validic_enabled = user.validic_enabled?
+           user.mrn = nil if user.authorized_viewers != pgs
+           user.authorized_viewers = pgs
+           user.modification_date = Time.zone.now
+           user.updated_by = 'server'
+           user.save
+           StatisticsWorker.add_new_worker user._id.to_s
+           ValidicWorker.add_new_worker(ValidicWorker::VALIDIC_DISCONNECT, [user.glooko_code]) if previous_site_validic_enabled && !user.validic_enabled?
+           JoslinProConnectWorker.perform_async user._id.to_s if JOSLIN_PROCONNECT_CODES.include? code.downcase
+           return render json: {success: false} unless pgs
+           singapore_site = SingaporeClient.singapore_allowed_pro_connect_codes.include?(user.authorized_viewers.auth_code.downcase)
+           render json: {success: true, name: pgs.name, hypo_enabled: pgs.hypo_enabled, singapore_site: singapore_site}
+         rescue Exception => e
+           logger.error "PROCONNECT ERROR: " + e.message + "\n" + e.backtrace.inspect
+           render json: {success: false}
+         end
+       end
+ 
+       private
+ 
+       def display_value(val, meter_units)
+         val = val / 100
+         (meter_units == 1) ? (val * 0.05555555555555555).round(1) : val.round(0)
+       end
+ 
+       def fix_params_issue_for_ios(value)
+         # Ugly hack : graphs and logbook have an issue on ios and this hack should fix it
+         'true' if (value == '1' || value == 'true' || value.blank?)
+       end
+ 
+       def sort_collection(collection, sort_fields)
+         collection.sort { |x, y|
+           left_side = []
+           right_side = []
+ 
+           sort_fields.each do |s_field|
+             # |x ,y| x <=> y ASC
+             # |x, y| y <=> x DESC
+             sort_pair = (s_field[1].upcase == 'ASC') ? [x, y] : [y, x]
+             left_side << sort_pair[0][s_field[0].to_sym]
+             right_side << sort_pair[1][s_field[0].to_sym]
+           end
+ 
+           left_side <=> right_side
+         }
+       end
+     end
+   end
+ end

@@ -1,15 +1,15 @@
 {
   "name": "atomatigit",
   "main": "./lib/atomatigit",
-  "version": "1.5.3",
+  "version": "1.5.5",
   "description": "Full git interaction, a la magit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/diiq/atomatigit"
+    "url": "git+https://github.com/diiq/atomatigit.git"
   },
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">=0.174.0 <2.0.0"
   },
   "dependencies": {
     "backbone": "~1.1.2",
@@ -17,28 +17,112 @@
     "lodash": "~2.4.1",
     "prettyjson": "^1.0.0",
     "promised-git": "~0.1.1",
-    "atom-space-pen-views": "^2.0.3"
+    "atom-space-pen-views": "^2.0.3",
+    "atom-package-dependencies": "~1.0.3"
   },
   "devDependencies": {
     "fs-plus": "^2.0.0",
     "temp": "~0.8.1"
   },
-  "readme": "# atomatigit\n\nReal git integration for the Atom text editor.\n\nAtomatigit allows you to see diffs, stage chunks, make commits, push, fetch,\nchange branches, delete branches, discard changes... and if there's any function\nyou're missing, you can also execute raw git commands.\n\nAtomatigit is designed to be used using ultra-fast keyboard shortcuts. Press\n`cmd-alt-g` to show the atomatigit pane on the right. From there, you can\nright-click on a file, branch, or commit to see your options, and to get a\nfriendly reminder of the keyboard shortcuts. Once you know the shortcuts, you\ncan navigate through 100% of atomatigit's functions without a mouse.\n\nAtomatigit is inspired by the\n[magit](http://magit.github.io/index.html) emacs package.\n\n![screenshot: file list](http://i.imgur.com/rRk5sSy.png)\n![screenshot: dark theme; branch list; context menu](http://i.imgur.com/axszNyW.png)\n\n## Making changes and stagin files\n\nPress `cmd-alt-g` to show the atomatigit pane on the right.\n\nAs soon as you save a file, it will show up in the list of unstaged changes.\nNavigate to it using arrow keys, i/k, or by clicking on it. Hit tab to see the\ndiff, and use `shift-s` to stage it.\n\n## Committing\n\nOnce you've staged some files, initiate a commit by hitting `c`. A new buffer\nwill open for you to enter a commit message. When you're done describing your\nchanges, `cmd-alt-c` will complete the commit.\n\n## Other Key bindings\n\nThere are many, but don't worry: if you ever forget these, Atomatigit has\nright-click menus to help remind you. Here's the complete list:\n\n- `cmd-alt-g` to open/focus/close atomatigit\n- `escape` to close\n- `up` (or `i`) and `down` (or `k`) to navigate between items\n- `c` to commit\n- `cmd-alt-c` from a commit buffer to complete a commit\n- `shift-P` to push to origin\n- `b` to view branches\n- `s` to view the staging area\n- `l` to view the commit log\n- `:` to execute a custom git command\n- `r` to refresh\n- `shift-p` to push the current branch to origin\n- `f` to fetch\n\nStaging View\n- `enter` to open a selected file\n- `tab` to see an unstaged diff\n- `shift-s` to stage a file\n- `u` to unstage a file\n- `z` to stash\n- `shift-Z` to unstash\n- `backspace` to kill a diff, or delete an untracked file\n\nBranch View\n- `enter` to checkout the selected branch\n- `c` to create a new branch\n- `backspace` to delete a branch\n\nCommit Log\n- `enter` to soft reset to a selected commit\n- `shift-enter` to hard reset\n\n## Current status\n\nAtomatigit is usable, but still in active development. Feel free to make feature requests.\n\n## Missing features (coming soon)\n\nYou cannot merge, ammend, or rebase through the UI (though you can perform the commands using `atomatigit:git-command`).\n\nMoved and deleted files have bad interactions (in terms of toggle-diff, etc).\n\nThe method for staging individual patches isn't the best interface.\n\n## Contributing\n\nContributions are welcome!\n\n`apm develop atomatigit`\n\nWill clone the repo for you.\n\nThe code should be quite clear. If you add new files, don't forget to add them\nto the correct `index.coffee` so they can be required from other directories.\n\nPull requests that break specs won't be merged, so be sure to run `apm test`\nbefore you PR.\n\nPull requests that spec all their new public methods will get more attention\nthan those that don't :)\n\n## Contributors\n\n- [jonathanwiesel](https://github.com/jonathanwiesel)\n- [frk1705](https://github.com/frk1705)\n",
+  "package-dependencies": {
+    "language-diff": ">=0.3.0"
+  },
+  "readme": "# atomatigit\n\nReal git integration for the Atom text editor.\n\nAtomatigit allows you to see diffs, stage chunks, make commits, push, fetch,\nchange branches, delete branches, discard changes... and if there's any function\nyou're missing, you can also execute raw git commands.\n\nAtomatigit is designed to be used using ultra-fast keyboard shortcuts. Press\n`cmd-alt-g` to show the atomatigit pane on the right. From there, you can\nright-click on a file, branch, or commit to see your options, and to get a\nfriendly reminder of the keyboard shortcuts. Once you know the shortcuts, you\ncan navigate through 100% of atomatigit's functions without a mouse.\n\nAtomatigit is inspired by the\n[magit](http://magit.github.io/index.html) emacs package.\n\n![screenshot: file list](http://i.imgur.com/rRk5sSy.png)\n![screenshot: dark theme; branch list; context menu](http://i.imgur.com/axszNyW.png)\n\n## Installing\nUsing `apm`:\n``` shell\n  apm install atomatigit\n```\n\n## Making changes and staging files\n\nPress `cmd-alt-g` to show the atomatigit pane on the right.\n\nAs soon as you save a file, it will show up in the list of unstaged changes.\nNavigate to it using arrow keys, i/k, or by clicking on it. Hit tab to see the\ndiff, and use `shift-s` to stage it.\n\n## Committing\n\nOnce you've staged some files, initiate a commit by hitting `c`. A new buffer\nwill open for you to enter a commit message. When you're done describing your\nchanges, `cmd-alt-c` will complete the commit.\n\n## Other Key bindings\n\nThere are many, but don't worry: if you ever forget these, Atomatigit has\nright-click menus to help remind you. Here's the complete list:\n\n- `cmd-alt-g` to open/focus/close atomatigit\n- `escape` to close\n- `up` (or `i`) and `down` (or `k`) to navigate between items\n- `c` to commit\n- `cmd-alt-c` from a commit buffer to complete a commit\n- `shift-P` to push to origin\n- `b` to view branches\n- `s` to view the staging area\n- `l` to view the commit log\n- `:` to execute a custom git command\n- `r` to refresh\n- `shift-p` to push the current branch to origin\n- `f` to fetch\n\nStaging View\n- `enter` to open a selected file\n- `tab` to see an unstaged diff\n- `shift-s` to stage a file\n- `u` to unstage a file\n- `z` to stash\n- `shift-Z` to unstash\n- `backspace` to kill a diff, or delete an untracked file\n\nBranch View\n- `enter` to checkout the selected branch\n- `c` to create a new branch\n- `backspace` to delete a branch\n\nCommit Log\n- `enter` to soft reset to a selected commit\n- `shift-enter` to hard reset\n\n## Current status\n\nAtomatigit is usable, but still in active development. Feel free to make feature requests.\n\n## Missing features (coming soon)\n\nYou cannot merge, ammend, or rebase through the UI (though you can perform the commands using `atomatigit:git-command`).\n\nMoved and deleted files have bad interactions (in terms of toggle-diff, etc).\n\nThe method for staging individual patches isn't the best interface.\n\n## Contributing\n\nContributions are welcome!\n\n`apm develop atomatigit`\n\nWill clone the repo for you.\n\nThe code should be quite clear. If you add new files, don't forget to add them\nto the correct `index.coffee` so they can be required from other directories.\n\nPull requests that break specs won't be merged, so be sure to run `apm test`\nbefore you PR.\n\nPull requests that spec all their new public methods will get more attention\nthan those that don't :)\n\n## Contributors\n\n- [jonathanwiesel](https://github.com/jonathanwiesel)\n- [frk1705](https://github.com/frk1705)\n",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/diiq/atomatigit/issues"
   },
-  "homepage": "https://github.com/diiq/atomatigit",
-  "_id": "atomatigit@1.5.3",
-  "_shasum": "2f1839a6383316aaced0ddcef1290b136befff56",
-  "_resolved": "file:../d-115430-10435-1r6s4n/package.tgz",
-  "_from": "../d-115430-10435-1r6s4n/package.tgz",
+  "homepage": "https://github.com/diiq/atomatigit#readme",
+  "_id": "atomatigit@1.5.5",
+  "_shasum": "8b55ae28c4a8af514f0409d883d5cb9df2f69bc2",
+  "_resolved": "file:../d-115928-32783-1fc8k6u/package.tgz",
+  "_from": "../d-115928-32783-1fc8k6u/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
       {
+        "name": "atom-package-dependencies",
+        "version": "1.0.3",
+        "path": "node_modules/atom-package-dependencies/index.js"
+      },
+      {
+        "name": "shelljs",
+        "version": "0.3.0",
+        "path": "node_modules/atom-package-dependencies/node_modules/shelljs/shell.js"
+      },
+      {
+        "name": "tmp",
+        "version": "0.0.24",
+        "path": "node_modules/atom-package-dependencies/node_modules/tmp/lib/tmp.js"
+      },
+      {
+        "name": "witwip",
+        "version": "1.0.4",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/witwip.js"
+      },
+      {
+        "name": "debug",
+        "version": "0.7.4",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/debug/lib/debug.js"
+      },
+      {
+        "name": "read-package-json",
+        "version": "0.1.13",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/read-json.js"
+      },
+      {
+        "name": "glob",
+        "version": "3.1.21",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/glob.js"
+      },
+      {
+        "name": "inherits",
+        "version": "1.0.2",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/inherits/inherits.js"
+      },
+      {
+        "name": "minimatch",
+        "version": "0.2.14",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/minimatch.js"
+      },
+      {
+        "name": "sigmund",
+        "version": "1.0.1",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/node_modules/sigmund/sigmund.js"
+      },
+      {
+        "name": "graceful-fs",
+        "version": "1.2.3",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/graceful-fs/graceful-fs.js"
+      },
+      {
+        "name": "lru-cache",
+        "version": "2.0.4",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/lru-cache/lib/lru-cache.js"
+      },
+      {
+        "name": "npmlog",
+        "version": "0.1.1",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/log.js"
+      },
+      {
+        "name": "ansi",
+        "version": "0.3.0",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/lib/ansi.js"
+      },
+      {
+        "name": "semver",
+        "version": "1.1.4",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/semver/semver.js"
+      },
+      {
+        "name": "slide",
+        "version": "1.1.6",
+        "path": "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/lib/slide.js"
+      },
+      {
         "name": "atom-space-pen-views",
-        "version": "2.0.5",
+        "version": "2.1.0",
         "path": "node_modules/atom-space-pen-views/lib/main.js"
       },
       {
@@ -53,53 +137,8 @@
       },
       {
         "name": "grim",
-        "version": "1.4.1",
+        "version": "1.5.0",
         "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/lib/grim.js"
-      },
-      {
-        "name": "coffeestack",
-        "version": "1.1.2",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/index.js"
-      },
-      {
-        "name": "coffee-script",
-        "version": "1.8.0",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/coffee-script.js"
-      },
-      {
-        "name": "mkdirp",
-        "version": "0.3.5",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/node_modules/mkdirp/index.js"
-      },
-      {
-        "name": "fs-plus",
-        "version": "2.8.1",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/lib/fs-plus.js"
-      },
-      {
-        "name": "async",
-        "version": "0.2.10",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/async/lib/async.js"
-      },
-      {
-        "name": "mkdirp",
-        "version": "0.3.5",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/mkdirp/index.js"
-      },
-      {
-        "name": "rimraf",
-        "version": "2.2.8",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/rimraf/rimraf.js"
-      },
-      {
-        "name": "source-map",
-        "version": "0.1.43",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map.js"
-      },
-      {
-        "name": "amdefine",
-        "version": "0.1.0",
-        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/node_modules/amdefine/amdefine.js"
       },
       {
         "name": "emissary",
@@ -118,8 +157,18 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.7",
+        "version": "0.10.8",
         "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
+      },
+      {
+        "name": "es6-iterator",
+        "version": "2.0.0",
+        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/index.js"
+      },
+      {
+        "name": "es6-symbol",
+        "version": "3.0.1",
+        "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
         "name": "es6-iterator",
@@ -203,17 +252,17 @@
       },
       {
         "name": "prettyjson",
-        "version": "1.1.2",
+        "version": "1.1.3",
         "path": "node_modules/prettyjson/lib/prettyjson.js"
       },
       {
         "name": "colors",
-        "version": "0.6.2",
-        "path": "node_modules/prettyjson/node_modules/colors/colors.js"
+        "version": "1.1.2",
+        "path": "node_modules/prettyjson/node_modules/colors/lib/index.js"
       },
       {
         "name": "minimist",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "path": "node_modules/prettyjson/node_modules/minimist/index.js"
       },
       {
@@ -273,6 +322,70 @@
         "lib/views/repo-view.coffee"
       ],
       ".js": [
+        "node_modules/atom-package-dependencies/index.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/global.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/make.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/scripts/generate-docs.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/scripts/run-tests.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/shell.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/cat.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/cd.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/chmod.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/common.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/cp.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/dirs.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/echo.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/error.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/exec.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/find.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/grep.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/ln.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/ls.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/mkdir.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/mv.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/popd.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/pushd.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/pwd.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/rm.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/sed.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/tempdir.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/test.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/to.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/toEnd.js",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/src/which.js",
+        "node_modules/atom-package-dependencies/node_modules/tmp/domain-test.js",
+        "node_modules/atom-package-dependencies/node_modules/tmp/lib/tmp.js",
+        "node_modules/atom-package-dependencies/node_modules/tmp/test.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/debug/debug.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/debug/index.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/debug/lib/debug.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/examples/g.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/examples/usr-local.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/glob.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/inherits/inherits.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/minimatch.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/node_modules/sigmund/bench.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/node_modules/sigmund/sigmund.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/graceful-fs/graceful-fs.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/lru-cache/lib/lru-cache.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/example.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/log.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/examples/beep/index.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/examples/clear/index.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/examples/cursorPosition.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/examples/progress/index.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/lib/ansi.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/lib/newlines.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/semver/semver.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/semver/test.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/index.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/lib/async-map-ordered.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/lib/async-map.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/lib/bind-actor.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/lib/chain.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/lib/slide.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/read-json.js",
+        "node_modules/atom-package-dependencies/node_modules/witwip/witwip.js",
         "node_modules/atom-space-pen-views/lib/main.js",
         "node_modules/atom-space-pen-views/lib/scroll-view.js",
         "node_modules/atom-space-pen-views/lib/select-list-view.js",
@@ -284,51 +397,6 @@
         "node_modules/atom-space-pen-views/node_modules/space-pen/lib/space-pen.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/lib/deprecation.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/lib/grim.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/index.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/browser.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/cake.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/coffee-script.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/command.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/grammar.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/helpers.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/index.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/lexer.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/nodes.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/optparse.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/parser.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/register.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/repl.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/rewriter.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/scope.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script/sourcemap.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/node_modules/mkdirp/examples/pow.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/node_modules/mkdirp/index.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/register.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/repl.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/lib/fs-plus.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/async/lib/async.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/mkdirp/examples/pow.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/mkdirp/index.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/rimraf/bin.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/rimraf/rimraf.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/Makefile.dryice.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/build/assert-shim.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/build/mini-require.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/build/suffix-browser.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/build/test-prefix.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/build/test-suffix.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/array-set.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/base64-vlq.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/base64.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/binary-search.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/mapping-list.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/source-map-consumer.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/source-map-generator.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/source-node.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map/util.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/node_modules/amdefine/amdefine.js",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/node_modules/amdefine/intercept.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/lib/behavior.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/lib/emissary.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/lib/emitter.js",
@@ -552,6 +620,21 @@
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/index.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/is-implemented.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/math/trunc/shim.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/#/chain.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/array.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/for-of.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/get.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/index.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/is-iterable.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/string.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/valid-iterable.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/implement.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-implemented.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-native-implemented.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/is-symbol.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/polyfill.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/validate-symbol.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/index.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/#/pad.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/epsilon/implement.js",
@@ -570,6 +653,7 @@
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/is-nan/index.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/is-nan/is-implemented.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/is-nan/shim.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/is-natural.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/is-number.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/is-safe-integer/implement.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/number/is-safe-integer/index.js",
@@ -599,6 +683,8 @@
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/eq.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/every.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/filter.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/find-key.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/find.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/first-key.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/flatten.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/for-each.js",
@@ -706,6 +792,7 @@
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/string/#/starts-with/index.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/string/#/starts-with/is-implemented.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/string/#/starts-with/shim.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/string/#/uncapitalize.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/string/format-method.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/string/from-code-point/implement.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/string/from-code-point/index.js",
@@ -848,11 +935,21 @@
         "node_modules/lodash/lodash.js",
         "node_modules/prettyjson/lib/prettyjson.js",
         "node_modules/prettyjson/lib/utils.js",
-        "node_modules/prettyjson/node_modules/colors/colors.js",
-        "node_modules/prettyjson/node_modules/colors/example.js",
-        "node_modules/prettyjson/node_modules/colors/test.js",
-        "node_modules/prettyjson/node_modules/colors/themes/winston-dark.js",
-        "node_modules/prettyjson/node_modules/colors/themes/winston-light.js",
+        "node_modules/prettyjson/node_modules/colors/examples/normal-usage.js",
+        "node_modules/prettyjson/node_modules/colors/examples/safe-string.js",
+        "node_modules/prettyjson/node_modules/colors/lib/colors.js",
+        "node_modules/prettyjson/node_modules/colors/lib/custom/trap.js",
+        "node_modules/prettyjson/node_modules/colors/lib/custom/zalgo.js",
+        "node_modules/prettyjson/node_modules/colors/lib/extendStringPrototype.js",
+        "node_modules/prettyjson/node_modules/colors/lib/index.js",
+        "node_modules/prettyjson/node_modules/colors/lib/maps/america.js",
+        "node_modules/prettyjson/node_modules/colors/lib/maps/rainbow.js",
+        "node_modules/prettyjson/node_modules/colors/lib/maps/random.js",
+        "node_modules/prettyjson/node_modules/colors/lib/maps/zebra.js",
+        "node_modules/prettyjson/node_modules/colors/lib/styles.js",
+        "node_modules/prettyjson/node_modules/colors/lib/system/supports-colors.js",
+        "node_modules/prettyjson/node_modules/colors/safe.js",
+        "node_modules/prettyjson/node_modules/colors/themes/generic-logging.js",
         "node_modules/prettyjson/node_modules/minimist/example/parse.js",
         "node_modules/prettyjson/node_modules/minimist/index.js",
         "node_modules/promised-git/lib/git-wrapper.js",
@@ -943,19 +1040,28 @@
         "node_modules/promised-git/node_modules/bluebird/js/zalgo/util.js"
       ],
       ".json": [
+        "node_modules/atom-package-dependencies/node_modules/shelljs/.documentup.json",
+        "node_modules/atom-package-dependencies/node_modules/shelljs/package.json",
+        "node_modules/atom-package-dependencies/node_modules/tmp/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/debug/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/inherits/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/node_modules/sigmund/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/graceful-fs/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/lru-cache/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/node_modules/ansi/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/semver/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/slide/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/package.json",
+        "node_modules/atom-package-dependencies/node_modules/witwip/package.json",
+        "node_modules/atom-package-dependencies/package.json",
         "node_modules/atom-space-pen-views/node_modules/fuzzaldrin/package.json",
         "node_modules/atom-space-pen-views/node_modules/space-pen/api.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/node_modules/mkdirp/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/async/component.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/async/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/mkdirp/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/node_modules/rimraf/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/node_modules/amdefine/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/package.json",
-        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/package.json",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/d/package.json",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/package.json",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/package.json",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/package.json",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-iterator/package.json",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es6-symbol/package.json",
@@ -1014,7 +1120,76 @@
           "lodash": "~2.4.1",
           "prettyjson": "^1.0.0",
           "promised-git": "~0.1.1",
-          "atom-space-pen-views": "^2.0.3"
+          "atom-space-pen-views": "^2.0.3",
+          "atom-package-dependencies": "~1.0.3"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-package-dependencies"
+        ],
+        "dependencies": {
+          "shelljs": "0.3.x",
+          "witwip": "1.0.x",
+          "tmp": "0.0.24"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-package-dependencies/node_modules/witwip",
+          "node_modules/atom-package-dependencies/node_modules/witwip/test",
+          "node_modules/atom-package-dependencies/node_modules/witwip/test/local/carmen",
+          "node_modules/atom-package-dependencies/node_modules/witwip/test/local/chief"
+        ],
+        "dependencies": {
+          "debug": "~0.7.0",
+          "read-package-json": "~0.1.5"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json",
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/test",
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/test/fixtures"
+        ],
+        "dependencies": {
+          "glob": "~3.1.9",
+          "lru-cache": "~2.0.0",
+          "semver": "1.x",
+          "slide": "~1.1.3",
+          "npmlog": "0",
+          "graceful-fs": "~1.2"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/examples",
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob",
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/test"
+        ],
+        "dependencies": {
+          "minimatch": "~0.2.11",
+          "graceful-fs": "~1.2.0",
+          "inherits": "1"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch",
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/glob/node_modules/minimatch/test"
+        ],
+        "dependencies": {
+          "lru-cache": "2",
+          "sigmund": "~1.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog",
+          "node_modules/atom-package-dependencies/node_modules/witwip/node_modules/read-package-json/node_modules/npmlog/test"
+        ],
+        "dependencies": {
+          "ansi": "~0.3.0"
         }
       },
       {
@@ -1044,52 +1219,7 @@
           "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim"
         ],
         "dependencies": {
-          "coffeestack": "^1",
           "emissary": "^1.2.0"
-        }
-      },
-      {
-        "paths": [
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack"
-        ],
-        "dependencies": {
-          "coffee-script": "~1.8.0",
-          "fs-plus": "^2.5.0",
-          "source-map": "~0.1.43"
-        }
-      },
-      {
-        "paths": [
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script/lib/coffee-script",
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/coffee-script"
-        ],
-        "dependencies": {
-          "mkdirp": "~0.3.5"
-        }
-      },
-      {
-        "paths": [
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus/lib",
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/fs-plus"
-        ],
-        "dependencies": {
-          "underscore-plus": "1.x",
-          "mkdirp": "~0.3.5",
-          "rimraf": "~2.2.2",
-          "async": "~0.2.9"
-        }
-      },
-      {
-        "paths": [
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map",
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/build",
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib/source-map",
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/lib",
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/test",
-          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/coffeestack/node_modules/source-map/test/source-map"
-        ],
-        "dependencies": {
-          "amdefine": ">=0.0.4"
         }
       },
       {
@@ -1281,8 +1411,31 @@
           "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/test/string/raw"
         ],
         "dependencies": {
-          "es6-iterator": "~0.1.3",
-          "es6-symbol": "~2.0.1"
+          "es6-iterator": "2",
+          "es6-symbol": "3"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/#",
+          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator",
+          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/test/#",
+          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-iterator/test"
+        ],
+        "dependencies": {
+          "d": "^0.1.1",
+          "es5-ext": "^0.10.7",
+          "es6-symbol": "3"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol",
+          "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/test"
+        ],
+        "dependencies": {
+          "d": "~0.1.1",
+          "es5-ext": "~0.10.8"
         }
       },
       {
@@ -1363,8 +1516,8 @@
           "node_modules/prettyjson/test"
         ],
         "dependencies": {
-          "colors": "0.6.2",
-          "minimist": "1.1.0"
+          "colors": "^1.1.2",
+          "minimist": "^1.1.3"
         }
       },
       {

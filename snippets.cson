@@ -16,4 +16,4 @@
 '.source.ruby':
   'puts with DEBUG':
     'prefix': 'put'
-    'body': 'puts"[DEBUG] $1 => #{$1.inspect}"'
+    'body': 'puts "[DEBUG] $1 => #{$1.inspect}"'
