@@ -2,40 +2,40 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-16412-1kiga60/package.tgz",
+        "raw": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-20253-i5iwvj/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-16412-1kiga60/package.tgz",
-        "spec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-16412-1kiga60/package.tgz",
+        "rawSpec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-20253-i5iwvj/package.tgz",
+        "spec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-20253-i5iwvj/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/apm-install-dir-116820-16412-185kahj"
+      "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/apm-install-dir-116820-20253-3hye7d"
     ]
   ],
-  "_from": "../d-116820-16412-1kiga60/package.tgz",
+  "_from": "../d-116820-20253-i5iwvj/package.tgz",
   "_id": "one-o-eight-syntax@0.23.2",
   "_inCache": true,
   "_installable": true,
   "_location": "/one-o-eight-syntax",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-16412-1kiga60/package.tgz",
+    "raw": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-20253-i5iwvj/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-16412-1kiga60/package.tgz",
-    "spec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-16412-1kiga60/package.tgz",
+    "rawSpec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-20253-i5iwvj/package.tgz",
+    "spec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-20253-i5iwvj/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-116820-16412-1kiga60/package.tgz",
+  "_resolved": "file:../d-116820-20253-i5iwvj/package.tgz",
   "_shasum": "3e2fd17dd96204d4c9aab3d9eeda97158776ab07",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-16412-1kiga60/package.tgz",
-  "_where": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/apm-install-dir-116820-16412-185kahj",
+  "_spec": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/d-116820-20253-i5iwvj/package.tgz",
+  "_where": "/private/var/folders/ll/6xtk4bq9735dgbhzzl99pdth0000gn/T/apm-install-dir-116820-20253-3hye7d",
   "bugs": {
     "url": "https://github.com/tpoisot/writer-syntax/issues"
   },
