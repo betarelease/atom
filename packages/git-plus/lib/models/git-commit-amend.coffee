@@ -3,7 +3,6 @@ fs = require 'fs-plus'
 Path = require 'flavored-path'
 git = require '../git'
 notifier = require '../notifier'
-splitPane = require '../splitPane'
 
 disposables = new CompositeDisposable
 
@@ -15,7 +14,7 @@ prettifyStagedFiles = (data) ->
 
 prettyifyPreviousFile = (data) ->
   mode: data[0]
-  path: data.substring(1)
+  path: data.substring(1).trim()
 
 prettifyFileStatuses = (files) ->
   files.map ({mode, path}) ->
@@ -25,7 +24,7 @@ prettifyFileStatuses = (files) ->
       when 'A'
         "new file:   #{path}"
       when 'D'
-        "removed:   #{path}"
+        "deleted:   #{path}"
       when 'R'
         "renamed:   #{path}"
 
@@ -36,7 +35,7 @@ getStagedFiles = (repo) ->
       git.cmd(args, cwd: repo.getWorkingDirectory())
       .then (data) -> prettifyStagedFiles data
     else
-      Promise.reject "Nothing to commit."
+      Promise.resolve []
 
 getGitStatus = (repo) ->
   git.cmd ['status'], cwd: repo.getWorkingDirectory()
@@ -47,15 +46,17 @@ diffFiles = (previousFiles, currentFiles) ->
   previousFiles.filter (p) -> p.path in currentPaths is false
 
 parse = (prevCommit) ->
-  lines = prevCommit.split(/\n/).filter (line) -> line isnt ''
-  message = []
-  prevChangedFiles = []
-  lines.forEach (line) ->
-    unless /(([ MADRCU?!])\s(.*))/.test line
-      message.push line
-    else
-      prevChangedFiles.push line.replace(/[ MADRCU?!](\s)(\s)*/, line[0])
-  [message.join('\n'), prevChangedFiles]
+  lines = prevCommit.split(/\n/).filter (line) -> line isnt '/n'
+  statusRegex = /(([ MADRCU?!])\s(.*))/
+  indexOfStatus = lines.findIndex (line) -> statusRegex.test line
+
+  prevMessage = lines.splice 0, indexOfStatus - 1
+  prevMessage.reverse()
+  prevMessage.shift() if prevMessage[0] is ''
+  prevMessage.reverse()
+  prevChangedFiles = lines.filter (line) -> line isnt ''
+  message = prevMessage.join('\n')
+  {message, prevChangedFiles}
 
 cleanupUnstagedText = (status) ->
   unstagedFiles = status.indexOf "Changes not staged for commit:"
@@ -69,12 +70,21 @@ prepFile = ({message, prevChangedFiles, status, filePath}) ->
   git.getConfig('core.commentchar', Path.dirname(filePath)).then (commentchar) ->
     commentchar = if commentchar.length > 0 then commentchar.trim() else '#'
     status = cleanupUnstagedText status
-    status = status.replace(/\s*\(.*\)\n/g, "\n")
-    .replace(/\n/g, "\n#{commentchar} ")
-    .replace "committed:\n#{commentchar}", """committed:
-    #{
-      prevChangedFiles.map((f) -> "#{commentchar}   #{f}").join("\n")
-    }"""
+    status = status.replace(/\s*\(.*\)\n/g, "\n").replace(/\n/g, "\n#{commentchar} ")
+    if prevChangedFiles.length > 0
+      nothingToCommit = "nothing to commit, working directory clean"
+      currentChanges = "committed:\n#{commentchar}"
+      textToReplace = null
+      if status.indexOf(nothingToCommit) > -1
+        textToReplace = nothingToCommit
+      else if status.indexOf(currentChanges) > -1
+        textToReplace = currentChanges
+      replacementText =
+        """committed:
+        #{
+          prevChangedFiles.map((f) -> "#{commentchar}   #{f}").join("\n")
+        }"""
+      status = status.replace textToReplace, replacementText
     fs.writeFileSync filePath,
       """#{message}
       #{commentchar} Please enter the commit message for your changes. Lines starting
@@ -83,11 +93,10 @@ prepFile = ({message, prevChangedFiles, status, filePath}) ->
       #{commentchar} #{status}"""
 
 showFile = (filePath) ->
-  atom.workspace.open(filePath, searchAllPanes: true).then (textEditor) ->
-    if atom.config.get('git-plus.openInPane')
-      splitPane(atom.config.get('git-plus.splitPane'), textEditor)
-    else
-      textEditor
+  if atom.config.get('git-plus.openInPane')
+    splitDirection = atom.config.get('git-plus.splitPane')
+    atom.workspace.getActivePane()["split#{splitDirection}"]()
+  atom.workspace.open filePath
 
 destroyCommitEditor = ->
   atom.workspace?.getPanes().some (pane) ->
@@ -110,9 +119,9 @@ commit = (directory, filePath) ->
     git.refresh()
 
 cleanup = (currentPane, filePath) ->
-  currentPane.activate() if currentPane.alive
+  currentPane.activate() if currentPane.isAlive()
   disposables.dispose()
-  try fs.unlinkSync filePath
+  fs.unlink filePath
 
 module.exports = (repo) ->
   currentPane = atom.workspace.getActivePane()
@@ -120,10 +129,12 @@ module.exports = (repo) ->
   cwd = repo.getWorkingDirectory()
   git.cmd(['whatchanged', '-1', '--name-status', '--format=%B'], {cwd})
   .then (amend) -> parse amend
-  .then ([message, prevChangedFiles]) ->
-    getStagedFiles(repo).then (files) ->
-      [message, prettifyFileStatuses(diffFiles prevChangedFiles, files)]
-  .then ([message, prevChangedFiles]) ->
+  .then ({message, prevChangedFiles}) ->
+    getStagedFiles(repo)
+    .then (files) ->
+      prevChangedFiles = prettifyFileStatuses(diffFiles prevChangedFiles, files)
+      {message, prevChangedFiles}
+  .then ({message, prevChangedFiles}) ->
     getGitStatus(repo)
     .then (status) -> prepFile {message, prevChangedFiles, status, filePath}
     .then -> showFile filePath

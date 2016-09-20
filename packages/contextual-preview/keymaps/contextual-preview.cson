@@ -1,0 +1,2 @@
+'atom-workspace': #atom-text-editor
+	'cmd-p': 'contextual-preview:toggle' #preview

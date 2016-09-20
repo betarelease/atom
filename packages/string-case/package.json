@@ -1,0 +1,298 @@
+{
+  "name": "string-case",
+  "main": "./lib/string-case",
+  "author": {
+    "name": "ori livni"
+  },
+  "version": "0.1.0",
+  "description": "Change string case",
+  "keywords": [
+    "camelcase",
+    "kebabcase",
+    "pascalcase",
+    "snakecase",
+    "strings"
+  ],
+  "activationCommands": {
+    "atom-workspace": [
+      "string-case:camelcase",
+      "string-case:kebabcase",
+      "string-case:pascalcase",
+      "string-case:snakecase"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oriSomething/string-case.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "lodash.camelcase": "^3.0.1",
+    "lodash.capitalize": "^3.0.0",
+    "lodash.kebabcase": "^3.0.1",
+    "lodash.snakecase": "^3.0.1"
+  },
+  "devDependencies": {
+    "coffeelint": "^1.13.1",
+    "eslint": "^1.8.0"
+  },
+  "readme": "# string-case package\n\nAllows you to convert string for one case to another easily\n\n- `cmd-k cmd-c` - convert selected text to camel case\n- `cmd-k cmd-k` - convert selected text to kebab case\n- `cmd-k cmd-p` - convert selected text to pascal case\n- `cmd-k cmd-s` - convert selected text to snake case\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/oriSomething/string-case/issues"
+  },
+  "homepage": "https://github.com/oriSomething/string-case#readme",
+  "_id": "string-case@0.1.0",
+  "_shasum": "9752e0eaa91e6858ba9d1d6cec8d7eb0c3eaea62",
+  "_resolved": "file:../d-11649-6339-1zzucm/package.tgz",
+  "_from": "../d-11649-6339-1zzucm/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [
+      {
+        "name": "lodash.camelcase",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.camelcase/index.js"
+      },
+      {
+        "name": "lodash._createcompounder",
+        "version": "3.0.0",
+        "path": "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/index.js"
+      },
+      {
+        "name": "lodash.deburr",
+        "version": "3.2.0",
+        "path": "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.deburr/index.js"
+      },
+      {
+        "name": "lodash._root",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.deburr/node_modules/lodash._root/index.js"
+      },
+      {
+        "name": "lodash.words",
+        "version": "3.2.0",
+        "path": "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.words/index.js"
+      },
+      {
+        "name": "lodash._root",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.words/node_modules/lodash._root/index.js"
+      },
+      {
+        "name": "lodash.capitalize",
+        "version": "3.1.2",
+        "path": "node_modules/lodash.capitalize/index.js"
+      },
+      {
+        "name": "lodash._basetostring",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.capitalize/node_modules/lodash._basetostring/index.js"
+      },
+      {
+        "name": "lodash.kebabcase",
+        "version": "3.1.1",
+        "path": "node_modules/lodash.kebabcase/index.js"
+      },
+      {
+        "name": "lodash.deburr",
+        "version": "3.2.0",
+        "path": "node_modules/lodash.kebabcase/node_modules/lodash.deburr/index.js"
+      },
+      {
+        "name": "lodash._root",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.kebabcase/node_modules/lodash.deburr/node_modules/lodash._root/index.js"
+      },
+      {
+        "name": "lodash.words",
+        "version": "3.2.0",
+        "path": "node_modules/lodash.kebabcase/node_modules/lodash.words/index.js"
+      },
+      {
+        "name": "lodash._root",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.kebabcase/node_modules/lodash.words/node_modules/lodash._root/index.js"
+      },
+      {
+        "name": "lodash.snakecase",
+        "version": "3.1.1",
+        "path": "node_modules/lodash.snakecase/index.js"
+      },
+      {
+        "name": "lodash.deburr",
+        "version": "3.2.0",
+        "path": "node_modules/lodash.snakecase/node_modules/lodash.deburr/index.js"
+      },
+      {
+        "name": "lodash._root",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.snakecase/node_modules/lodash.deburr/node_modules/lodash._root/index.js"
+      },
+      {
+        "name": "lodash.words",
+        "version": "3.2.0",
+        "path": "node_modules/lodash.snakecase/node_modules/lodash.words/index.js"
+      },
+      {
+        "name": "lodash._root",
+        "version": "3.0.1",
+        "path": "node_modules/lodash.snakecase/node_modules/lodash.words/node_modules/lodash._root/index.js"
+      }
+    ],
+    "extensions": {
+      ".js": [
+        "lib/pascalcase.js",
+        "lib/string-case.js",
+        "node_modules/lodash.camelcase/index.js",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/index.js",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.deburr/index.js",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.deburr/node_modules/lodash._root/index.js",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.words/index.js",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.words/node_modules/lodash._root/index.js",
+        "node_modules/lodash.capitalize/index.js",
+        "node_modules/lodash.capitalize/node_modules/lodash._basetostring/index.js",
+        "node_modules/lodash.kebabcase/index.js",
+        "node_modules/lodash.kebabcase/node_modules/lodash.deburr/index.js",
+        "node_modules/lodash.kebabcase/node_modules/lodash.deburr/node_modules/lodash._root/index.js",
+        "node_modules/lodash.kebabcase/node_modules/lodash.words/index.js",
+        "node_modules/lodash.kebabcase/node_modules/lodash.words/node_modules/lodash._root/index.js",
+        "node_modules/lodash.snakecase/index.js",
+        "node_modules/lodash.snakecase/node_modules/lodash.deburr/index.js",
+        "node_modules/lodash.snakecase/node_modules/lodash.deburr/node_modules/lodash._root/index.js",
+        "node_modules/lodash.snakecase/node_modules/lodash.words/index.js",
+        "node_modules/lodash.snakecase/node_modules/lodash.words/node_modules/lodash._root/index.js"
+      ],
+      ".json": [
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.deburr/node_modules/lodash._root/package.json",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.deburr/package.json",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.words/node_modules/lodash._root/package.json",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.words/package.json",
+        "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/package.json",
+        "node_modules/lodash.camelcase/package.json",
+        "node_modules/lodash.capitalize/node_modules/lodash._basetostring/package.json",
+        "node_modules/lodash.capitalize/package.json",
+        "node_modules/lodash.kebabcase/node_modules/lodash.deburr/node_modules/lodash._root/package.json",
+        "node_modules/lodash.kebabcase/node_modules/lodash.deburr/package.json",
+        "node_modules/lodash.kebabcase/node_modules/lodash.words/node_modules/lodash._root/package.json",
+        "node_modules/lodash.kebabcase/node_modules/lodash.words/package.json",
+        "node_modules/lodash.kebabcase/package.json",
+        "node_modules/lodash.snakecase/node_modules/lodash.deburr/node_modules/lodash._root/package.json",
+        "node_modules/lodash.snakecase/node_modules/lodash.deburr/package.json",
+        "node_modules/lodash.snakecase/node_modules/lodash.words/node_modules/lodash._root/package.json",
+        "node_modules/lodash.snakecase/node_modules/lodash.words/package.json",
+        "node_modules/lodash.snakecase/package.json",
+        "package.json"
+      ]
+    },
+    "folders": [
+      {
+        "paths": [
+          "lib",
+          "",
+          "spec"
+        ],
+        "dependencies": {
+          "lodash.camelcase": "^3.0.1",
+          "lodash.capitalize": "^3.0.0",
+          "lodash.kebabcase": "^3.0.1",
+          "lodash.snakecase": "^3.0.1"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.camelcase"
+        ],
+        "dependencies": {
+          "lodash._createcompounder": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.camelcase/node_modules/lodash._createcompounder"
+        ],
+        "dependencies": {
+          "lodash.deburr": "^3.0.0",
+          "lodash.words": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.deburr"
+        ],
+        "dependencies": {
+          "lodash._root": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.camelcase/node_modules/lodash._createcompounder/node_modules/lodash.words"
+        ],
+        "dependencies": {
+          "lodash._root": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.capitalize"
+        ],
+        "dependencies": {
+          "lodash._basetostring": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.kebabcase"
+        ],
+        "dependencies": {
+          "lodash.deburr": "^3.0.0",
+          "lodash.words": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.kebabcase/node_modules/lodash.deburr"
+        ],
+        "dependencies": {
+          "lodash._root": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.kebabcase/node_modules/lodash.words"
+        ],
+        "dependencies": {
+          "lodash._root": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.snakecase"
+        ],
+        "dependencies": {
+          "lodash.deburr": "^3.0.0",
+          "lodash.words": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.snakecase/node_modules/lodash.deburr"
+        ],
+        "dependencies": {
+          "lodash._root": "^3.0.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/lodash.snakecase/node_modules/lodash.words"
+        ],
+        "dependencies": {
+          "lodash._root": "^3.0.0"
+        }
+      }
+    ]
+  }
+}

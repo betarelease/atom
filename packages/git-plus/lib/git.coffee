@@ -5,9 +5,10 @@ RepoListView = require './views/repo-list-view'
 notifier = require './notifier'
 
 gitUntrackedFiles = (repo, dataUnstaged=[]) ->
-  args = ['ls-files', '-o', '--exclude-standard','-z']
+  args = ['ls-files', '-o', '--exclude-standard']
   git.cmd(args, cwd: repo.getWorkingDirectory())
-  .then (data) -> dataUnstaged.concat(_prettifyUntracked(data))
+  .then (data) ->
+    dataUnstaged.concat(_prettifyUntracked(data))
 
 _prettify = (data) ->
   return [] if data is ''
@@ -20,7 +21,7 @@ _prettify = (data) ->
 
 _prettifyUntracked = (data) ->
   return [] if data is ''
-  data = data.split(/\n/)
+  data = data.split(/\n/).filter (d) -> d isnt ''
   data.map (file) -> {mode: '?', path: file}
 
 _prettifyDiff = (data) ->
@@ -43,33 +44,36 @@ getRepoForCurrentFile = ->
       reject "no current file"
 
 module.exports = git =
-  cmd: (args, options={}) ->
+  cmd: (args, options={ env: process.env }) ->
     new Promise (resolve, reject) ->
       output = ''
-      try
-        new BufferedProcess
-          command: atom.config.get('git-plus.gitPath') ? 'git'
-          args: args
-          options: options
-          stdout: (data) -> output += data.toString()
-          stderr: (data) -> reject data.toString()
-          exit: (code) -> resolve output
-      catch
+      process = new BufferedProcess
+        command: atom.config.get('git-plus.gitPath') ? 'git'
+        args: args
+        options: options
+        stdout: (data) -> output += data.toString()
+        stderr: (data) ->
+          output += data.toString()
+        exit: (code) ->
+          if code is 0
+            resolve output
+          else
+            reject output
+      process.onWillThrowError (errorObject) ->
         notifier.addError 'Git Plus is unable to locate the git command. Please ensure process.env.PATH can access git.'
         reject "Couldn't find git"
 
   getConfig: (setting, workingDirectory=null) ->
-    if workingDirectory?
-      git.cmd ['config', '--get', setting], cwd: workingDirectory
-    else
-      git.cmd ['config', '--get', setting], cwd: Path.get('~')
+    workingDirectory ?= Path.get('~')
+    git.cmd(['config', '--get', setting], cwd: workingDirectory).catch (error) ->
+      if error? and error isnt '' then notifier.addError error else ''
 
   reset: (repo) ->
     git.cmd(['reset', 'HEAD'], cwd: repo.getWorkingDirectory()).then () -> notifier.addSuccess 'All changes unstaged'
 
   status: (repo) ->
     git.cmd(['status', '--porcelain', '-z'], cwd: repo.getWorkingDirectory())
-    .then (data) -> if data.length > 2 then data.split('\0') else []
+    .then (data) -> if data.length > 2 then data.split('\0')[...-1] else []
 
   refresh: () ->
     atom.project.getRepositories().forEach (repo) ->
@@ -113,7 +117,7 @@ module.exports = git =
     .then (output) ->
       if output isnt false
         notifier.addSuccess "Added #{file ? 'all files'}"
-        true
+    .catch (msg) -> notifier.addError msg
 
   getRepo: ->
     new Promise (resolve, reject) ->

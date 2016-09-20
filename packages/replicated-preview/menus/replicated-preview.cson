@@ -1,0 +1,21 @@
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Toggle Replicated Config Preview'
+      'command': 'replicated-preview:toggle'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Replicated'
+      'submenu': [
+        {
+          'label': 'Toggle Config Preview'
+          'command': 'replicated-preview:toggle'
+        }
+      ]
+    ]
+  }
+]

@@ -4,7 +4,7 @@
   "author": {
     "name": "atom-community"
   },
-  "version": "1.10.0",
+  "version": "1.11.16",
   "description": "A Base Linter with Cow Powers",
   "repository": {
     "type": "git",
@@ -30,6 +30,11 @@
     }
   },
   "providedServices": {
+    "linter-indie": {
+      "versions": {
+        "1.0.0": "provideIndie"
+      }
+    },
     "linter-plus-self": {
       "versions": {
         "0.1.0": "provideLinter"
@@ -46,10 +51,10 @@
     "url": "https://github.com/atom-community/linter/issues"
   },
   "homepage": "https://github.com/atom-community/linter#readme",
-  "_id": "linter@1.10.0",
-  "_shasum": "07a64cae20afb91ef46a3b8e6b25b8b3a84c6c33",
-  "_resolved": "file:../d-115931-44436-1pimmtq/package.tgz",
-  "_from": "../d-115931-44436-1pimmtq/package.tgz",
+  "_id": "linter@1.11.16",
+  "_shasum": "9454b1450762d117b64cfd0ea1d71caaa1ab5d83",
+  "_resolved": "file:../d-11678-60318-1gcu2of/package.tgz",
+  "_from": "../d-11678-60318-1gcu2of/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -60,17 +65,17 @@
       },
       {
         "name": "minimatch",
-        "version": "3.0.0",
+        "version": "3.0.2",
         "path": "node_modules/minimatch/minimatch.js"
       },
       {
         "name": "brace-expansion",
-        "version": "1.1.1",
+        "version": "1.1.6",
         "path": "node_modules/minimatch/node_modules/brace-expansion/index.js"
       },
       {
         "name": "balanced-match",
-        "version": "0.2.1",
+        "version": "0.4.2",
         "path": "node_modules/minimatch/node_modules/brace-expansion/node_modules/balanced-match/index.js"
       },
       {
@@ -100,6 +105,8 @@
       ".js": [
         "lib/editor-linter.js",
         "lib/editor-registry.js",
+        "lib/indie-registry.js",
+        "lib/indie.js",
         "lib/linter-registry.js",
         "lib/linter-views.js",
         "lib/message-registry.js",
@@ -113,9 +120,7 @@
         "node_modules/interact.js/dist/interact.min.js",
         "node_modules/interact.js/interact.js",
         "node_modules/minimatch/minimatch.js",
-        "node_modules/minimatch/node_modules/brace-expansion/example.js",
         "node_modules/minimatch/node_modules/brace-expansion/index.js",
-        "node_modules/minimatch/node_modules/brace-expansion/node_modules/balanced-match/example.js",
         "node_modules/minimatch/node_modules/brace-expansion/node_modules/balanced-match/index.js",
         "node_modules/minimatch/node_modules/brace-expansion/node_modules/concat-map/example/map.js",
         "node_modules/minimatch/node_modules/brace-expansion/node_modules/concat-map/index.js"
@@ -149,7 +154,7 @@
           "node_modules/minimatch/node_modules/brace-expansion"
         ],
         "dependencies": {
-          "balanced-match": "^0.2.0",
+          "balanced-match": "^0.4.1",
           "concat-map": "0.0.1"
         }
       }

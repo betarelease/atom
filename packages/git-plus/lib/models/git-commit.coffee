@@ -4,11 +4,12 @@ Path = require 'flavored-path'
 
 git = require '../git'
 notifier = require '../notifier'
-splitPane = require '../splitPane'
 GitPush = require './git-push'
 GitPull = require './git-pull'
 
 disposables = new CompositeDisposable
+
+verboseCommitsEnabled = -> atom.config.get('git-plus.experimental') and atom.config.get('git-plus.verboseCommits')
 
 dir = (repo) ->
   (git.getSubmodule() or repo).getWorkingDirectory()
@@ -24,19 +25,27 @@ getTemplate = (cwd) ->
   git.getConfig('commit.template', cwd).then (filePath) ->
     if filePath then fs.readFileSync(Path.get(filePath.trim())).toString().trim() else ''
 
-prepFile = (status, filePath) ->
+prepFile = (status, filePath, diff='') ->
   cwd = Path.dirname(filePath)
   git.getConfig('core.commentchar', cwd).then (commentchar) ->
     commentchar = if commentchar then commentchar.trim() else '#'
     status = status.replace(/\s*\(.*\)\n/g, "\n")
     status = status.trim().replace(/\n/g, "\n#{commentchar} ")
     getTemplate(cwd).then (template) ->
-      fs.writeFileSync filePath,
+      content =
         """#{template}
         #{commentchar} Please enter the commit message for your changes. Lines starting
         #{commentchar} with '#{commentchar}' will be ignored, and an empty message aborts the commit.
         #{commentchar}
         #{commentchar} #{status}"""
+      if diff isnt ''
+        content +=
+          """\n#{commentchar}
+          #{commentchar} ------------------------ >8 ------------------------
+          #{commentchar} Do not touch the line above.
+          #{commentchar} Everything below will be removed.
+          #{diff}"""
+      fs.writeFileSync filePath, content
 
 destroyCommitEditor = ->
   atom.workspace?.getPanes().some (pane) ->
@@ -48,42 +57,65 @@ destroyCommitEditor = ->
           paneItem.destroy()
         return true
 
+trimFile = (filePath) ->
+  cwd = Path.dirname(filePath)
+  git.getConfig('core.commentchar', cwd).then (commentchar) ->
+    commentchar = if commentchar is '' then '#'
+    content = fs.readFileSync(Path.get(filePath)).toString()
+    startOfComments = content.indexOf(content.split('\n').find (line) -> line.startsWith commentchar)
+    content = content.substring(0, startOfComments)
+    fs.writeFileSync filePath, content
+
 commit = (directory, filePath) ->
-  args = ['commit', '--cleanup=strip', "--file=#{filePath}"]
-  git.cmd(args, cwd: directory)
-  .then (data) ->
+  promise = null
+  if verboseCommitsEnabled()
+    promise = trimFile(filePath).then -> git.cmd(['commit', "--file=#{filePath}"], cwd: directory)
+  else
+    promise = git.cmd(['commit', "--cleanup=strip", "--file=#{filePath}"], cwd: directory)
+  promise.then (data) ->
     notifier.addSuccess data
     destroyCommitEditor()
     git.refresh()
+  .catch (data) ->
+    notifier.addError data
 
 cleanup = (currentPane, filePath) ->
-  currentPane.activate() if currentPane.alive
+  currentPane.activate() if currentPane.isAlive()
   disposables.dispose()
-  try fs.unlinkSync filePath
+  fs.unlink filePath
 
 showFile = (filePath) ->
-  atom.workspace.open(filePath, searchAllPanes: true).then (textEditor) ->
-    if atom.config.get('git-plus.openInPane')
-      splitPane(atom.config.get('git-plus.splitPane'), textEditor)
-    else
-      textEditor
+  if atom.config.get('git-plus.openInPane')
+    splitDirection = atom.config.get('git-plus.splitPane')
+    atom.workspace.getActivePane()["split#{splitDirection}"]()
+  atom.workspace.open filePath
 
 module.exports = (repo, {stageChanges, andPush}={}) ->
   filePath = Path.join(repo.getPath(), 'COMMIT_EDITMSG')
   currentPane = atom.workspace.getActivePane()
-  init = ->
-    getStagedFiles(repo)
-    .then (status) -> prepFile status, filePath
+  init = -> getStagedFiles(repo).then (status) ->
+    if verboseCommitsEnabled()
+      args = ['diff', '--color=never', '--staged']
+      args.push '--word-diff' if atom.config.get('git-plus.wordDiff')
+      git.cmd(args, cwd: repo.getWorkingDirectory())
+      .then (diff) -> prepFile status, filePath, diff
+    else
+      prepFile status, filePath
   startCommit = ->
     showFile filePath
     .then (textEditor) ->
       disposables.add textEditor.onDidSave ->
         commit(dir(repo), filePath)
-        .then -> (GitPull(repo).then -> GitPush(repo)) if andPush
+        .then -> GitPush(repo) if andPush
       disposables.add textEditor.onDidDestroy -> cleanup currentPane, filePath
+    .catch (msg) -> notifier.addError msg
 
   if stageChanges
-    git.add(repo, update: stageChanges).then -> init().then -> startCommit()
+    git.add(repo, update: stageChanges).then(-> init()).then -> startCommit()
   else
     init().then -> startCommit()
-    .catch (message) -> notifier.addInfo message
+    .catch (message) ->
+      if message.includes?('CRLF')
+        startCommit()
+      else
+        notifier.addInfo message

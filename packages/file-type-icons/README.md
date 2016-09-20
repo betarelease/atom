@@ -6,7 +6,7 @@ Changes the icon for files in the Tree View and Tabs to reflect the file's type.
 
 ## Usage
 
-Just install and enjoy!
+Just install and enjoy. Now with support for [Nuclide](http://nuclide.io)!
 
 ### Icons
 
@@ -16,6 +16,7 @@ This is just a sampling of the icons in the set for now. (I don't know how to ma
 * CoffeeScript files: http://fortawesome.github.io/Font-Awesome/icon/coffee/
 * Configuration files: http://octicons.github.com/icon/gear/
 * CTAGS files: http://octicons.github.com/icon/tag/
+* Cucumber files: https://octicons.github.com/icon/browser/
 * Database files: http://octicons.github.com/icon/database/
 * Fonts: http://octicons.github.com/icon/pencil/
 * `.git` directories: http://octicons.github.com/icon/repo/
@@ -38,4 +39,4 @@ This is just a sampling of the icons in the set for now. (I don't know how to ma
 
 ## Copyright
 
-Copyright &copy; 2014-2015 [Lee Dohm](http://www.lee-dohm.com), [Lifted Studios](http://www.liftedstudios.com). See [LICENSE](https://github.com/lee-dohm/auto-copyright/blob/master/LICENSE.md) for details.
+Copyright &copy; 2014-2016 [Lee Dohm](http://www.lee-dohm.com), [Lifted Studios](http://www.liftedstudios.com). See [LICENSE](https://github.com/lee-dohm/auto-copyright/blob/master/LICENSE.md) for details.

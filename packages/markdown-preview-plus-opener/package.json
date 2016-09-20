@@ -1,0 +1,38 @@
+{
+  "name": "markdown-preview-plus-opener",
+  "main": "./lib/markdown-preview-plus-opener",
+  "version": "0.2.0",
+  "description": "Opens the markdown-preview-plus pane automatically when a markdown file is opened. Forked from plafue's markdown-preview-opener. They really did all the work.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nick-f/markdown-preview-plus-opener.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">=0.174.0 <2.0.0"
+  },
+  "dependencies": {},
+  "readme": "# markdown-preview-plus-opener package\nOpens the [markdown-preview-plus](https://atom.io/packages/markdown-preview-plus) pane automatically when a markdown file is opened.\n\nIt can also close the preview pane for you, when you close the corresponding editor.\n\n### Installation\nSearch for 'markdown-preview-plus-opener' or install via the command line:\n```\napm install markdown-preview-plus-opener\n```\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/nick-f/markdown-preview-plus-opener/issues"
+  },
+  "homepage": "https://github.com/nick-f/markdown-preview-plus-opener#readme",
+  "_id": "markdown-preview-plus-opener@0.2.0",
+  "_shasum": "c06a0dd5d93057ad87aca42b6320e97847472eb7",
+  "_resolved": "file:../d-116412-17444-sgnmc4/package.tgz",
+  "_from": "../d-116412-17444-sgnmc4/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".coffee": [
+        "lib/markdown-preview-plus-opener.coffee"
+      ],
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
+}

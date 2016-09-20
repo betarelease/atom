@@ -1,0 +1,5 @@
+'atom-workspace':
+  'ctrl-alt-v': 'replicated-preview:toggle'
+
+'.platform-linux atom-workspace, .platform-win32 atom-workspace':
+  'ctrl-alt-v': 'replicated-preview:toggle'

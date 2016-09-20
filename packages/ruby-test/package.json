@@ -8,7 +8,7 @@
     "url": "https://github.com/moxley/atom-ruby-test/issues"
   },
   "main": "./lib/ruby-test",
-  "version": "0.9.16",
+  "version": "0.9.17",
   "description": "Run Ruby tests, Rspec examples, and Cucumber features from Atom",
   "activationCommands": {
     "atom-workspace": [
@@ -39,12 +39,12 @@
     "spec",
     "cucumber"
   ],
-  "readme": "# ruby-test package\n\nRun Ruby tests, Rspec examples, and Cucumber features from Atom,\nquickly and easily.\n\n![Running tests is quick and easy](http://cl.ly/image/300n2g101z0y/ruby-test6.gif)\n\n## Install\n\nIn Atom's Settings, go to Packages, search for \"Ruby Test\".\nClick the `Install` button.\n\n## Configure\n\nIMPORTANT: Before configuring ruby-test, toggle to the test panel to activate\nthe package: `cmd-ctrl-x`.\n\n![Ruby Test Settings view](http://cl.ly/image/1l3H0g1C1J3g/ruby-test-settings.png)\n\n**Shell**: executable or path to shell (e.g. `fish`, `/bin/zsh`)\n\n## Run\n\nOpen the test file you want to run, then issue one of the following:\n\n* `cmd-ctrl-y` - Run all the test files\n* `cmd-ctrl-t` - Run the current test file\n* `cmd-ctrl-r` - Run the test at the current line in test file\n* `cmd-ctrl-e` - Re-run the previous test (doesn't need to have the test file active)\n* `cmd-ctrl-x` - Show/hide the test panel\n\n## Features\n\n* Run all the tests in the project\n* Run the tests for current test file\n* Run single test at cursor\n* Run previous test\n* Configure the shell commands that run the tests\n* Supports Ruby managers, like `rvm` and `rbenv`\n* Supports bash and z-shell\n* Supports Test::Unit, Rspec, Minitest, and Cucumber\n\n## Helpful Tips\n\n* Use ruby-test in conjunction with [project-manager](https://atom.io/packages/project-manager)\n  to maintain different ruby-test settings per project.\n\n## Contributing\n\nAny of the following are appreciated:\n\n* [Submit a Pull Request](https://github.com/moxley/atom-ruby-test/pulls)\n* [Submit an Issue](https://github.com/moxley/atom-ruby-test/issues)\n",
+  "readme": "# ruby-test package\n\n[![Build Status](https://api.travis-ci.org/moxley/atom-ruby-test.svg?branch=master)](https://travis-ci.org/moxley/atom-ruby-test)\n\nRun Ruby tests, Rspec examples, and Cucumber features from Atom,\nquickly and easily.\n\n![Running tests is quick and easy](http://cl.ly/image/300n2g101z0y/ruby-test6.gif)\n\n## Install\n\nIn Atom's Settings, go to Packages, search for \"Ruby Test\".\nClick the `Install` button.\n\n## Configure\n\nIMPORTANT: Before configuring ruby-test, toggle to the test panel to activate\nthe package: `cmd-ctrl-x`.\n\n![Ruby Test Settings view](http://cl.ly/image/1l3H0g1C1J3g/ruby-test-settings.png)\n\n**Shell**: executable or path to shell (e.g. `fish`, `/bin/zsh`)\n\n## Run\n\nOpen the test file you want to run, then issue one of the following:\n\n* `cmd-ctrl-y` - Run all the test files\n* `cmd-ctrl-t` - Run the current test file\n* `cmd-ctrl-r` - Run the test at the current line in test file\n* `cmd-ctrl-e` - Re-run the previous test (doesn't need to have the test file active)\n* `cmd-ctrl-x` - Show/hide the test panel\n\n## Features\n\n* Run all the tests in the project\n* Run the tests for current test file\n* Run single test at cursor\n* Run previous test\n* Configure the shell commands that run the tests\n* Supports Ruby managers, like `rvm` and `rbenv`\n* Supports bash, z-shell, fish\n* Supports Test::Unit, Rspec, Minitest, and Cucumber\n\n## Helpful Tips\n\n* Use ruby-test in conjunction with [project-manager](https://atom.io/packages/project-manager)\n  to maintain different ruby-test settings per project.\n* [Run ruby-test on a project that runs in a VM or Vagrant](https://github.com/moxley/atom-ruby-test/blob/master/doc/running_against_vm.md)\n\n## Contributing\n\nAny of the following are appreciated:\n\n* [Submit a Pull Request](https://github.com/moxley/atom-ruby-test/pulls)\n* [Submit an Issue](https://github.com/moxley/atom-ruby-test/issues)\n",
   "readmeFilename": "README.md",
-  "_id": "ruby-test@0.9.16",
-  "_shasum": "4db67a9e6215a4deb7d830ded8fd50312bb28111",
-  "_resolved": "file:../d-115911-4675-dvpnef/package.tgz",
-  "_from": "../d-115911-4675-dvpnef/package.tgz",
+  "_id": "ruby-test@0.9.17",
+  "_shasum": "ed2f93bee346da480f87c5dd3e092e852b28d5e9",
+  "_resolved": "file:../d-1151112-20504-coqwzq/package.tgz",
+  "_from": "../d-1151112-20504-coqwzq/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -75,7 +75,7 @@
       },
       {
         "name": "grim",
-        "version": "1.4.2",
+        "version": "1.5.0",
         "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/lib/grim.js"
       },
       {
@@ -95,7 +95,7 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.8",
+        "version": "0.10.10",
         "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
       },
       {
@@ -105,7 +105,7 @@
       },
       {
         "name": "es6-symbol",
-        "version": "3.0.0",
+        "version": "3.0.2",
         "path": "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
@@ -456,6 +456,8 @@
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/copy.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/count.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/create.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/ensure-natural-number-value.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/ensure-natural-number.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/eq.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/every.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/filter.js",
@@ -471,6 +473,7 @@
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/is-copy-deep.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/is-copy.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/is-empty.js",
+        "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/is-number-value.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/is-object.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/is-plain-object.js",
         "node_modules/atom-space-pen-views/node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/object/is.js",
@@ -961,7 +964,7 @@
         ],
         "dependencies": {
           "es6-iterator": "2",
-          "es6-symbol": "3"
+          "es6-symbol": "~3.0.1"
         }
       },
       {
@@ -984,7 +987,7 @@
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.7"
+          "es5-ext": "~0.10.10"
         }
       },
       {

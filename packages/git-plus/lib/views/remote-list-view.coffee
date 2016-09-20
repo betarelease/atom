@@ -1,4 +1,3 @@
-{BufferedProcess} = require 'atom'
 {$$, SelectListView} = require 'atom-space-pen-views'
 
 git = require '../git'
@@ -42,46 +41,49 @@ class ListView extends SelectListView
     $$ ->
       @li name
 
+  pull: (remoteName) ->
+    git.cmd(['branch', '-r'], cwd: @repo.getWorkingDirectory())
+    .then (data) =>
+      new PullBranchListView(@repo, data, remoteName, @extraArgs).result
+
   confirmed: ({name}) ->
     if @mode is 'pull'
-      git.cmd(['branch', '-r'], cwd: @repo.getWorkingDirectory())
-      .then (data) => new PullBranchListView(@repo, data, name, @extraArgs, @resolve)
+      @pull name
     else if @mode is 'fetch-prune'
       @mode = 'fetch'
       @execute name, '--prune'
+    else if @mode is 'push'
+      pullOption = atom.config.get 'git-plus.pullBeforePush'
+      @extraArgs = if pullOption?.includes '--rebase' then '--rebase' else ''
+      unless pullOption? and pullOption is 'no'
+        @pull(name)
+        .then => @execute name
+        .catch ->
+      else
+        @execute name
     else
       @execute name
     @cancel()
 
-  execute: (remote, extraArgs='') ->
-    view = OutputViewManager.new()
+  execute: (remote='', extraArgs='') ->
+    view = OutputViewManager.create()
     args = [@mode]
     if extraArgs.length > 0
       args.push extraArgs
-    args = args.concat([remote, @tag])
+    args = args.concat([remote, @tag]).filter((arg) -> arg isnt '')
     command = atom.config.get('git-plus.gitPath') ? 'git'
     message = "#{@mode[0].toUpperCase()+@mode.substring(1)}ing..."
     startMessage = notifier.addInfo message, dismissable: true
-    new BufferedProcess
-      command: command
-      args: args
-      options:
-        cwd: @repo.getWorkingDirectory()
-      stdout: (data) -> view.addLine(data.toString())
-      stderr: (data) -> view.addLine(data.toString())
-      exit: (code) =>
-        if code is 128
-          view.reset()
-          new BufferedProcess
-            command: command
-            args: [@mode, '-u', remote, 'HEAD']
-            options:
-              cwd: @repo.getWorkingDirectory()
-            stdout: (data) -> view.addLine(data.toString())
-            stderr: (data) -> view.addLine(data.toString())
-            exit: (code) ->
-              view.finish()
-              startMessage.dismiss()
-        else
-          view.finish()
-          startMessage.dismiss()
+    git.cmd(args, cwd: @repo.getWorkingDirectory())
+    .then (data) ->
+      if data isnt ''
+        view.addLine(data).finish()
+      startMessage.dismiss()
+    .catch (data) =>
+      git.cmd([@mode, '-u', remote, 'HEAD'], cwd: @repo.getWorkingDirectory())
+      .then (message) ->
+        view.addLine(message).finish()
+        startMessage.dismiss()
+      .catch (error) ->
+        view.addLine(error).finish()
+        startMessage.dismiss()

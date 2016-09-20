@@ -11,6 +11,7 @@ Path = require 'flavored-path'
 } = require '../fixtures'
 git = require '../../lib/git'
 GitCommit = require '../../lib/models/git-commit'
+notifier = require '../../lib/notifier'
 
 commitFilePath = Path.join(repo.getPath(), 'COMMIT_EDITMSG')
 status =
@@ -19,6 +20,12 @@ status =
 commentchar_config = ''
 templateFile = ''
 commitTemplate = 'foobar'
+commitFileContent =
+  toString: -> commitFileContent
+  indexOf: -> 5
+  substring: -> 'commit message'
+  split: (splitPoint) -> if splitPoint is '\n' then ['commit message', '# comments to be deleted']
+commitResolution = Promise.resolve 'commit success'
 
 setupMocks = ->
   atom.config.set 'git-plus.openInPane', false
@@ -31,14 +38,15 @@ setupMocks = ->
   spyOn(atom.workspace, 'paneForURI').andReturn commitPane
   spyOn(status, 'replace').andCallFake -> status
   spyOn(status, 'trim').andCallThrough()
+  spyOn(commitFileContent, 'substring').andCallThrough()
   spyOn(fs, 'readFileSync').andCallFake ->
     if fs.readFileSync.mostRecentCall.args[0] is 'template'
       commitTemplate
     else
-      ''
+      commitFileContent
   spyOn(fs, 'writeFileSync')
   spyOn(fs, 'writeFile')
-  spyOn(fs, 'unlinkSync')
+  spyOn(fs, 'unlink')
   spyOn(git, 'refresh')
   spyOn(git, 'getConfig').andCallFake ->
     arg = git.getConfig.mostRecentCall.args[0]
@@ -51,7 +59,9 @@ setupMocks = ->
     if args[0] is 'status'
       Promise.resolve status
     else if args[0] is 'commit'
-      Promise.resolve 'commit success'
+      commitResolution
+    else if args[0] is 'diff'
+      Promise.resolve 'diff'
   spyOn(git, 'stagedFiles').andCallFake ->
     args = git.stagedFiles.mostRecentCall.args
     if args[0].getWorkingDirectory() is repo.getWorkingDirectory()
@@ -61,10 +71,15 @@ setupMocks = ->
     if args[0].getWorkingDirectory() is repo.getWorkingDirectory() and args[1].update
       Promise.resolve true
 
+  spyOn(notifier, 'addError')
+  spyOn(notifier, 'addInfo')
+  spyOn(notifier, 'addSuccess')
+
 describe "GitCommit", ->
   describe "a regular commit", ->
     beforeEach ->
       atom.config.set "git-plus.openInPane", false
+      commitResolution = Promise.resolve 'commit success'
       setupMocks()
       waitsForPromise ->
         GitCommit(repo)
@@ -93,17 +108,24 @@ describe "GitCommit", ->
 
     it "calls git.cmd with ['commit'...] on textEditor save", ->
       textEditor.save()
-      expect(git.cmd).toHaveBeenCalledWith ['commit', '--cleanup=strip', "--file=#{commitFilePath}"], cwd: repo.getWorkingDirectory()
+      waitsFor -> git.cmd.callCount > 1
+      runs ->
+        expect(git.cmd).toHaveBeenCalledWith ['commit', "--cleanup=strip", "--file=#{commitFilePath}"], cwd: repo.getWorkingDirectory()
 
     it "closes the commit pane when commit is successful", ->
       textEditor.save()
       waitsFor -> commitPane.destroy.callCount > 0
       runs -> expect(commitPane.destroy).toHaveBeenCalled()
 
+    it "notifies of success when commit is successful", ->
+      textEditor.save()
+      waitsFor -> notifier.addSuccess.callCount > 0
+      runs -> expect(notifier.addSuccess).toHaveBeenCalledWith 'commit success'
+
     it "cancels the commit on textEditor destroy", ->
       textEditor.destroy()
       expect(currentPane.activate).toHaveBeenCalled()
-      expect(fs.unlinkSync).toHaveBeenCalledWith commitFilePath
+      expect(fs.unlink).toHaveBeenCalledWith commitFilePath
 
   describe "when core.commentchar config is not set", ->
     it "uses '#' in commit file", ->
@@ -144,6 +166,39 @@ describe "GitCommit", ->
       setupMocks()
       GitCommit(repo, stageChanges: true).then ->
         expect(git.add).toHaveBeenCalledWith repo, update: true
+
+  describe "a failing commit", ->
+    beforeEach ->
+      atom.config.set "git-plus.openInPane", false
+      commitResolution = Promise.reject 'commit error'
+      setupMocks()
+      waitsForPromise ->
+        GitCommit(repo)
+
+    it "notifies of error and doesn't close commit pane", ->
+      textEditor.save()
+      waitsFor -> notifier.addError.callCount > 0
+      runs ->
+        expect(notifier.addError).toHaveBeenCalledWith 'commit error'
+        expect(commitPane.destroy).not.toHaveBeenCalled()
+
+  describe "when the verbose commit setting is true", ->
+    beforeEach ->
+      atom.config.set "git-plus.openInPane", false
+      atom.config.set "git-plus.experimental", true
+      atom.config.set "git-plus.verboseCommits", true
+      setupMocks()
+
+    it "calls git.cmd with the --verbose flag", ->
+      waitsForPromise -> GitCommit(repo)
+      runs ->
+        expect(git.cmd).toHaveBeenCalledWith ['diff', '--color=never', '--staged'], cwd: repo.getWorkingDirectory()
+
+    it "trims the commit file", ->
+      textEditor.save()
+      waitsFor -> commitFileContent.substring.callCount > 0
+      runs ->
+        expect(commitFileContent.substring).toHaveBeenCalledWith 0, commitFileContent.indexOf()
 
   ## atom.config.get('git-plus.openInPane') is always false inside the module
   # describe "when the `git-plus.openInPane` setting is true", ->

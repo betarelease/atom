@@ -1,11 +1,22 @@
 "*":
-  editor:
-    softWrap: true
-    showIndentGuide: true
-    showInvisibles: true
-    normalizeIndentOnPaste: true
-    invisibles: {}
-    backUpBeforeSaving: true
+  "atom-beautify":
+    _analyticsUserId: "1f9a3c19-4f00-4058-98e7-511044633d41"
+    beautifyOnSave: true
+    ruby_rbeautify_path: "bundle exec rbeautify"
+  "atom-lint":
+    ignoredNames: [
+      "gk_sync_controller.rb"
+    ]
+    showViolationMetadata: false
+  "atom-rspec":
+    command: "rspec"
+  "autoclose-html": {}
+  "autocomplete-plus":
+    enableAutoActivation: false
+    includeCompletionsFromAllBuffers: true
+  autosave:
+    enabled: true
+  blame: {}
   core:
     audioBeep: false
     disabledPackages: [
@@ -24,7 +35,12 @@
       "move-panes"
       "reveal-active-file-context"
       "reveal-active-file-context"
+      "rspec"
+      "activate-power-mode"
+      "ruby-quick-test"
+      "linter-rubocop"
     ]
+    excludeVcsIgnoredPaths: false
     ignoredNames: [
       ".git"
       "*.log"
@@ -37,13 +53,16 @@
       "atom-dark-ui"
       "atom-dark-syntax"
     ]
-    excludeVcsIgnoredPaths: false
+  editor:
+    backUpBeforeSaving: true
+    fontSize: 17
+    invisibles: {}
+    normalizeIndentOnPaste: true
+    showIndentGuide: true
+    showInvisibles: true
+    softWrap: true
   "exception-reporting":
     userId: "269a4d18-9704-90cc-4545-df739b838308"
-  welcome:
-    showOnStartup: false
-  metrics:
-    userId: "ef6ff791d0475579aa49d06b66838c195996b556"
   "find-and-replace":
     focusEditorAfterSearch: true
   "fuzzy-finder":
@@ -51,46 +70,39 @@
       "*.log"
       "*.scssc"
     ]
-  "tree-view":
-    showOnRightSide: true
-  "test-status":
-    autorun: false
-  "autocomplete-plus":
-    enableAutoActivation: false
-    includeCompletionsFromAllBuffers: true
+  "git-blame":
+    ignoreWhiteSpaceDiffs: true
+  "git-log": {}
   "highlight-line":
     enableSelectionBorder: true
-    enableUnderline: true
-  autosave:
-    enabled: true
-  "tabs-to-spaces":
-    onSave: "untabify"
-  "autoclose-html": {}
   linter:
-    showErrorTabProject: false
     showErrorTabFile: false
-  "atom-rspec":
-    command: "rspec"
+    showErrorTabProject: false
+  "linter-jsonlint": {}
+  "linter-rubocop":
+    command: "/Users/srao/.rvm/gems/ruby-2.2.3@server/bin/rubocop --config /Users/srao/code/kings-landing/.rubocop.yml"
+  "merge-conflicts": {}
+  metrics:
+    userId: "ef6ff791d0475579aa49d06b66838c195996b556"
+  "preview-plus":
+    htmlp: true
+    livePreview: true
+  rspec:
+    save_before_run: true
   "ruby-test":
     rspecFileCommand: "bundle exec rspec {relative_path}"
     rspecSingleCommand: "bundle exec rspec {relative_path}:{line_number}"
-  rspec:
-    save_before_run: true
-  "linter-rubocop":
-    command: "/Users/srao/.rvm/gems/ruby-2.2.1@server/bin/rubocop --config /Users/srao/code/kings-landing/.rubocop.yml"
-  "atom-lint":
-    showViolationMetadata: false
-    ignoredNames: [
-      "gk_sync_controller.rb"
-    ]
-  "atom-beautify":
-    _analyticsUserId: "1f9a3c19-4f00-4058-98e7-511044633d41"
-    beautifyOnSave: true
-    ruby_rbeautify_path: "bundle exec rbeautify"
   tabs: {}
-  "git-log": {}
+  "tabs-to-spaces":
+    onSave: "untabify"
+  "test-status":
+    autorun: false
+  "tree-view":
+    showOnRightSide: true
+  welcome:
+    showOnStartup: false
   "xml-formatter": {}
-  blame: {}
-  "git-blame":
-    ignoreWhiteSpaceDiffs: true
-  "linter-jsonlint": {}
+".source.yaml":
+  editor:
+    autoIndentOnPaste: true
+    normalizeIndentOnPaste: "true"

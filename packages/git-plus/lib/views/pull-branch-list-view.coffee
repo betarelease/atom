@@ -1,4 +1,4 @@
-{BufferedProcess} = require 'atom'
+git = require '../git'
 OutputViewManager = require '../output-view-manager'
 notifier = require '../notifier'
 BranchListView = require './branch-list-view'
@@ -7,23 +7,43 @@ module.exports =
   # Extension of BranchListView
   # Takes the name of the remote to pull from
   class PullBranchListView extends BranchListView
-    initialize: (@repo, @data, @remote, @extraArgs, @resolve) -> super
+    initialize: (@repo, @data, @remote, @extraArgs) ->
+      super
+      @result = new Promise (resolve, reject) =>
+        @resolve = resolve
+        @reject = reject
+
+    parseData: ->
+      @currentBranchString = '== Current =='
+      currentBranch =
+        name: @currentBranchString
+      items = @data.split("\n")
+      branches = items.filter((item) -> item isnt '').map (item) ->
+        name: item.replace(/\s/g, '')
+      if branches.length is 1
+        @confirmed branches[0]
+      else
+        @setItems [currentBranch].concat branches
+      @focusFilterEditor()
 
     confirmed: ({name}) ->
-      @pull name.substring(name.indexOf('/') + 1)
+      if name is @currentBranchString
+        @pull()
+      else
+        @pull name.substring(name.indexOf('/') + 1)
       @cancel()
 
     pull: (remoteBranch='') ->
-      view = OutputViewManager.new()
+      view = OutputViewManager.create()
       startMessage = notifier.addInfo "Pulling...", dismissable: true
-      new BufferedProcess
-        command: atom.config.get('git-plus.gitPath') ? 'git'
-        args: ['pull'].concat(@extraArgs, @remote, remoteBranch)
-        options:
-          cwd: @repo.getWorkingDirectory()
-        stdout: (data) -> view.addLine(data.toString())
-        stderr: (data) -> view.addLine(data.toString())
-        exit: (code) =>
-          @resolve()
-          view.finish()
-          startMessage.dismiss()
+      args = ['pull'].concat(@extraArgs, @remote, remoteBranch).filter((arg) -> arg isnt '')
+      git.cmd(args, cwd: @repo.getWorkingDirectory())
+      .then (data) =>
+        @resolve()
+        view.addLine(data).finish()
+        startMessage.dismiss()
+      .catch (error) =>
+        ## Should @result be rejected for those depending on this view?
+        # @reject()
+        view.addLine(error).finish()
+        startMessage.dismiss()

@@ -45,7 +45,7 @@ module.exports = {
       description: "Add a newline between multiple selectors"
     newline_between_rules:
       type: 'boolean'
-      default: false
+      default: true
       description: "Add a newline between CSS rules"
     preserve_newlines:
       type: 'boolean'
@@ -57,6 +57,10 @@ module.exports = {
       type: 'integer'
       default: 0
       description: "Maximum amount of characters per line (0 = disable)"
+    end_with_newline:
+      type: 'boolean'
+      default: false
+      description: "End output with newline"
     indent_comments:
       type: 'boolean'
       default: true
@@ -64,7 +68,7 @@ module.exports = {
     force_indentation:
       type: 'boolean'
       default: false
-      description: "if indentation should be forcefully applied to\
+      description: "if indentation should be forcefully applied to \
                 markup even if it disruptively adds unintended whitespace \
                 to the documents rendered output"
     convert_quotes:
@@ -83,4 +87,16 @@ module.exports = {
       default: false
       description: "If in CSS values leading 0s immediately preceeding \
                 a decimal should be removed or prevented."
+    configPath:
+      title: "comb custom config file"
+      type: 'string'
+      default: ""
+      description: "Path to custom CSScomb config file, used in absense of a \
+                `.csscomb.json` or `.csscomb.cson` at the root of your project."
+    predefinedConfig:
+      title: "comb predefined config"
+      type: 'string'
+      default: "csscomb"
+      description: "Used if neither a project or custom config file exists."
+      enum: ["csscomb", "yandex", "zen"]
 }

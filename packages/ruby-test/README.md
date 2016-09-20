@@ -1,5 +1,7 @@
 # ruby-test package
 
+[![Build Status](https://api.travis-ci.org/moxley/atom-ruby-test.svg?branch=master)](https://travis-ci.org/moxley/atom-ruby-test)
+
 Run Ruby tests, Rspec examples, and Cucumber features from Atom,
 quickly and easily.
 
@@ -37,13 +39,14 @@ Open the test file you want to run, then issue one of the following:
 * Run previous test
 * Configure the shell commands that run the tests
 * Supports Ruby managers, like `rvm` and `rbenv`
-* Supports bash and z-shell
+* Supports bash, z-shell, fish
 * Supports Test::Unit, Rspec, Minitest, and Cucumber
 
 ## Helpful Tips
 
 * Use ruby-test in conjunction with [project-manager](https://atom.io/packages/project-manager)
   to maintain different ruby-test settings per project.
+* [Run ruby-test on a project that runs in a VM or Vagrant](https://github.com/moxley/atom-ruby-test/blob/master/doc/running_against_vm.md)
 
 ## Contributing
 

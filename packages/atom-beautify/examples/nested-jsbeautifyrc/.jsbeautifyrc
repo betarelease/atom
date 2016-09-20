@@ -6,6 +6,15 @@
     indent_size: 2
     max_preserve_newlines: 1
     preserve_newlines: true
+    wrap_line_length: 0
+    indent_inner_html: true
+  cfml:
+    brace_style: "collapse"
+    indent_char: " "
+    indent_scripts: "normal"
+    indent_size: 2
+    max_preserve_newlines: 1
+    preserve_newlines: true
     unformatted:
       - "a"
       - "sub"
@@ -33,6 +42,7 @@
     indent_with_tabs: false
   python:
     indent_size: 2
+    sort_imports: true
     #max_line_length: 79
     #ignore:
     #  - "E24"
@@ -44,3 +54,9 @@
     indent_size: 4
   erb:
     indent_size: 4
+  markdown:
+    listItemIndent: 1
+  jade:
+    indent_size: 4
+    indent_char: " "
+    omit_div: true

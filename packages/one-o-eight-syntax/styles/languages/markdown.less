@@ -1,31 +1,35 @@
 .md {
 
+  .hr {
+    color: @s5;
+    font-weight: bold;
+  }
+
   .heading {
-    color: @very-dark-gray;
+    color: @dark-gray;
     font-weight: bold;
     .punctuation {
       font-weight: normal !important;
-      color: @s3 !important;
+      color: @s2 !important;
     }
   }
 
   .list, .quote {
     .punctuation {
-      // FIXME This also colors italics, ...
-      color: @l3 !important;
+      color: @l2 !important;
     }
   }
 
   .table {
-    color: @writer-fg;
-    .alignment {
-      color: @l3 !important;
-      font-weight: bold;
+    color: @very-dark-gray !important;
+    .alignment, .storage, .punctuation {
+      color: @l2!important;
+      font-weight: normal;
     }
   }
 
   .emphasis {
-    color: @s1;
+    color: @writer-fg;
     &.italic {
       font-style: italic;
     }
@@ -34,33 +38,36 @@
     }
   }
 
-  .reference {
-    color: @s4 !important;
-  }
-
   .fenced {
     color: @very-dark-gray;
+    .language {
+      color: @light-gray;
+      font-style: italic;
+    }
   }
 
   .raw {
-    color: @s5;
+    color: @l5;
   }
 
   .link {
     .text, .string {
-      color: @s1 !important;
+      color: @s4 !important;
     }
-    .label, .destination {
-      color: @l1 !important;
+  }
+
+  .label, .destination {
+    .link {
+      color: @dark-gray !important;
       font-weight: normal !important;
     }
   }
 
-  .image {
-    .punctuation {
-      &::first-letter {
-        color: @s3 !important;
-        // FIXME this is not working at the moment
+  // TODO This is not working right now
+  .image{
+    .punctuation{
+      &::first-letter{
+        color: @s2 !important;
       }
     }
   }

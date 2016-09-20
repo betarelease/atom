@@ -29,12 +29,17 @@ GitStashApply          = require './models/git-stash-apply'
 GitStashDrop           = require './models/git-stash-drop'
 GitStashPop            = require './models/git-stash-pop'
 GitStashSave           = require './models/git-stash-save'
+GitStashSaveMessage    = require './models/git-stash-save-message'
 GitStatus              = require './models/git-status'
 GitTags                = require './models/git-tags'
 GitUnstageFiles        = require './models/git-unstage-files'
 GitRun                 = require './models/git-run'
 GitMerge               = require './models/git-merge'
 GitRebase              = require './models/git-rebase'
+GitOpenChangedFiles    = require './models/git-open-changed-files'
+diffGrammar            = require './grammars/diff.js'
+
+baseGrammar = __dirname + '/grammars/diff.json'
 
 currentFile = (repo) ->
   repo.relativize(atom.workspace.getActiveTextEditor()?.getPath())
@@ -50,15 +55,20 @@ module.exports =
       default: true
       description: 'Allow commands to open new panes'
     splitPane:
-      title: 'Split pane direction (up, right, down, or left)'
+      title: 'Split pane direction'
       type: 'string'
-      default: 'right'
-      description: 'Where should new panes go? (Defaults to right)'
+      default: 'Down'
+      description: 'Where should new panes go? (Defaults to Right)'
+      enum: ['Up', 'Right', 'Down', 'Left']
     wordDiff:
       type: 'boolean'
       default: true
       description: 'Should word diffs be highlighted in diffs?'
-    amountOfCommitsToShow:
+    syntaxHighlighting:
+      title: 'Enable syntax highlighting in diffs?'
+      type: 'boolean'
+      default: true
+    numberOfCommitsToShow:
       type: 'integer'
       default: 25
       minimum: 1
@@ -70,10 +80,28 @@ module.exports =
       type: 'integer'
       default: 5
       description: 'How long should success/error messages be shown?'
+    pullBeforePush:
+      description: 'Pull from remote before pushing'
+      type: 'string'
+      default: 'no'
+      enum: ['no', 'pull', 'pull --rebase']
+    experimental:
+      description: 'Enable beta features and behavior'
+      type: 'boolean'
+      default: false
+    verboseCommits:
+      description: '(Experimental) Show diffs in commit pane?'
+      type: 'boolean'
+      default: false
 
   subscriptions: null
 
   activate: (state) ->
+    enableSyntaxHighlighting = atom.config.get('git-plus').syntaxHighlighting;
+    if enableSyntaxHighlighting
+      atom.grammars.addGrammar(diffGrammar)
+    else
+      atom.grammars.loadGrammarSync(baseGrammar);
     @subscriptions = new CompositeDisposable
     repos = atom.project.getRepositories().filter (r) -> r?
     if repos.length is 0
@@ -85,6 +113,7 @@ module.exports =
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:commit-all', -> git.getRepo().then((repo) -> GitCommit(repo, stageChanges: true))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:commit-amend', -> git.getRepo().then((repo) -> new GitCommitAmend(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:add-and-commit', -> git.getRepo().then((repo) -> git.add(repo, file: currentFile(repo)).then -> GitCommit(repo))
+    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:add-and-commit-and-push', -> git.getRepo().then((repo) -> git.add(repo, file: currentFile(repo)).then -> GitCommit(repo, andPush: true))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:add-all-and-commit', -> git.getRepo().then((repo) -> git.add(repo).then -> GitCommit(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:add-all-commit-and-push', -> git.getRepo().then((repo) -> git.add(repo).then -> GitCommit(repo, andPush: true))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:checkout', -> git.getRepo().then((repo) -> GitBranch.gitBranches(repo))
@@ -95,7 +124,7 @@ module.exports =
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:delete-local-branch', -> git.getRepo().then((repo) -> GitDeleteLocalBranch(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:delete-remote-branch', -> git.getRepo().then((repo) -> GitDeleteRemoteBranch(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:cherry-pick', -> git.getRepo().then((repo) -> GitCherryPick(repo))
-    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:diff', -> git.getRepo().then((repo) -> GitDiff(repo))
+    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:diff', -> git.getRepo().then((repo) -> GitDiff(repo, file: currentFile(repo)))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:difftool', -> git.getRepo().then((repo) -> GitDifftool(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:diff-all', -> git.getRepo().then((repo) -> GitDiffAll(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:fetch', -> git.getRepo().then((repo) -> GitFetch(repo))
@@ -112,7 +141,8 @@ module.exports =
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stage-files', -> git.getRepo().then((repo) -> GitStageFiles(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:unstage-files', -> git.getRepo().then((repo) -> GitUnstageFiles(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stage-hunk', -> git.getRepo().then((repo) -> GitStageHunk(repo))
-    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stash-save-changes', -> git.getRepo().then((repo) -> GitStashSave(repo))
+    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stash-save', -> git.getRepo().then((repo) -> GitStashSave(repo))
+    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stash-save-message', -> git.getRepo().then((repo) -> GitStashSaveMessage(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stash-pop', -> git.getRepo().then((repo) -> GitStashPop(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stash-apply', -> git.getRepo().then((repo) -> GitStashApply(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:stash-delete', -> git.getRepo().then((repo) -> GitStashDrop(repo))
@@ -120,7 +150,16 @@ module.exports =
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:tags', -> git.getRepo().then((repo) -> GitTags(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:run', -> git.getRepo().then((repo) -> new GitRun(repo))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:merge', -> git.getRepo().then((repo) -> GitMerge(repo))
+    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:merge-remote', -> git.getRepo().then((repo) -> GitMerge(repo, remote: true))
     @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:rebase', -> git.getRepo().then((repo) -> GitRebase(repo))
+    @subscriptions.add atom.commands.add 'atom-workspace', 'git-plus:git-open-changed-files', -> git.getRepo().then((repo) -> GitOpenChangedFiles(repo))
+    @subscriptions.add atom.config.observe 'git-plus.syntaxHighlighting',
+      (value) ->
+        atom.grammars.removeGrammarForScopeName('diff')
+        if value
+          atom.grammars.addGrammar(diffGrammar)
+        else
+          atom.grammars.loadGrammarSync(baseGrammar)
 
   deactivate: ->
     @subscriptions.dispose()
@@ -139,13 +178,13 @@ module.exports =
     link = document.createElement 'a'
     link.appendChild icon
     link.onclick = (e) -> OutputViewManager.getView().toggle()
-    link.title = "Toggle Output Console"
+    atom.tooltips.add div, { title: "Toggle Git-Plus Output Console"}
     div.appendChild link
     @statusBarTile = statusBar.addRightTile item: div, priority: 0
 
   setupBranchesMenuToggle: (statusBar) ->
     statusBar.getRightTiles().some ({item}) =>
-      if item.classList.contains 'git-view'
-        @subscriptions.add $(item).find('.git-branch').on 'click', (e) ->
-          atom.commands.dispatch(document.querySelector('atom-text-editor'), 'git-plus:checkout')
+      if item?.classList?.contains? 'git-view'
+        $(item).find('.git-branch').on 'click', (e) ->
+          atom.commands.dispatch(document.querySelector('atom-workspace'), 'git-plus:checkout')
         return true

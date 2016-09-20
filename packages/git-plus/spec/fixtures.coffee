@@ -8,18 +8,19 @@ module.exports = mocks =
   pathToRepoFile: pathToRepoFile
 
   repo:
-    getPath: -> Path.join this.getWorkingDirectory, ".git"
+    getPath: -> Path.join this.getWorkingDirectory(), ".git"
     getWorkingDirectory: -> Path.get "~/some/repository"
     refreshStatus: -> undefined
     relativize: (path) -> "directory/file" if path is pathToRepoFile
     getReferences: ->
       heads: [head]
     getShortHead: -> 'short head'
+    isPathModified: -> false
     repo:
       submoduleForPath: (path) -> undefined
 
   currentPane:
-    alive: true
+    isAlive: -> true
     activate: -> undefined
     destroy: -> undefined
     getItems: -> [
@@ -27,7 +28,7 @@ module.exports = mocks =
     ]
 
   commitPane:
-    alive: true
+    isAlive: -> true
     destroy: -> mocks.textEditor.destroy()
     splitRight: -> undefined
     getItems: -> [

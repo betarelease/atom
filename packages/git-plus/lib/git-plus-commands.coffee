@@ -27,12 +27,14 @@ getCommands = ->
   GitStashDrop           = require './models/git-stash-drop'
   GitStashPop            = require './models/git-stash-pop'
   GitStashSave           = require './models/git-stash-save'
+  GitStashSaveMessage    = require './models/git-stash-save-message'
   GitStatus              = require './models/git-status'
   GitTags                = require './models/git-tags'
   GitUnstageFiles        = require './models/git-unstage-files'
   GitRun                 = require './models/git-run'
   GitMerge               = require './models/git-merge'
   GitRebase              = require './models/git-rebase'
+  GitOpenChangedFiles    = require './models/git-open-changed-files'
 
   git.getRepo()
     .then (repo) ->
@@ -50,6 +52,7 @@ getCommands = ->
       commands.push ['git-plus:commit-all', 'Commit All', -> GitCommit(repo, stageChanges: true)]
       commands.push ['git-plus:commit-amend', 'Commit Amend', -> GitCommitAmend(repo)]
       commands.push ['git-plus:add-and-commit', 'Add And Commit', -> git.add(repo, file: currentFile).then -> GitCommit(repo)]
+      commands.push ['git-plus:add-and-commit-and-push', 'Add And Commit And Push', -> git.add(repo, file: currentFile).then -> GitCommit(repo, andPush: true)]
       commands.push ['git-plus:add-all-and-commit', 'Add All And Commit', -> git.add(repo).then -> GitCommit(repo)]
       commands.push ['git-plus:add-all-commit-and-push', 'Add All, Commit And Push', -> git.add(repo).then -> GitCommit(repo, andPush: true)]
       commands.push ['git-plus:checkout', 'Checkout', -> GitBranch.gitBranches(repo)]
@@ -58,7 +61,7 @@ getCommands = ->
       commands.push ['git-plus:delete-local-branch', 'Delete Local Branch', -> GitDeleteLocalBranch(repo)]
       commands.push ['git-plus:delete-remote-branch', 'Delete Remote Branch', -> GitDeleteRemoteBranch(repo)]
       commands.push ['git-plus:cherry-pick', 'Cherry-Pick', -> GitCherryPick(repo)]
-      commands.push ['git-plus:diff', 'Diff', -> GitDiff(repo)]
+      commands.push ['git-plus:diff', 'Diff', -> GitDiff(repo, file: currentFile)]
       commands.push ['git-plus:difftool', 'Difftool', -> GitDifftool(repo)]
       commands.push ['git-plus:diff-all', 'Diff All', -> GitDiffAll(repo)]
       commands.push ['git-plus:fetch', 'Fetch', -> GitFetch(repo)]
@@ -72,7 +75,8 @@ getCommands = ->
       commands.push ['git-plus:stage-files', 'Stage Files', -> GitStageFiles(repo)]
       commands.push ['git-plus:unstage-files', 'Unstage Files', -> GitUnstageFiles(repo)]
       commands.push ['git-plus:stage-hunk', 'Stage Hunk', -> GitStageHunk(repo)]
-      commands.push ['git-plus:stash-save-changes', 'Stash: Save Changes', -> GitStashSave(repo)]
+      commands.push ['git-plus:stash-save', 'Stash: Save Changes', -> GitStashSave(repo)]
+      commands.push ['git-plus:stash-save-message', 'Stash: Save Changes With Message', -> GitStashSaveMessage(repo)]
       commands.push ['git-plus:stash-pop', 'Stash: Apply (Pop)', -> GitStashPop(repo)]
       commands.push ['git-plus:stash-apply', 'Stash: Apply (Keep)', -> GitStashApply(repo)]
       commands.push ['git-plus:stash-delete', 'Stash: Delete (Drop)', -> GitStashDrop(repo)]
@@ -80,7 +84,9 @@ getCommands = ->
       commands.push ['git-plus:tags', 'Tags', -> GitTags(repo)]
       commands.push ['git-plus:run', 'Run', -> new GitRun(repo)]
       commands.push ['git-plus:merge', 'Merge', -> GitMerge(repo)]
+      commands.push ['git-plus:merge-remote', 'Merge Remote', -> GitMerge(repo, remote: true)]
       commands.push ['git-plus:rebase', 'Rebase', -> GitRebase(repo)]
+      commands.push ['git-plus:git-open-changed-files', 'Open Changed Files', -> GitOpenChangedFiles(repo)]
 
       return commands
 

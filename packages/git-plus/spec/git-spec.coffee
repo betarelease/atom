@@ -1,6 +1,7 @@
 fs = require 'fs-plus'
 Path = require 'flavored-path'
 git = require '../lib/git'
+notifier = require '../lib/notifier'
 {
   repo,
   pathToRepoFile,
@@ -31,11 +32,9 @@ describe "Git-Plus git module", ->
   describe "git.getConfig", ->
     args = ['config', '--get', 'user.name']
 
-    beforeEach ->
-      spyOn(git, 'cmd').andReturn Promise.resolve 'akonwi'
-
     describe "when a repo file path isn't specified", ->
       it "spawns a command querying git for the given global setting", ->
+        spyOn(git, 'cmd').andReturn Promise.resolve 'akonwi'
         waitsForPromise ->
           git.getConfig('user.name')
         runs ->
@@ -43,22 +42,44 @@ describe "Git-Plus git module", ->
 
     describe "when a repo file path is specified", ->
       it "checks for settings in that repo", ->
+        spyOn(git, 'cmd').andReturn Promise.resolve 'akonwi'
         waitsForPromise ->
           git.getConfig('user.name', repo.getWorkingDirectory())
         runs ->
           expect(git.cmd).toHaveBeenCalledWith args, cwd: repo.getWorkingDirectory()
 
+    describe "when the command fails without an error message", ->
+      it "resolves to ''", ->
+        spyOn(git, 'cmd').andReturn Promise.reject ''
+        waitsForPromise ->
+          git.getConfig('user.name', repo.getWorkingDirectory()).then (result) ->
+            expect(result).toEqual('')
+        runs ->
+          expect(git.cmd).toHaveBeenCalledWith args, cwd: repo.getWorkingDirectory()
+
+    describe "when the command fails with an error message", ->
+      it "rejects with the error message", ->
+        spyOn(git, 'cmd').andReturn Promise.reject 'getConfig error'
+        spyOn(notifier, 'addError')
+        waitsForPromise ->
+          git.getConfig('user.name', 'bad working dir').then (result) ->
+            fail "should have been rejected"
+          .catch (error) ->
+            expect(notifier.addError).toHaveBeenCalledWith 'getConfig error'
+
   describe "git.getRepo", ->
     it "returns a promise resolving to repository", ->
+      spyOn(atom.project, 'getRepositories').andReturn [repo]
       waitsForPromise ->
-        git.getRepo().then (repo) ->
-          expect(repo.getWorkingDirectory()).toContain 'git-plus'
+        git.getRepo().then (actual) ->
+          expect(actual.getWorkingDirectory()).toEqual repo.getWorkingDirectory()
 
   describe "git.dir", ->
     it "returns a promise resolving to absolute path of repo", ->
-      waitsForPromise ->
-        git.dir().then (dir) ->
-          expect(dir).toContain 'git-plus'
+      spyOn(atom.workspace, 'getActiveTextEditor').andReturn textEditor
+      spyOn(atom.project, 'getRepositories').andReturn [repo]
+      git.dir().then (dir) ->
+        expect(dir).toEqual repo.getWorkingDirectory()
 
   describe "git.getSubmodule", ->
     it "returns undefined when there is no submodule", ->
@@ -76,9 +97,34 @@ describe "Git-Plus git module", ->
 
   describe "git.cmd", ->
     it "returns a promise", ->
-      promise = git.cmd()
-      expect(promise.catch).toBeDefined()
-      expect(promise.then).toBeDefined()
+      waitsForPromise ->
+        promise = git.cmd()
+        expect(promise.catch).toBeDefined()
+        expect(promise.then).toBeDefined()
+        promise.catch (output) ->
+          expect(output).toContain('usage')
+
+    it "returns a promise that is fulfilled with stdout on success", ->
+      waitsForPromise ->
+        git.cmd(['--version']).then (output) ->
+          expect(output).toContain('git version')
+
+    it "returns a promise that is rejected with stderr on failure", ->
+      waitsForPromise ->
+        git.cmd(['help', '--bogus-option']).catch (output) ->
+          expect(output).toContain('unknown option')
+
+    it "returns a promise that is fulfilled with stderr on success", ->
+      initDir = 'git-plus-test-dir' + Math.random()
+      cloneDir = initDir + '-clone'
+      waitsForPromise ->
+        # TODO: Use something that doesn't require permissions and can run within atom
+        git.cmd(['init', initDir]).then () ->
+          git.cmd(['clone', '--progress', initDir, cloneDir])
+        .then (output) ->
+          fs.removeSync(initDir)
+          fs.removeSync(cloneDir)
+          expect(output).toContain('Cloning')
 
   describe "git.add", ->
     it "calls git.cmd with ['add', '--all', {fileName}]", ->
@@ -98,6 +144,16 @@ describe "Git-Plus git module", ->
       waitsForPromise ->
         git.add(mockRepo, update: true).then (success) ->
           expect(git.cmd).toHaveBeenCalledWith(['add', '--update', '.'], cwd: mockRepo.getWorkingDirectory())
+
+    describe "when it fails", ->
+      it "notifies of failure", ->
+        spyOn(git, 'cmd').andReturn Promise.reject 'git.add error'
+        spyOn(notifier, 'addError')
+        waitsForPromise ->
+          git.add(mockRepo).then (result) ->
+            fail "should have been rejected"
+          .catch (error) ->
+            expect(notifier.addError).toHaveBeenCalledWith 'git.add error'
 
   describe "git.reset", ->
     it "resets and unstages all files", ->

@@ -1,8 +1,3 @@
-{Disposable, CompositeDisposable} = require "atom"
-FilesizeView = require("./filesize-view")
-FilesizeCalculator = require("./filesize-calculator")
-apd = require("atom-package-dependencies")
-
 module.exports =
 
   config:
@@ -23,8 +18,10 @@ module.exports =
   filesizeCalculator: null
 
   activate: ->
-    # Force dependency on atom's status-bar
-    apd.install()
+    # Requiring external files
+    {Disposable, CompositeDisposable} = require "atom"
+    FilesizeView = require("./filesize-view")
+    FilesizeCalculator = require("./filesize-calculator")
 
     @wk = atom.views.getView(atom.workspace)
     @editor = atom.workspace.getActiveTextEditor()
@@ -72,8 +69,18 @@ module.exports =
     #Start package automatically on load
     @exec()
 
+
+  # Managing status-bar package
+  consumeStatusBar: (statusBar) ->
+    item = @filesizeView.show()
+    if item?
+      @filesizeTile = statusBar.addLeftTile(item: item, priority: 25)
+
   deactivate: ->
     try
+      # Remove tile from status bar
+      @filesizeTile?.destroy()
+
       #Destroy FilesizeView instance
       if @filesizeView?
         @filesizeView.destroy()

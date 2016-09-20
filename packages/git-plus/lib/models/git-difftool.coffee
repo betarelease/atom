@@ -9,7 +9,7 @@ module.exports = (repo, {file}={}) ->
     return notifier.addInfo "No open file. Select 'Diff All'."
   # We parse the output of git diff-index to handle the case of a staged file
   # when git-plus.includeStagedDiff is set to false.
-  git.getConfig('diff.tool', Path.dirname(file)).then (tool) ->
+  git.getConfig('diff.tool', repo.getWorkingDirectory()).then (tool) ->
     unless tool
       notifier.addInfo "You don't have a difftool configured."
     else
@@ -30,6 +30,6 @@ module.exports = (repo, {file}={}) ->
           args.push 'HEAD' if includeStagedDiff
           args.push file
           git.cmd(args, cwd: repo.getWorkingDirectory())
-          .catch (msg) -> OutputViewManager.new().addLine(msg).finish()
+          .catch (msg) -> OutputViewManager.create().addLine(msg).finish()
         else
           notifier.addInfo 'Nothing to show.'

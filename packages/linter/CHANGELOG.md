@@ -1,3 +1,66 @@
+## 1.11.14
+
+- Make sure errors are hidden in panel (Atom Beta broke `[hidden]` styles)
+
+## 1.11.13
+
+- Fix for bottom tabs not hiding in Atom 1.10.x beta
+
+## 1.11.12
+
+- Possible fix for an issue reported in #1002
+
+## 1.11.11
+
+- Fix bubble not re-rendering when messages were updated (Fixes #1002)
+
+## 1.11.10
+
+- Fix a typo introduced by last release
+
+## 1.11.9
+
+- Make tooltip invalidatable (Fixes a bug reported in #1002)
+
+## 1.11.8
+
+- Remove bubble properly when all errors have been fixed
+- Fix another bug with bubble (#1177)
+
+## 1.11.7
+
+- Show error tooltip on cursor position
+
+## 1.11.6
+
+- Fix a bug where messages without a range would crash bubble
+
+## 1.11.5
+
+- Fix cannot decorate destroyed marker error
+- Fix support for incrementally adding messages
+
+## 1.11.4
+
+* Make the panel copy compatible with latest version of electron
+
+## 1.11.3
+
+* Fix a typo that didn't let `linter-indie` service to work
+
+## 1.11.2
+
+* Fix a bug where HTMLElements as `html` property on messages would be mistaken as incorrect.
+
+## 1.11.1
+
+* Revert notification for when no providers are installed.
+
+## 1.11.0
+
+* A notification is shown to user if no linter providers are installed.
+* A better self-API for PUSH style providers. Check the wiki for more information.
+
 ## 1.10.0
 
 * Fix a minor style issue in bottom tabs

@@ -1,0 +1,132 @@
+diff --git a/Gemfile b/Gemfile
+index 77cf61c..a561f73 100644
+--- a/Gemfile
++++ b/Gemfile
+@@ -1,122 +1,127 @@
+ source 'https://rubygems.org'
+ ruby '2.2.3'
+ 
+ gem 'multi_json'
+ gem 'rails', '~> 4.2.0'
+ gem 'wkhtmltopdf-binary',
+     git: 'https://github.com/ehsan-khaliki/wkhtmltopdf_binary_gem'
+ gem 'chronic'
+ gem 'pdfkit',
+     git: 'https://github.com/ehsan-khaliki/pdfkit.git'
++gem 'aws-sdk'
+ gem 'combine_pdf'
+ gem 'lazy_high_charts'
+ gem 'mongoid-tags-arent-hard'
+ gem 'oj'
+ gem 'ruby_native_statistics'
+ gem 'uuid'
+ gem 'uuidtools'
+ gem 'jquery-rails'
+ gem 'knockoutjs-rails'
+ gem 'devise', '~> 3'
+ gem 'sendgrid'
+ gem 'moped', '2.0.1'
+ gem 'mongoid'
++gem 'httparty'
+ gem 'cancancan'
+ gem 'feralchimp'
+ gem 'zendesk_api'
+ gem 'forgery'
+ gem 'kaminari'
+ gem 'sidekiq-pro', source: 'https://127686f8:6a61aaf1@gems.contribsys.com'
+ gem 'sidekiq-failures'
+ gem 'sidekiq-unique-jobs'
+ gem 'celluloid'
+ gem 'puma'
+ gem 'nokogiri'
+ gem 'redis-rails'
++gem 'redis-namespace'
+ gem 'sass-rails', '~> 5.0.0' #must be above rails_admin
+ gem 'bootstrap-sass'
+ gem 'coffee-rails', '~> 4.1.0'
+ gem 'uglifier'
+ gem 'rails_admin', git: 'https://github.com/glooko/rails_admin.git'
+ gem 'active_model_serializers', '~> 0.8.0' #use 0.8.x until 0.10.x is released
+ gem 'mixpanel-ruby'
+ gem 'json'
+ gem 'rest-client'
+ gem 'actionpack-action_caching'
+ gem 'savon'
+ gem 'signer'
+ # Sinatra is required by Sidekiq dashboard
+ gem 'sinatra'
+ gem 'doorkeeper', git: 'https://github.com/glooko/doorkeeper.git', branch: 'attr_accessible_fix'
+ gem 'figaro'
+ gem 'unitwise'
+ gem 'chronic_duration'
+ gem 'responders', '~> 2.0'
+ gem 'mongoid-enum', git: 'https://github.com/glooko/mongoid-enum', branch: 'customizable_field_prefix'
+ gem 'rubocop', require: false
+ gem 'rubocop-rspec', require: false
+ 
+ gem 'sendgrid-ruby'
+ 
+ # epic integration
+ gem 'nori'
+ gem 'wash_out', git: 'https://github.com/glooko/wash_out.git', branch: 'master'
+ 
+ gem 'newrelic_rpm'
+ gem 'newrelic_moped'
+ 
++gem 'sidekiq-cron'
++
+ group :development, :test do
+   gem 'rspec-rails', '~> 3.2.0'
+   gem 'factory_girl_rails', '~> 4.5.0'
+   gem 'guard-rspec'
+   gem 'pre-commit', require: false
+   gem 'scss_lint', require: false
+   gem 'awesome_print', require: 'ap'
+   gem 'hashdiff'
+   gem 'fuubar'
+   gem 'jasmine'
+   gem 'guard-jasmine'
+ end
+ 
+ group :development, :test, :feature do
+   gem 'pry'
+   gem 'pry-byebug'
+   gem 'pry-stack_explorer'
+ end
+ 
+ group :test do
+   gem 'rspec'
+   gem 'rspec-mocks'
+   gem 'ruby-prof'
+   gem 'mutant'
+   gem 'mutant-rspec'
+   gem 'childprocess'
+   gem 'rubyzip'
+   gem 'capybara', '~> 2.4.4'
+   gem 'capybara-puma'
+   gem 'database_cleaner'
+   gem 'launchy', '~> 2.4.3'
+   gem 'selenium-webdriver'
+   gem 'shoulda-matchers'
+   gem 'timecop', '~> 0.7.1'
+   gem 'mongoid-rspec'
+   gem 'rspec-sidekiq'
+   gem 'mock_redis' # needed by sidekiq-unique-jobs
+ end
+ 
+ group :development, :feature do
+   gem 'rack-mini-profiler'
+   gem 'better_errors'
+   gem 'binding_of_caller'
+   gem 'meta_request'
+ end
+ 
+ group :development do
+   gem 'capistrano', '~> 3.3.5'
+   gem 'capistrano-rbenv', '~> 2.0'
+   gem 'capistrano-bundler', '~> 1.1.2'
+   gem 'capistrano-rails', '~> 1.1.1'
+   gem 'capistrano3-puma'
+   gem 'capistrano-sidekiq'
+   gem 'quiet_assets'
+ end
